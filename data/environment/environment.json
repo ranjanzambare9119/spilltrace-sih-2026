@@ -1,0 +1,11 @@
+{
+  "scenario_name": "Arabian Sea - Mumbai Approaches",
+  "timestamp": "2026-09-06T06:00:00Z",
+  "wind_speed": 14.0,
+  "wind_direction": 65.0,
+  "current_speed": 1.2,
+  "current_direction": 50.0,
+  "sea_surface_temp_c": 28.4,
+  "salinity_psu": 35.2,
+  "leeway_factor": 0.035
+}

@@ -1,0 +1,59 @@
+{
+  "spill_id": "SP-20260906-001",
+  "satellite_mission": "Sentinel-1B C-SAR",
+  "acquisition_mode": "Interferometric Wide Swath (IW)",
+  "polarization": "VV+VH",
+  "detection_time": "2026-09-06T06:00:00Z",
+  "latitude": 18.95,
+  "longitude": 72.4,
+  "area_km2": 14.85,
+  "perimeter_km": 21.4,
+  "confidence": 0.942,
+  "slick_thickness_estimate_um": 1.2,
+  "estimated_volume_m3": 17800,
+  "spill_age_hours_estimate": 5.5,
+  "net_drift_speed_kts": 1.68,
+  "net_drift_direction_deg": 54.3,
+  "probable_origin_latitude": 18.8602,
+  "probable_origin_longitude": 72.2677,
+  "origin_uncertainty_km": 3.5,
+  "estimated_release_time_window": {
+    "start": "2026-09-05T23:45:00Z",
+    "estimated": "2026-09-06T00:30:00Z",
+    "end": "2026-09-06T01:15:00Z"
+  },
+  "polygon_coordinates": [
+    [
+      18.974,
+      72.385
+    ],
+    [
+      18.988,
+      72.41
+    ],
+    [
+      18.978,
+      72.435
+    ],
+    [
+      18.955,
+      72.442
+    ],
+    [
+      18.928,
+      72.42
+    ],
+    [
+      18.918,
+      72.382
+    ],
+    [
+      18.935,
+      72.36
+    ],
+    [
+      18.96,
+      72.368
+    ]
+  ]
+}
