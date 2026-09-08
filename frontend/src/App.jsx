@@ -7,6 +7,9 @@ import VesselCorrelationView from './components/VesselCorrelationView';
 import InvestigationView from './components/InvestigationView';
 import GuidedDemoMode from './components/GuidedDemoMode';
 import VesselDetailModal from './components/VesselDetailModal';
+import IncidentBanner from './components/command/IncidentBanner';
+import MaritimeAnalytics from './components/command/MaritimeAnalytics';
+import { SecondaryIncidentModal } from './components/command/OperationalModals';
 import { 
   checkHealth, 
   getSatelliteImages, 
@@ -22,6 +25,7 @@ export default function App() {
   const [backendStatus, setBackendStatus] = useState(false);
   const [availableImages, setAvailableImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState('demo_sar_oil.png');
+  const [secondaryIncident, setSecondaryIncident] = useState(null);
   
   // Pipeline State
   const [spillData, setSpillData] = useState(null);
@@ -186,6 +190,9 @@ export default function App() {
             onSelectVessel={setSelectedVessel}
             onNavigateTab={setActiveTab}
             onStartDemo={() => setIsGuidedDemoOpen(true)}
+            onCorrelateVessels={handleCorrelateVessels}
+            isCorrelating={isCorrelatingVessels}
+            showNotification={showNotification}
           />
         )}
 
@@ -244,6 +251,27 @@ export default function App() {
             onSelectVessel={setSelectedVessel}
           />
         )}
+
+        {activeTab === 'analytics' && (
+          <div style={{ padding: '1.25rem', maxWidth: '1600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <IncidentBanner
+              spillData={spillData}
+              originData={originData}
+              candidateVessels={candidateVessels}
+              onNavigateTab={setActiveTab}
+            />
+            <MaritimeAnalytics
+              spillData={spillData}
+              originData={originData}
+              candidateVessels={candidateVessels}
+              onSelectVessel={(v) => {
+                setSelectedVessel(v);
+                setActiveTab('vessels');
+              }}
+              onOpenSecondaryIncident={(inc) => setSecondaryIncident(inc)}
+            />
+          </div>
+        )}
       </main>
 
       {/* 2-Minute Guided Demo Mode Fullscreen Experience */}
@@ -266,6 +294,14 @@ export default function App() {
           vessel={inspectVessel}
           originData={originData}
           onClose={() => setInspectVessel(null)}
+        />
+      )}
+
+      {/* Secondary Demo Incident Modal */}
+      {secondaryIncident && (
+        <SecondaryIncidentModal
+          incident={secondaryIncident}
+          onClose={() => setSecondaryIncident(null)}
         />
       )}
     </div>

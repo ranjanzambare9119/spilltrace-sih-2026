@@ -8,7 +8,9 @@ import {
   LayoutDashboard, 
   Play, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  BarChart3,
+  Radio
 } from 'lucide-react';
 
 export default function Header({ 
@@ -18,11 +20,12 @@ export default function Header({
   backendStatus 
 }) {
   const tabs = [
-    { id: 'dashboard', label: '1. Dashboard', icon: LayoutDashboard },
-    { id: 'satellite', label: '2. Satellite', icon: Satellite },
-    { id: 'origin', label: '3. Origin', icon: Compass },
-    { id: 'vessels', label: '4. Vessels', icon: Ship },
-    { id: 'investigation', label: '5. Investigation', icon: Search }
+    { id: 'dashboard', label: 'OVERVIEW', icon: LayoutDashboard },
+    { id: 'satellite', label: 'SATELLITE', icon: Satellite },
+    { id: 'origin', label: 'ORIGIN', icon: Compass },
+    { id: 'vessels', label: 'VESSELS', icon: Ship },
+    { id: 'investigation', label: 'INVESTIGATION', icon: Search },
+    { id: 'analytics', label: 'ANALYTICS', icon: BarChart3 }
   ];
 
   return (
@@ -70,12 +73,18 @@ export default function Header({
               </span>
               <span className="badge-tag badge-cyan" style={{ fontSize: '0.65rem' }}>SIH 2026 PS-143</span>
             </div>
+            <div style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span style={{ fontWeight: 700, color: '#cbd5e1' }}>AI-Assisted Maritime Oil Spill Attribution</span>
+              <span style={{ color: '#475569' }}>•</span>
+              <span style={{ color: '#38bdf8' }}>Satellite + Drift + AIS Decision Support</span>
+            </div>
           </div>
         </div>
 
-        {/* Center: Clear Prototype & Disclaimer Warning */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-          <span className="badge-demo" style={{ fontSize: '0.68rem', padding: '0.15rem 0.5rem' }}>
+        {/* Center/Right: Operational Status Indicators */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* DEMO MODE Badge */}
+          <span className="badge-demo" style={{ fontSize: '0.68rem', padding: '0.2rem 0.6rem' }}>
             <span style={{
               width: '7px',
               height: '7px',
@@ -83,30 +92,33 @@ export default function Header({
               backgroundColor: '#f59e0b',
               boxShadow: '0 0 6px #f59e0b'
             }}></span>
-            PROTOTYPE / DEMO DATA
+            DEMO MODE
           </span>
 
+          {/* SYSTEM ONLINE Indicator */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.35rem',
             fontSize: '0.7rem',
-            color: '#64748b',
-            borderLeft: '1px solid #1e293b',
-            paddingLeft: '0.6rem'
+            color: backendStatus ? '#10b981' : '#f87171',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            border: `1px solid ${backendStatus ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+            padding: '0.2rem 0.6rem',
+            borderRadius: '4px',
+            fontWeight: 700
           }}>
             <span style={{
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              backgroundColor: backendStatus ? '#10b981' : '#ef4444'
+              backgroundColor: backendStatus ? '#10b981' : '#ef4444',
+              boxShadow: backendStatus ? '0 0 6px #10b981' : '0 0 6px #ef4444'
             }}></span>
-            <span>{backendStatus ? 'API Online' : 'Connecting...'}</span>
+            <span>{backendStatus ? 'SYSTEM ONLINE' : 'SYSTEM CONNECTING...'}</span>
           </div>
-        </div>
 
-        {/* Right: Quick Demo Flow Trigger */}
-        <div>
+          {/* Quick Demo Flow Trigger */}
           <button 
             onClick={onStartDemo}
             style={{
@@ -114,7 +126,7 @@ export default function Header({
               color: '#ffffff',
               border: '1px solid #38bdf8',
               borderRadius: '6px',
-              padding: '0.4rem 0.95rem',
+              padding: '0.38rem 0.9rem',
               fontSize: '0.76rem',
               fontWeight: 800,
               cursor: 'pointer',
@@ -126,7 +138,6 @@ export default function Header({
             }}
           >
             <Play size={13} fill="#ffffff" />
-            <span>RUN 2-MIN DEMO</span>
           </button>
         </div>
       </div>
