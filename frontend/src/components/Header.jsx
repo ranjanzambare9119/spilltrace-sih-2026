@@ -8,7 +8,8 @@ import {
   LayoutDashboard, 
   Play, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  Bell
 } from 'lucide-react';
 
 export default function Header({ 
@@ -17,14 +18,16 @@ export default function Header({
   onStartDemo, 
   backendStatus,
   isLeakConfirmed = false,
-  investigationState = 'CANDIDATE'
+  investigationState = 'CANDIDATE',
+  notificationsCount = 0
 }) {
   const tabs = [
     { id: 'dashboard', label: '1. Dashboard', icon: LayoutDashboard },
     { id: 'satellite', label: '2. Satellite Analysis', icon: Satellite },
     { id: 'origin', label: '3. Origin Analysis', icon: Compass },
     { id: 'vessels', label: '4. Vessel Correlation', icon: Ship },
-    { id: 'investigation', label: '5. Investigation', icon: Search }
+    { id: 'investigation', label: '5. Investigation', icon: Search },
+    { id: 'notifications', label: '6. Notifications', icon: Bell, count: notificationsCount }
   ];
 
   return (
@@ -200,7 +203,21 @@ export default function Header({
               }}
             >
               <Icon size={14} color={isActive ? '#38bdf8' : '#64748b'} />
-              {tab.label}
+              <span>{tab.label}</span>
+              {Boolean(tab.count) && (
+                <span style={{
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  fontSize: '0.62rem',
+                  fontWeight: 800,
+                  padding: '0.05rem 0.38rem',
+                  borderRadius: '10px',
+                  lineHeight: '1.2',
+                  boxShadow: '0 0 6px rgba(239, 68, 68, 0.6)'
+                }}>
+                  {tab.count}
+                </span>
+              )}
             </button>
           );
         })}

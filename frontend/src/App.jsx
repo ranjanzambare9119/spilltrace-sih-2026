@@ -5,6 +5,7 @@ import SatelliteAnalysisView from './components/SatelliteAnalysisView';
 import OriginAnalysisView from './components/OriginAnalysisView';
 import VesselCorrelationView from './components/VesselCorrelationView';
 import InvestigationView from './components/InvestigationView';
+import NotificationsView from './components/NotificationsView';
 import GuidedDemoMode from './components/GuidedDemoMode';
 import VesselDetailModal from './components/VesselDetailModal';
 import { 
@@ -23,8 +24,19 @@ import {
   getRecommendedActions
 } from './api/client';
 
+const getInitialTab = () => {
+  if (typeof window === 'undefined') return 'dashboard';
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+  if (path === 'notifications') return 'notifications';
+  if (path === 'investigation') return 'investigation';
+  if (path === 'satellite') return 'satellite';
+  if (path === 'origin') return 'origin';
+  if (path === 'vessels') return 'vessels';
+  return 'dashboard';
+};
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(getInitialTab);
   const [backendStatus, setBackendStatus] = useState(false);
   const [availableImages, setAvailableImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState('demo_sar_oil.png');
@@ -67,6 +79,22 @@ export default function App() {
     setTimeout(() => setNotification(null), 4000);
   };
 
+  const handleNavigateTab = (tabId) => {
+    setActiveTab(tabId);
+    const targetPath = tabId === 'dashboard' ? '/' : `/${tabId}`;
+    if (typeof window !== 'undefined' && window.location.pathname !== targetPath) {
+      window.history.pushState(null, '', targetPath);
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setActiveTab(getInitialTab());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // Initial Data Fetch
   useEffect(() => {
     async function init() {
@@ -105,6 +133,28 @@ export default function App() {
           if (correlationRes.candidate_vessels?.length > 0) {
             setSelectedVessel(correlationRes.candidate_vessels[0]);
           }
+        }
+
+        // Restore saved confirmed incident state across page refreshes (Requirement 13)
+        try {
+          const savedConfirmed = localStorage.getItem('spilltrace_confirmed_incident');
+          if (savedConfirmed) {
+            const parsed = JSON.parse(savedConfirmed);
+            if (parsed.isLeakConfirmed) {
+              setIsLeakConfirmed(true);
+              if (parsed.confirmedSource) setConfirmedSource(parsed.confirmedSource);
+              if (parsed.incidentSeverity) setIncidentSeverity(parsed.incidentSeverity);
+              if (parsed.investigationState) setInvestigationState(parsed.investigationState);
+              if (parsed.atRiskVessels && parsed.atRiskVessels.length > 0) setAtRiskVessels(parsed.atRiskVessels);
+              if (parsed.forwardDrift) setForwardDrift(parsed.forwardDrift);
+              if (parsed.responseDeployment) setResponseDeployment(parsed.responseDeployment);
+              if (parsed.navigationalWarning) setNavigationalWarning(parsed.navigationalWarning);
+              if (parsed.timelineEvents && parsed.timelineEvents.length > 0) setTimelineEvents(parsed.timelineEvents);
+              if (parsed.recommendedActions && parsed.recommendedActions.length > 0) setRecommendedActions(parsed.recommendedActions);
+            }
+          }
+        } catch (e) {
+          console.warn('Restore confirmed state warning:', e);
         }
       } catch (err) {
         console.warn('Init fetch warning:', err);
@@ -227,7 +277,11 @@ export default function App() {
             if (!prev) return null;
             if (prev.step >= 6) {
               clearInterval(stepTimer);
-              setTimeout(() => setCascadeState(null), 1200);
+              setTimeout(() => {
+                setCascadeState(null);
+                // REQUIREMENT 2: AUTOMATICALLY NAVIGATE TO /notifications
+                handleNavigateTab('notifications');
+              }, 1200);
               return { step: 6 };
             }
             return { step: prev.step + 1 };
@@ -268,6 +322,25 @@ export default function App() {
           } catch (e) {}
         }
 
+        // Persist confirmed incident for page refresh support (Requirement 13)
+        try {
+          localStorage.setItem('spilltrace_confirmed_incident', JSON.stringify({
+            isLeakConfirmed: true,
+            confirmedSource: {
+              mmsi: res.confirmed_source_mmsi,
+              name: res.confirmed_source_name
+            },
+            incidentSeverity: res.incident_severity,
+            investigationState: 'SOURCE VERIFIED — DEMO',
+            atRiskVessels: res.at_risk_vessels,
+            forwardDrift: res.forward_drift,
+            responseDeployment: res.response_deployment,
+            navigationalWarning: res.navigational_warning,
+            timelineEvents: res.timeline_events,
+            recommendedActions: res.recommended_actions
+          }));
+        } catch (e) {}
+
         showNotification(
           `🚨 AUTOMATIC RESPONSE CHAIN EXECUTED: ${res.confirmed_source_name || 'MT Ocean Pioneer'} marked as VERIFIED LEAK. Tier-2 Response Active. ${res.at_risk_vessels?.filter(v => v.risk_state !== 'OUTSIDE RISK')?.length || 8} vessels notified on affected route.`,
           'error'
@@ -279,6 +352,9 @@ export default function App() {
           setConfirmedSource(null);
           setResponseDeployment(null);
           setNavigationalWarning(null);
+          try {
+            localStorage.removeItem('spilltrace_confirmed_incident');
+          } catch (e) {}
         }
         const updatedTimeline = await getTimeline();
         setTimelineEvents(updatedTimeline);
@@ -300,11 +376,16 @@ export default function App() {
       {/* Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleNavigateTab}
         onStartDemo={() => setIsGuidedDemoOpen(true)}
         backendStatus={backendStatus}
         isLeakConfirmed={isLeakConfirmed}
         investigationState={investigationState}
+        notificationsCount={
+          isLeakConfirmed
+            ? (atRiskVessels.filter(v => v.risk_state !== 'OUTSIDE RISK').length || 8)
+            : 0
+        }
       />
 
       {/* Floating Notification Toast */}
@@ -345,7 +426,7 @@ export default function App() {
             candidateVessels={candidateVessels}
             selectedVessel={selectedVessel}
             onSelectVessel={setSelectedVessel}
-            onNavigateTab={setActiveTab}
+            onNavigateTab={handleNavigateTab}
             onStartDemo={() => setIsGuidedDemoOpen(true)}
             onCorrelateVessels={handleCorrelateVessels}
             isCorrelating={isCorrelatingVessels}
@@ -375,7 +456,7 @@ export default function App() {
             isAnalyzing={isAnalyzingSatellite}
             onSelectScenario={(scen) => handleAnalyzeSatellite(selectedImage, scen)}
             onProceedToOrigin={() => {
-              setActiveTab('origin');
+              handleNavigateTab('origin');
               handleEstimateOrigin();
             }}
           />
@@ -389,7 +470,7 @@ export default function App() {
             onEstimateOrigin={handleEstimateOrigin}
             isEstimating={isEstimatingOrigin}
             onProceedToVessels={() => {
-              setActiveTab('vessels');
+              handleNavigateTab('vessels');
               handleCorrelateVessels();
             }}
           />
@@ -405,7 +486,7 @@ export default function App() {
             onSelectVessel={setSelectedVessel}
             onCorrelateVessels={handleCorrelateVessels}
             isCorrelating={isCorrelatingVessels}
-            onProceedToInvestigation={() => setActiveTab('investigation')}
+            onProceedToInvestigation={() => handleNavigateTab('investigation')}
           />
         )}
 
@@ -421,6 +502,19 @@ export default function App() {
             investigationState={investigationState}
           />
         )}
+
+        {activeTab === 'notifications' && (
+          <NotificationsView
+            atRiskVessels={atRiskVessels}
+            navigationalWarning={navigationalWarning}
+            forwardDrift={forwardDrift}
+            isLeakConfirmed={isLeakConfirmed}
+            confirmedSource={confirmedSource}
+            incidentSeverity={incidentSeverity}
+            onNavigateTab={handleNavigateTab}
+            onUnverify={() => handleVerifyCandidate(confirmedSource?.mmsi || '419001234', 'unverified')}
+          />
+        )}
       </main>
 
       {/* 2-Minute Guided Demo Mode Fullscreen Experience */}
@@ -432,7 +526,7 @@ export default function App() {
         candidateVessels={candidateVessels}
         onOpenInvestigation={() => {
           setIsGuidedDemoOpen(false);
-          setActiveTab('investigation');
+          handleNavigateTab('investigation');
         }}
         onOpenWhyModal={(vessel) => setInspectVessel(vessel)}
       />
