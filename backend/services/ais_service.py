@@ -9,7 +9,7 @@ import math
 from datetime import datetime
 from typing import Dict, List, Any, Tuple
 import pandas as pd
-from backend.models.schemas import AISRecord
+from backend.models.schemas import AISRecord, AtRiskVessel, ForwardDriftPrediction
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -139,5 +139,104 @@ class AISService:
                 cpa_record = record
 
         return round(min_dist, 3), cpa_record
+
+    def point_in_polygon(self, lat: float, lon: float, polygon: List[List[float]]) -> bool:
+        """Standard ray casting algorithm for point in 2D polygon."""
+        if not polygon or len(polygon) < 3:
+            return False
+        inside = False
+        n = len(polygon)
+        j = n - 1
+        for i in range(n):
+            lat_i, lon_i = polygon[i][0], polygon[i][1]
+            lat_j, lon_j = polygon[j][0], polygon[j][1]
+            
+            if ((lat_i > lat) != (lat_j > lat)) and \
+               (lon < (lon_j - lon_i) * (lat - lat_i) / (lat_j - lat_i + 1e-12) + lon_i):
+                inside = not inside
+            j = i
+        return inside
+
+    def identify_at_risk_vessels(
+        self,
+        records: List[AISRecord],
+        forward_drift: ForwardDriftPrediction,
+        is_confirmed: bool = False
+    ) -> List[AtRiskVessel]:
+        """
+        Screens latest vessel positions against the forward drift corridor and exclusion zone.
+        Categorizes vessels into:
+        - INSIDE ZONE: vessel inside the exclusion polygon
+        - APPROACHING: within 15 km and course directed towards the hazard
+        - ON ROUTE: on affected commercial shipping fairway / approach corridor (>5 route vessels flagged when leak confirmed)
+        - OUTSIDE RISK: beyond hazard zone
+        """
+        grouped = self.group_by_vessel(records)
+        at_risk: List[AtRiskVessel] = []
+        poly = forward_drift.exclusion_zone_polygon
+        pred_lat = forward_drift.predicted_latitude
+        pred_lon = forward_drift.predicted_longitude
+
+        for mmsi, traj in grouped.items():
+            if not traj:
+                continue
+            latest = traj[-1]  # Most recent telemetry point
+            lat, lon = latest.latitude, latest.longitude
+            
+            # 1. Point in polygon test
+            is_inside = self.point_in_polygon(lat, lon, poly)
+            
+            # 2. Distance to exclusion zone
+            min_dist_to_zone = float("inf")
+            for vertex in poly:
+                d = haversine_distance_km(lat, lon, vertex[0], vertex[1])
+                if d < min_dist_to_zone:
+                    min_dist_to_zone = d
+
+            # 3. Heading vector alignment
+            d_lat = pred_lat - lat
+            d_lon = (pred_lon - lon) * math.cos(math.radians(lat))
+            bearing_to_hazard = (math.degrees(math.atan2(d_lon, d_lat))) % 360
+            
+            hdg_diff = abs(latest.heading - bearing_to_hazard) % 360
+            if hdg_diff > 180:
+                hdg_diff = 360 - hdg_diff
+                
+            is_heading_towards = hdg_diff <= 55.0
+
+            # 4. State classification
+            if is_inside or min_dist_to_zone < 0.8:
+                risk_state = "INSIDE ZONE"
+                eta_minutes = 0.0
+            elif min_dist_to_zone <= 15.0 and is_heading_towards and latest.speed >= 2.0:
+                risk_state = "APPROACHING"
+                speed_kmh = latest.speed * 1.852
+                eta_minutes = round((min_dist_to_zone / max(speed_kmh, 1.0)) * 60.0, 1)
+            elif is_confirmed and (min_dist_to_zone <= 40.0 or (min_dist_to_zone <= 50.0 and is_heading_towards)):
+                risk_state = "ON ROUTE"
+                speed_kmh = max(latest.speed * 1.852, 6.0)
+                eta_minutes = round((min_dist_to_zone / speed_kmh) * 60.0, 1)
+            else:
+                risk_state = "OUTSIDE RISK"
+                eta_minutes = None
+
+            at_risk.append(AtRiskVessel(
+                mmsi=latest.mmsi,
+                vessel_name=latest.vessel_name,
+                vessel_type=latest.vessel_type,
+                latitude=round(lat, 5),
+                longitude=round(lon, 5),
+                speed=latest.speed,
+                heading=latest.heading,
+                distance_to_zone_km=round(min_dist_to_zone, 2),
+                risk_state=risk_state,
+                eta_minutes=eta_minutes,
+                notification_sent=False,
+                last_updated=latest.timestamp
+            ))
+
+        state_priority = {"INSIDE ZONE": 0, "APPROACHING": 1, "ON ROUTE": 2, "OUTSIDE RISK": 3}
+        at_risk.sort(key=lambda v: (state_priority[v.risk_state], v.distance_to_zone_km))
+        return at_risk
 
 ais_service = AISService()

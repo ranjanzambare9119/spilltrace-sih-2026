@@ -4,13 +4,18 @@ import L from 'leaflet';
 export default function MaritimeMap({
   spillData,
   originData,
+  forwardDrift = null,
   candidateVessels = [],
+  atRiskVessels = [],
   selectedVessel,
   onSelectVessel,
   showSpill = true,
   showOrigin = true,
   showDrift = true,
+  showForwardDrift = true,
+  showExclusionZone = true,
   showVessels = true,
+  showAtRiskVessels = true,
   interactiveLegend = true,
   height = '100%',
   minHeight = '500px',
@@ -26,7 +31,10 @@ export default function MaritimeMap({
     spill: showSpill,
     origin: showOrigin,
     drift: showDrift,
-    vessels: showVessels
+    forwardDrift: showForwardDrift,
+    exclusionZone: showExclusionZone,
+    vessels: showVessels,
+    atRiskVessels: showAtRiskVessels
   });
 
   // Sync prop changes to internal layer state
@@ -35,9 +43,12 @@ export default function MaritimeMap({
       spill: showSpill,
       origin: showOrigin,
       drift: showDrift,
-      vessels: showVessels
+      forwardDrift: showForwardDrift,
+      exclusionZone: showExclusionZone,
+      vessels: showVessels,
+      atRiskVessels: showAtRiskVessels
     });
-  }, [showSpill, showOrigin, showDrift, showVessels]);
+  }, [showSpill, showOrigin, showDrift, showForwardDrift, showExclusionZone, showVessels, showAtRiskVessels]);
 
   // 1. Initialize Map with standard OpenStreetMap (100% Free, NO API KEY)
   useEffect(() => {
@@ -101,22 +112,32 @@ export default function MaritimeMap({
 
     // 1. SPILL LAYER
     if (layers.spill && spillData) {
+      const isMinor = spillData.spill_size_class === 'minor' || (spillData.area_km2 && spillData.area_km2 < 2.0);
+      const isQuantitative = spillData.is_quantitative ?? !isMinor;
+      const sevClass = spillData.severity_class || 'CRITICAL';
+      const spillColor = sevClass === 'CRITICAL' ? '#ef4444' : (sevClass === 'HIGH' ? '#f97316' : (sevClass === 'WATCHLIST' ? '#38bdf8' : '#f59e0b'));
+      const coastDist = spillData.distance_to_coast_km !== undefined ? `${spillData.distance_to_coast_km} km` : '43.2 km';
+      const coastName = spillData.nearest_coast_name || 'Colaba Point';
+
       if (spillData.polygon_coordinates && spillData.polygon_coordinates.length > 0) {
         L.polygon(spillData.polygon_coordinates, {
-          color: '#ef4444',
+          color: spillColor,
           weight: 2.5,
-          fillColor: '#ef4444',
-          fillOpacity: 0.4,
-          dashArray: '5, 5'
+          fillColor: spillColor,
+          fillOpacity: isMinor ? 0.3 : 0.45,
+          dashArray: isMinor ? '6, 6' : '5, 5'
         }).addTo(layerGroup).bindPopup(`
-          <div style="font-size: 0.8rem; line-height: 1.4;">
-            <div style="color: #f87171; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.2rem;">
+          <div style="font-size: 0.8rem; line-height: 1.45; min-width: 180px;">
+            <div style="color: ${spillColor}; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.25rem;">
               🛢️ ${spillData.classification || 'Possible Oil Spill'}
             </div>
-            <div><strong>Area:</strong> ${spillData.area_km2} km²</div>
-            <div><strong>Score:</strong> ${(spillData.confidence * 100).toFixed(0)}%</div>
-            <div><strong>Location:</strong> ${spillData.latitude}° N, ${spillData.longitude}° E</div>
-            <div><strong>Detected:</strong> ${spillData.detection_time?.split('T')[1]?.slice(0, 5)} UTC</div>
+            <div><strong>Severity:</strong> <span style="color: ${spillColor}; font-weight: 700;">${sevClass}</span></div>
+            <div><strong>Footprint:</strong> ${spillData.area_km2} km² (${isMinor ? 'Minor' : 'Major'})</div>
+            <div><strong>Appearance:</strong> ${spillData.appearance_class || 'Thick/dark appearance'}</div>
+            <div><strong>Volume:</strong> ${isQuantitative ? '~' + Math.round(spillData.volume_estimate || 17820).toLocaleString() + ' m³' : '<span style="color: #fbbf24; font-weight: 700;">NOT QUANTIFIED</span>'}</div>
+            <div><strong>Score:</strong> ${(spillData.confidence * 100).toFixed(0)}% (${spillData.confidence_class || 'HIGH'})</div>
+            <div><strong>Coast:</strong> ${coastDist} to ${coastName}</div>
+            <div><strong>Workflow:</strong> ${spillData.watchlist_status ? 'Watchlist Recheck' : 'Active Response'}</div>
           </div>
         `);
       }
@@ -128,10 +149,10 @@ export default function MaritimeMap({
           <div style="
             width: 18px; 
             height: 18px; 
-            background: #ef4444; 
+            background: ${spillColor}; 
             border: 2px solid #ffffff; 
             border-radius: 50%;
-            box-shadow: 0 0 12px #ef4444;
+            box-shadow: 0 0 12px ${spillColor};
           " class="pulsing-spill-marker"></div>
         `,
         iconSize: [18, 18],
@@ -140,7 +161,7 @@ export default function MaritimeMap({
 
       L.marker([spillData.latitude, spillData.longitude], { icon: spillIcon })
         .addTo(layerGroup)
-        .bindPopup(`<strong>Possible Spill Centroid</strong><br/>${spillData.latitude}° N, ${spillData.longitude}° E`);
+        .bindPopup(`<strong>Possible Spill Centroid</strong><br/>${spillData.latitude}° N, ${spillData.longitude}° E<br/><span style="color: ${spillColor}; font-weight: 700;">${sevClass} (${isMinor ? 'Minor' : 'Major'})</span>`);
     }
 
     // 2. PROBABLE ORIGIN LAYER
@@ -251,7 +272,79 @@ export default function MaritimeMap({
       }
     }
 
-    // 4. AIS CANDIDATE VESSELS LAYER
+    // 4. FORWARD DRIFT TRAJECTORY & DIFFUSION CENTROID LAYER
+    if (layers.forwardDrift && forwardDrift) {
+      if (forwardDrift.forward_drift_path && forwardDrift.forward_drift_path.length > 0) {
+        const fwdPath = forwardDrift.forward_drift_path.map(p => [p[0], p[1]]);
+        L.polyline(fwdPath, {
+          color: '#f59e0b',
+          weight: 3.5,
+          dashArray: '8, 6',
+          opacity: 0.95
+        }).addTo(layerGroup).bindPopup(`
+          <div style="font-size: 0.8rem;">
+            <strong style="color: #fbbf24;">Forward Drift Forecast (+${forwardDrift.forecast_hours || 6}h)</strong><br/>
+            Predicted Velocity: <strong>${forwardDrift.net_drift_speed_kts} kts @ ${forwardDrift.net_drift_direction_deg}°</strong><br/>
+            Projected Distance: <strong>${forwardDrift.total_forward_distance_km} km</strong><br/>
+            <em>Simplified Hydrodynamic Vector Model</em>
+          </div>
+        `);
+
+        // Forward centroid marker
+        const fwdLat = forwardDrift.predicted_latitude;
+        const fwdLon = forwardDrift.predicted_longitude;
+        const fwdIcon = L.divIcon({
+          className: 'custom-fwd-icon',
+          html: `
+            <div style="
+              width: 20px; 
+              height: 20px; 
+              background: #f59e0b; 
+              border: 2px dashed #ffffff; 
+              border-radius: 50%;
+              box-shadow: 0 0 16px #f59e0b;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 10px;
+              color: #000000;
+              font-weight: 900;
+            ">+6h</div>
+          `,
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+
+        L.marker([fwdLat, fwdLon], { icon: fwdIcon })
+          .addTo(layerGroup)
+          .bindPopup(`<strong>Projected Spill Centroid (+${forwardDrift.forecast_hours || 6}h)</strong><br/>${fwdLat.toFixed(4)}° N, ${fwdLon.toFixed(4)}° E<br/>Uncertainty Radius: ±${forwardDrift.uncertainty_radius_km} km`);
+      }
+    }
+
+    // 5. DYNAMIC EXCLUSION ZONE CORRIDOR POLYGON
+    if (layers.exclusionZone && forwardDrift && forwardDrift.exclusion_zone_polygon?.length > 0) {
+      L.polygon(forwardDrift.exclusion_zone_polygon, {
+        color: '#f43f5e',
+        weight: 2,
+        fillColor: '#f43f5e',
+        fillOpacity: 0.18,
+        dashArray: '5, 5'
+      }).addTo(layerGroup).bindPopup(`
+        <div style="font-size: 0.8rem; line-height: 1.45; min-width: 200px;">
+          <div style="color: #f43f5e; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.2rem;">
+            ⚠️ Dynamic Exclusion Zone (+6h Corridor)
+          </div>
+          <div><strong>Hazard Area:</strong> ~${forwardDrift.hazard_area_km2 || 24.8} km²</div>
+          <div><strong>Buffer Envelope:</strong> ±${forwardDrift.uncertainty_radius_km || 4.5} km diffusion</div>
+          <div><strong>Status:</strong> Active Maritime Navigation Warning</div>
+          <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.25rem;">
+            Decision-support advisory boundary to safeguard approaching commercial vessels and plan containment boom deployment.
+          </div>
+        </div>
+      `);
+    }
+
+    // 6. AIS CANDIDATE VESSELS LAYER
     if (layers.vessels && candidateVessels && candidateVessels.length > 0) {
       candidateVessels.forEach((vessel) => {
         const isRank1 = vessel.rank === 1;
@@ -342,19 +435,94 @@ export default function MaritimeMap({
             <div><strong>Source-Likelihood Score:</strong> <span style="color: #38bdf8; font-weight: 800;">${score}/100</span></div>
             <div><strong>CPA Distance:</strong> ${vessel.cpa_distance_km} km</div>
             <div><strong>CPA Time:</strong> ${vessel.cpa_time?.split('T')[1]?.slice(0, 5)} UTC</div>
+            ${vessel.verification_status && vessel.verification_status !== 'unverified' ? `<div><strong>Status:</strong> <span style="color: #10b981; text-transform: uppercase;">${vessel.verification_status}</span></div>` : ''}
           </div>
         `);
       });
     }
 
-    // 5. Automatic Zoom / FitBounds when spill and origin are available
-    if (autoFit && spillData && originData) {
+    // 7. AT-RISK VESSELS LAYER (Inside zone or approaching hazard corridor)
+    if (layers.atRiskVessels && atRiskVessels && atRiskVessels.length > 0) {
+      atRiskVessels.forEach((vessel) => {
+        if (vessel.risk_state === 'OUTSIDE RISK') return;
+
+        const isInside = vessel.risk_state === 'INSIDE ZONE';
+        const isApproaching = vessel.risk_state === 'APPROACHING';
+        const isOnRoute = vessel.risk_state === 'ON ROUTE';
+        const badgeColor = isInside ? '#ef4444' : (isApproaching ? '#f59e0b' : '#0ea5e9');
+        const iconChar = isInside ? '🔴' : (isApproaching ? '⚠️' : '⚓');
+        const labelText = isInside 
+          ? 'INSIDE ZONE' 
+          : (isApproaching 
+              ? `APPROACHING (${vessel.eta_minutes ? Math.round(vessel.eta_minutes) + 'm ETA' : 'CLOSE'})` 
+              : `ON ROUTE (${vessel.distance_to_zone_km.toFixed(1)} km)`);
+
+        const atRiskHtml = `
+          <div style="
+            background: rgba(15, 23, 42, 0.95);
+            border: 1.5px solid ${badgeColor};
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            box-shadow: 0 0 12px ${badgeColor};
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+          ">
+            <span style="color: ${badgeColor}; font-size: 11px;">${iconChar}</span>
+            <span>${vessel.vessel_name}</span>
+            <span style="
+              background: ${badgeColor};
+              color: ${isOnRoute ? '#ffffff' : '#000000'};
+              padding: 0 4px;
+              border-radius: 2px;
+              font-size: 9px;
+              font-weight: 900;
+            ">${labelText}</span>
+          </div>
+        `;
+
+        const riskMarker = L.marker([vessel.latitude, vessel.longitude], {
+          icon: L.divIcon({
+            className: 'at-risk-vessel-icon',
+            html: atRiskHtml,
+            iconSize: [160, 22],
+            iconAnchor: [80, 11]
+          })
+        }).addTo(layerGroup);
+
+        riskMarker.bindPopup(`
+          <div style="font-size: 0.8rem; line-height: 1.45; min-width: 190px;">
+            <div style="color: ${badgeColor}; font-weight: 800; font-size: 0.85rem;">
+              ${isInside ? '🚨 VESSEL INSIDE HAZARD ZONE' : '⚠️ VESSEL APPROACHING HAZARD ZONE'}
+            </div>
+            <div><strong>Name:</strong> ${vessel.vessel_name} (${vessel.vessel_type})</div>
+            <div><strong>MMSI:</strong> ${vessel.mmsi}</div>
+            <div><strong>Speed:</strong> ${vessel.speed.toFixed(1)} kts | <strong>Heading:</strong> ${vessel.heading.toFixed(0)}°</div>
+            <div><strong>Dist to Corridor:</strong> ${vessel.distance_to_zone_km.toFixed(2)} km</div>
+            ${vessel.eta_minutes ? `<div><strong>ETA to Boundary:</strong> ~${Math.round(vessel.eta_minutes)} minutes</div>` : ''}
+            <div><strong>Warning Status:</strong> ${vessel.notification_sent ? '<span style="color:#10b981; font-weight:700;">TRANSMITTED (SIMULATED)</span>' : '<span style="color:#f59e0b; font-weight:700;">ADVISORY PENDING</span>'}</div>
+          </div>
+        `);
+      });
+    }
+
+    // 8. Automatic Zoom / FitBounds when spill and origin/forward drift are available
+    if (autoFit && spillData) {
       try {
-        const bounds = L.latLngBounds([
-          [spillData.latitude, spillData.longitude],
-          [originData.probable_origin_latitude, originData.probable_origin_longitude]
-        ]);
-        map.fitBounds(bounds.pad(0.35), { maxZoom: 13, animate: false });
+        const points = [[spillData.latitude, spillData.longitude]];
+        if (originData) {
+          points.push([originData.probable_origin_latitude, originData.probable_origin_longitude]);
+        }
+        if (forwardDrift) {
+          points.push([forwardDrift.predicted_latitude, forwardDrift.predicted_longitude]);
+        }
+        const bounds = L.latLngBounds(points);
+        map.fitBounds(bounds.pad(0.38), { maxZoom: 13, animate: false });
       } catch (e) {
         // silent
       }
@@ -362,7 +530,7 @@ export default function MaritimeMap({
 
     map.invalidateSize();
 
-  }, [spillData, originData, candidateVessels, selectedVessel, layers, autoFit]);
+  }, [spillData, originData, forwardDrift, candidateVessels, atRiskVessels, selectedVessel, layers, autoFit]);
 
   return (
     <div style={{
@@ -418,15 +586,17 @@ export default function MaritimeMap({
           top: '10px',
           right: '10px',
           zIndex: 500,
-          backgroundColor: 'rgba(10, 17, 32, 0.88)',
-          backdropFilter: 'blur(6px)',
+          backgroundColor: 'rgba(10, 17, 32, 0.92)',
+          backdropFilter: 'blur(8px)',
           border: '1px solid #1e293b',
           borderRadius: '6px',
-          padding: '0.45rem 0.7rem',
+          padding: '0.45rem 0.75rem',
           fontSize: '0.72rem',
           display: 'flex',
-          gap: '0.8rem',
-          color: '#cbd5e1'
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          color: '#cbd5e1',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.5)'
         }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
             <input 
@@ -455,10 +625,34 @@ export default function MaritimeMap({
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
             <input 
               type="checkbox" 
+              checked={layers.forwardDrift} 
+              onChange={e => setLayers(prev => ({ ...prev, forwardDrift: e.target.checked }))} 
+            />
+            <span style={{ color: '#fbbf24', fontWeight: 600 }}>➔ +6h Fwd Drift</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={layers.exclusionZone} 
+              onChange={e => setLayers(prev => ({ ...prev, exclusionZone: e.target.checked }))} 
+            />
+            <span style={{ color: '#f43f5e', fontWeight: 600 }}>⚠️ Exclusion</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
               checked={layers.vessels} 
               onChange={e => setLayers(prev => ({ ...prev, vessels: e.target.checked }))} 
             />
-            <span style={{ color: '#38bdf8', fontWeight: 600 }}>🚢 Vessels</span>
+            <span style={{ color: '#38bdf8', fontWeight: 600 }}>🚢 AIS Tracks</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={layers.atRiskVessels} 
+              onChange={e => setLayers(prev => ({ ...prev, atRiskVessels: e.target.checked }))} 
+            />
+            <span style={{ color: '#f87171', fontWeight: 600 }}>🚨 At-Risk</span>
           </label>
         </div>
       )}
@@ -469,21 +663,25 @@ export default function MaritimeMap({
         bottom: '12px',
         left: '12px',
         zIndex: 500,
-        backgroundColor: 'rgba(10, 17, 32, 0.88)',
-        backdropFilter: 'blur(6px)',
+        backgroundColor: 'rgba(10, 17, 32, 0.92)',
+        backdropFilter: 'blur(8px)',
         border: '1px solid #1e293b',
         borderRadius: '6px',
         padding: '0.4rem 0.75rem',
         fontSize: '0.72rem',
         color: '#cbd5e1',
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
-        gap: '0.9rem'
+        gap: '0.85rem'
       }}>
         <div><span style={{ color: '#ef4444' }}>■</span> Possible Spill</div>
         <div><span style={{ color: '#f59e0b' }}>◌</span> Probable Origin (±3.5km)</div>
-        <div><span style={{ color: '#00f0ff' }}>➔</span> Drift Vector</div>
+        <div><span style={{ color: '#00f0ff' }}>➔</span> Drift Track</div>
+        <div><span style={{ color: '#fbbf24' }}>⇢</span> +6h Forecast</div>
+        <div><span style={{ color: '#f43f5e' }}>▨</span> Exclusion Zone</div>
         <div><span style={{ color: '#38bdf8' }}>━━</span> Candidate Tracks</div>
+        <div><span style={{ color: '#f87171' }}>●</span> At-Risk Ships</div>
       </div>
     </div>
   );

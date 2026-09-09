@@ -9,6 +9,23 @@ import xml.etree.ElementTree as ET
 from typing import Dict, Any, List, Optional
 from ml.detector_interface import MockUNetDetector
 from backend.models.schemas import SpillDetection
+from backend.config import (
+    MIN_QUANTITATIVE_SPILL_AREA_KM2,
+    MIN_QUANTITATIVE_PIXEL_COUNT,
+    MIN_QUANTITATIVE_DETECTION_CONFIDENCE,
+    HIGH_DETECTION_CONFIDENCE,
+    MEDIUM_DETECTION_CONFIDENCE,
+    WEIGHT_SPILL_IMPACT,
+    WEIGHT_COAST_PROXIMITY,
+    WEIGHT_DETECTION_CONFIDENCE,
+    WEIGHT_ENVIRONMENTAL_SENSITIVITY,
+    WEIGHT_DRIFT_PERSISTENCE,
+    SEVERITY_CRITICAL_THRESHOLD,
+    SEVERITY_HIGH_THRESHOLD,
+    SEVERITY_MEDIUM_THRESHOLD,
+    APPEARANCE_RISK_POINTS
+)
+from backend.services.geospatial_service import geospatial_service
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -157,11 +174,296 @@ class SatelliteService:
 
         return items
 
-    def analyze_satellite_image(self, filename: str = "demo_sar_oil.png") -> SpillDetection:
-        """Runs prototype segmentation on the requested satellite/SAR demonstration image."""
+    def classify_spill_intelligence(
+        self,
+        area_km2: float,
+        pixel_count: int,
+        confidence: float,
+        slick_thickness_um: float,
+        latitude: float,
+        longitude: float
+    ) -> Dict[str, Any]:
+        """
+        Executes confidence-aware and size-aware dual-pathway assessment:
+        1. Quantitative Threshold Check: area >= 2.0 km2, pixels >= 500, conf >= 0.75
+        2. Dynamic Confidence Classification (HIGH, MEDIUM, LOW)
+        3. Real Geodesic Distance to Coast & Coast Risk Modeling
+        4. Appearance-based Classification for Sheens/Minor Spills
+        5. Multi-Factor Severity Scoring (Impact + Coast + Conf + Env + Drift)
+        6. Separate Minor Spill / WATCHLIST Workflow Determination
+        7. Evidence-backed 'Why this classification?' Rationale
+        """
+        # 1. Quantitative Decision Rule
+        is_quantitative = (
+            area_km2 >= MIN_QUANTITATIVE_SPILL_AREA_KM2 and
+            pixel_count >= MIN_QUANTITATIVE_PIXEL_COUNT and
+            confidence >= MIN_QUANTITATIVE_DETECTION_CONFIDENCE
+        )
+
+        # 2. Dynamic Confidence Class
+        if confidence >= HIGH_DETECTION_CONFIDENCE:
+            confidence_class = "HIGH"
+        elif confidence >= MEDIUM_DETECTION_CONFIDENCE:
+            confidence_class = "MEDIUM"
+        else:
+            confidence_class = "LOW"
+
+        # 3. Geodesic Coast Distance & Environmental Proximity
+        distance_to_coast_km, nearest_coast_name = geospatial_service.calculate_distance_to_coast(latitude, longitude)
+        coast_risk_score = geospatial_service.compute_coast_risk(distance_to_coast_km)
+        env_risk_score, sensitive_zone_name = geospatial_service.compute_environmental_sensitivity(latitude, longitude)
+
+        # 4. Volume & Appearance Classification
+        if is_quantitative:
+            volume_status = "quantified"
+            # Volumetric calculation: calibrated to maritime crude slick emulsion (~1200 m3 / km2 per mm equivalent)
+            vol_multiplier = (slick_thickness_um * 1000.0) if slick_thickness_um < 50.0 else slick_thickness_um
+            vol = round(area_km2 * vol_multiplier, 1)
+            volume_estimate = vol
+            estimated_volume_m3 = vol
+            spill_size_class = "major" if area_km2 >= 5.0 else "medium"
+            appearance_class = "Thick/dark appearance"
+        else:
+            volume_status = "low_confidence"
+            volume_estimate = None
+            estimated_volume_m3 = None  # No false-precision!
+            spill_size_class = "minor"
+
+            # Appearance classification based on physical SAR backscatter & thickness
+            if slick_thickness_um >= 1.0 or confidence >= 0.88:
+                appearance_class = "Thick/dark appearance"
+            elif slick_thickness_um >= 0.3 or confidence >= 0.70:
+                appearance_class = "Rainbow sheen"
+            elif confidence >= 0.60:
+                appearance_class = "Thin sheen"
+            else:
+                appearance_class = "Uncertain appearance"
+
+        # 5. Multi-Factor Severity Calculation
+        # Factor A: Spill Impact (Max 35 pts)
+        if is_quantitative:
+            impact_pts = min(WEIGHT_SPILL_IMPACT, (area_km2 / 15.0) * WEIGHT_SPILL_IMPACT)
+        else:
+            impact_pts = APPEARANCE_RISK_POINTS.get(appearance_class, 6.0)
+
+        # Factor B: Coast Proximity Risk (Max 30 pts)
+        coast_pts = coast_risk_score * WEIGHT_COAST_PROXIMITY
+
+        # Factor C: Detection Confidence (Max 15 pts)
+        conf_pts = confidence * WEIGHT_DETECTION_CONFIDENCE
+
+        # Factor D: Environmental Sensitivity (Max 10 pts)
+        env_pts = env_risk_score * WEIGHT_ENVIRONMENTAL_SENSITIVITY
+
+        # Factor E: Persistence / Shoreward Drift Vector (Max 10 pts)
+        # Closer to coast and fairway increases stranding risk
+        drift_pts = 8.5 if distance_to_coast_km <= 50.0 else 4.0
+
+        severity_score = round(impact_pts + coast_pts + conf_pts + env_pts + drift_pts, 1)
+        severity_score = max(0.0, min(100.0, severity_score))
+
+        # 6. Severity Categorization & Workflow
+        # Major high-confidence events or score >= 65 are classified as CRITICAL / HIGH
+        if severity_score >= 68.0 or (is_quantitative and area_km2 >= 10.0 and confidence >= 0.90):
+            severity_class = "CRITICAL"
+            incident_workflow = "investigation_response"
+            recommended_action = "IMMEDIATE RESPONSE UNIT DISPATCH & PSC VESSEL AUDIT"
+            watchlist_status = None
+        elif severity_score >= SEVERITY_HIGH_THRESHOLD:
+            severity_class = "HIGH"
+            incident_workflow = "investigation_response"
+            recommended_action = "EXPEDITE VESSEL CORRELATION & PREPARE OFFSHORE CONTAINMENT"
+            watchlist_status = None
+        elif severity_score >= SEVERITY_MEDIUM_THRESHOLD:
+            severity_class = "MEDIUM"
+            incident_workflow = "monitoring_surveillance"
+            recommended_action = "SCHEDULE COASTAL RECHECK & LOG CANDIDATE TRACKS"
+            watchlist_status = "MONITORING"
+        else:
+            severity_class = "WATCHLIST"
+            incident_workflow = "watchlist_monitoring"
+            recommended_action = "RECHECK ON NEXT SATELLITE PASS"
+            watchlist_status = "ACTIVE_WATCHLIST"
+
+        # Special governance rule: Small/low-confidence spills far offshore MUST NOT trigger false critical alerts
+        if not is_quantitative and coast_risk_score < 0.65:
+            if severity_score < 45.0:
+                severity_class = "WATCHLIST"
+                incident_workflow = "watchlist_monitoring"
+                recommended_action = "RECHECK ON NEXT SATELLITE PASS"
+                watchlist_status = "ACTIVE_WATCHLIST"
+            else:
+                severity_class = "MEDIUM"
+                incident_workflow = "monitoring_surveillance"
+                recommended_action = "SCHEDULE SATELLITE PASS RECHECK"
+                watchlist_status = "MONITORING"
+
+        # Special governance rule: Small spills VERY close to shore elevate priority due to coastal risk
+        if not is_quantitative and coast_risk_score >= 0.80 and severity_score >= 45.0:
+            if severity_class == "WATCHLIST":
+                severity_class = "HIGH" if severity_score >= 50.0 else "MEDIUM"
+                incident_workflow = "investigation_response" if severity_class == "HIGH" else "monitoring_surveillance"
+                recommended_action = "EXPEDITE SHORELINE PROTECTION & CORRELATE NEARBY TRAFFIC"
+                watchlist_status = None
+
+        # 7. 'Why this classification?' Evidence Rationale
+        reasons = []
+        if is_quantitative:
+            reasons.append(f"Spill area ({area_km2:.2f} km²) exceeds quantitative threshold ({MIN_QUANTITATIVE_SPILL_AREA_KM2} km²).")
+            reasons.append(f"Detection confidence: {round(confidence * 100, 1)}% ({confidence_class} class).")
+            reasons.append(f"Quantitative volume model: estimated at ~{int(volume_estimate):,} m³.")
+        else:
+            reasons.append(f"Spill area ({area_km2:.2f} km²) is below quantitative threshold ({MIN_QUANTITATIVE_SPILL_AREA_KM2} km²).")
+            reasons.append(f"Detection confidence: {round(confidence * 100, 1)}% ({confidence_class} class).")
+            reasons.append("False-precision volume avoided; volume status marked as LOW CONFIDENCE — NOT QUANTIFIED.")
+            reasons.append(f"Appearance classified as {appearance_class}.")
+
+        if coast_risk_score >= 0.70:
+            reasons.append(f"High shoreline proximity: {distance_to_coast_km} km from {nearest_coast_name} (Coast Risk: {coast_risk_score:.2f}).")
+        else:
+            reasons.append(f"Offshore location: {distance_to_coast_km} km from {nearest_coast_name} (Coast Risk: {coast_risk_score:.2f}).")
+
+        if sensitive_zone_name:
+            reasons.append(f"Proximity to sensitive marine ecosystem: {sensitive_zone_name}.")
+
+        reasons.append(f"Recommended operational action: {recommended_action}")
+
+        return {
+            "is_quantitative": is_quantitative,
+            "spill_size_class": spill_size_class,
+            "volume_status": volume_status,
+            "volume_estimate": volume_estimate,
+            "estimated_volume_m3": estimated_volume_m3,
+            "appearance_class": appearance_class,
+            "confidence_class": confidence_class,
+            "distance_to_coast_km": distance_to_coast_km,
+            "nearest_coast_name": nearest_coast_name,
+            "coast_risk_score": coast_risk_score,
+            "environmental_risk_score": env_risk_score,
+            "severity_score": severity_score,
+            "severity_class": severity_class,
+            "incident_workflow": incident_workflow,
+            "watchlist_status": watchlist_status,
+            "recommended_action": recommended_action,
+            "classification_reasons": reasons
+        }
+
+    def analyze_satellite_image(
+        self,
+        filename: str = "demo_sar_oil.png",
+        scenario_override: Optional[str] = None
+    ) -> SpillDetection:
+        """
+        Runs prototype segmentation on satellite imagery or benchmark scenario.
+        Executes end-to-end size-aware, confidence-aware, and coast-aware classification.
+        """
+        # Scenario Archetypes for automated testing & demonstration
+        if scenario_override or filename.startswith("scenario_"):
+            sc_name = scenario_override or filename
+            if "large_obvious" in sc_name:
+                area_km2 = 14.85
+                pixel_count = 37125
+                confidence = 0.942
+                lat, lon = 18.9500, 72.4000
+                thick = 1.2
+                spill_id = "SC-LARGE-OBVIOUS-001"
+            elif "small_high_conf" in sc_name:
+                area_km2 = 0.45
+                pixel_count = 280
+                confidence = 0.880
+                lat, lon = 18.9000, 72.5500
+                thick = 0.35
+                spill_id = "SC-SMALL-HIGHCONF-002"
+            elif "small_low_conf" in sc_name:
+                area_km2 = 0.22
+                pixel_count = 140
+                confidence = 0.580
+                lat, lon = 18.8500, 72.3500
+                thick = 0.15
+                spill_id = "SC-SMALL-LOWCONF-003"
+            elif "small_nearshore" in sc_name:
+                area_km2 = 0.35
+                pixel_count = 220
+                confidence = 0.860
+                lat, lon = 18.9200, 72.7900  # 1.8 km from Colaba coast!
+                thick = 0.40
+                spill_id = "SC-SMALL-NEARSHORE-004"
+            elif "large_offshore" in sc_name:
+                area_km2 = 8.50
+                pixel_count = 5310
+                confidence = 0.920
+                lat, lon = 18.7000, 72.1500  # 65 km offshore
+                thick = 1.2
+                spill_id = "SC-LARGE-OFFSHORE-005"
+            else:
+                area_km2 = 14.85
+                pixel_count = 37125
+                confidence = 0.942
+                lat, lon = 18.9500, 72.4000
+                thick = 1.2
+                spill_id = "SC-DEMO-001"
+
+            intel = self.classify_spill_intelligence(
+                area_km2=area_km2,
+                pixel_count=pixel_count,
+                confidence=confidence,
+                slick_thickness_um=thick,
+                latitude=lat,
+                longitude=lon
+            )
+
+            poly = [
+                [round(lat + 0.015, 4), round(lon - 0.010, 4)],
+                [round(lat + 0.025, 4), round(lon + 0.008, 4)],
+                [round(lat + 0.018, 4), round(lon + 0.022, 4)],
+                [round(lat - 0.012, 4), round(lon + 0.014, 4)],
+                [round(lat - 0.020, 4), round(lon - 0.012, 4)],
+                [round(lat + 0.005, 4), round(lon - 0.020, 4)]
+            ]
+
+            return SpillDetection(
+                spill_id=spill_id,
+                classification="Possible Oil Spill" if intel["is_quantitative"] else f"Possible Oil Spill ({intel['appearance_class']})",
+                satellite_mission="Sentinel-1B C-SAR",
+                detection_time="2026-09-06T06:00:00Z",
+                latitude=lat,
+                longitude=lon,
+                area_km2=area_km2,
+                perimeter_km=round(area_km2 * 1.8 + 2.5, 1),
+                confidence=confidence,
+                slick_thickness_estimate_um=thick,
+                is_quantitative=intel["is_quantitative"],
+                spill_size_class=intel["spill_size_class"],
+                volume_status=intel["volume_status"],
+                volume_estimate=intel["volume_estimate"],
+                estimated_volume_m3=intel["estimated_volume_m3"],
+                appearance_class=intel["appearance_class"],
+                detection_confidence=confidence,
+                confidence_class=intel["confidence_class"],
+                distance_to_coast_km=intel["distance_to_coast_km"],
+                nearest_coast_name=intel["nearest_coast_name"],
+                coast_risk_score=intel["coast_risk_score"],
+                environmental_risk_score=intel["environmental_risk_score"],
+                severity_score=intel["severity_score"],
+                severity_class=intel["severity_class"],
+                incident_workflow=intel["incident_workflow"],
+                watchlist_status=intel["watchlist_status"],
+                recommended_action=intel["recommended_action"],
+                classification_reasons=intel["classification_reasons"],
+                polygon_coordinates=poly,
+                sensor="Sentinel-1 C-SAR",
+                model_architecture="Prototype Segmentation (Modular Detector Interface)",
+                is_real_data=False,
+                is_synthetic_hero=True,
+                scenario_location_label="Prototype Scenario Coordinates",
+                data_source_label="SYNTHETIC BENCHMARK SCENARIO",
+                detection_label="Prototype Segmentation",
+                filename=sc_name
+            )
+
+        # File-based inspection
         img_path = os.path.join(SATELLITE_DIR, filename)
         if not os.path.exists(img_path):
-            # Fallback if specific file missing
             filename = "demo_sar_oil.png"
             img_path = os.path.join(SATELLITE_DIR, filename)
             if not os.path.exists(img_path):
@@ -170,7 +472,6 @@ class SatelliteService:
                 if not os.path.exists(img_path):
                     raise FileNotFoundError(f"Satellite image '{filename}' not found.")
 
-        # Determine image category
         is_hero = (filename == "demo_sar_oil.png")
         is_real = (filename == "real_spill.jpg")
         voc_info = self.parse_voc_annotation() if is_real else None
@@ -181,20 +482,17 @@ class SatelliteService:
             mask_path = None
 
         detection_res = self.detector.detect(img_path, mask_path)
-        
-        # Scenario baseline parameters
+
         spill_id = "SP-DEMO-2026-HERO" if is_hero else ("SP-S1-20190101-001" if is_real else "SP-20260906-001")
         detection_time = "2026-09-06T06:00:00Z"
         slick_thickness = 1.2
-        volume_m3 = 17800.0
-        
+
         if os.path.exists(META_PATH):
             try:
                 with open(META_PATH, "r") as f:
                     meta = json.load(f)
                     detection_time = meta.get("detection_time", detection_time)
                     slick_thickness = meta.get("slick_thickness_estimate_um", slick_thickness)
-                    volume_m3 = meta.get("estimated_volume_m3", volume_m3)
             except Exception as e:
                 print(f"Warning: Error reading spill metadata: {e}")
 
@@ -208,6 +506,8 @@ class SatelliteService:
             sensor_label = "Synthetic SAR-like Demonstration (Simulated Radar Backscatter)"
             confidence = 0.942
             area_km2 = 14.85
+            pixel_count = 37125
+            lat, lon = 18.9500, 72.4000
         elif is_real:
             bbox = voc_info["bbox"] if voc_info else {"xmin": 345, "ymin": 297, "xmax": 368, "ymax": 343}
             rel_bbox = voc_info["rel_bbox"] if voc_info else {"x": 0.5391, "y": 0.4641, "width": 0.0359, "height": 0.0719}
@@ -216,8 +516,12 @@ class SatelliteService:
             detection_label = "Prototype Detection / Annotated Region"
             mission_label = "Sentinel-1 SAR (Real IW Scene)"
             sensor_label = "Sentinel-1 C-SAR (Synthetic Aperture Radar - Real IW Scene)"
-            confidence = 0.915
-            area_km2 = detection_res["area_km2"]
+            # Real Sentinel-1 IW box (23x46 px) is a smaller localized slick
+            confidence = 0.885
+            area_km2 = 0.42
+            pixel_count = 1058
+            lat, lon = 18.9500, 72.4000
+            slick_thickness = 0.4
         else:
             bbox = None
             rel_bbox = None
@@ -228,19 +532,48 @@ class SatelliteService:
             sensor_label = detection_res["sensor"]
             confidence = detection_res["confidence"]
             area_km2 = detection_res["area_km2"]
+            pixel_count = detection_res.get("slick_pixel_count", 800)
+            lat, lon = detection_res["centroid_latitude"], detection_res["centroid_longitude"]
+
+        # Run unified intelligence classification
+        intel = self.classify_spill_intelligence(
+            area_km2=area_km2,
+            pixel_count=pixel_count,
+            confidence=confidence,
+            slick_thickness_um=slick_thickness,
+            latitude=lat,
+            longitude=lon
+        )
 
         return SpillDetection(
             spill_id=spill_id,
-            classification="Possible Oil Spill",
+            classification="Possible Oil Spill" if intel["is_quantitative"] else f"Possible Oil Spill ({intel['appearance_class']})",
             satellite_mission=mission_label,
             detection_time=detection_time,
-            latitude=detection_res["centroid_latitude"],
-            longitude=detection_res["centroid_longitude"],
+            latitude=lat,
+            longitude=lon,
             area_km2=area_km2,
-            perimeter_km=detection_res["perimeter_km"],
+            perimeter_km=detection_res.get("perimeter_km", 21.4),
             confidence=confidence,
             slick_thickness_estimate_um=slick_thickness,
-            estimated_volume_m3=volume_m3,
+            is_quantitative=intel["is_quantitative"],
+            spill_size_class=intel["spill_size_class"],
+            volume_status=intel["volume_status"],
+            volume_estimate=intel["volume_estimate"],
+            estimated_volume_m3=intel["estimated_volume_m3"],
+            appearance_class=intel["appearance_class"],
+            detection_confidence=confidence,
+            confidence_class=intel["confidence_class"],
+            distance_to_coast_km=intel["distance_to_coast_km"],
+            nearest_coast_name=intel["nearest_coast_name"],
+            coast_risk_score=intel["coast_risk_score"],
+            environmental_risk_score=intel["environmental_risk_score"],
+            severity_score=intel["severity_score"],
+            severity_class=intel["severity_class"],
+            incident_workflow=intel["incident_workflow"],
+            watchlist_status=intel["watchlist_status"],
+            recommended_action=intel["recommended_action"],
+            classification_reasons=intel["classification_reasons"],
             polygon_coordinates=detection_res["polygon_coordinates"],
             sensor=sensor_label,
             model_architecture="Prototype Segmentation (Modular Detector Interface)",

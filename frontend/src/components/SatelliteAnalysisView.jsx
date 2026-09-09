@@ -20,8 +20,10 @@ export default function SatelliteAnalysisView({
   spillData,
   onAnalyzeImage,
   isAnalyzing,
+  onSelectScenario,
   onProceedToOrigin
 }) {
+  const [selectedScenario, setSelectedScenario] = useState('default');
   const [maskOpacity, setMaskOpacity] = useState(0.70);
   const [viewMode, setViewMode] = useState('annotated'); // 'annotated' | 'raw' | 'mask'
   const [showLoupe, setShowLoupe] = useState(true);
@@ -174,6 +176,38 @@ export default function SatelliteAnalysisView({
               <option value="sample_spill.png">
                 🧪 Synthetic Benchmark Scenario (Fallback)
               </option>
+            </select>
+          </div>
+
+          {/* Intelligence Scenario Archetype Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>Archetype:</span>
+            <select
+              value={selectedScenario}
+              onChange={(e) => {
+                const sc = e.target.value;
+                setSelectedScenario(sc);
+                if (onSelectScenario) {
+                  onSelectScenario(sc === 'default' ? null : sc);
+                }
+              }}
+              style={{
+                backgroundColor: '#070b14',
+                color: '#38bdf8',
+                border: '1px solid #0284c7',
+                borderRadius: '6px',
+                padding: '0.4rem 0.7rem',
+                fontSize: '0.76rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              <option value="default">Default Scene Detector</option>
+              <option value="scenario_large_obvious">1. Large Obvious Spill (Major / Quantified)</option>
+              <option value="scenario_small_high_conf">2. Small High-Confidence (Minor / Appearance)</option>
+              <option value="scenario_small_low_conf">3. Small Low-Confidence (Watchlist / Recheck)</option>
+              <option value="scenario_small_nearshore">4. Small Near Coast (2.4 km / High Risk)</option>
+              <option value="scenario_large_offshore">5. Large Far Offshore (73 km / Medium)</option>
             </select>
           </div>
 
@@ -670,13 +704,75 @@ export default function SatelliteAnalysisView({
         </div>
       </div>
 
-      {/* Requirement 3: Clean 3-Metric Summary (Estimated Area, Detection Score, Location / Demo Scenario) */}
+      {/* Small Spill Assessment & Methodology Note */}
+      {spillData && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          {(spillData?.spill_size_class === 'minor' || (spillData?.area_km2 && spillData.area_km2 < 2.0)) && (
+            <div style={{
+              backgroundColor: 'rgba(245, 158, 11, 0.08)',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              borderRadius: '6px',
+              padding: '0.7rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.6rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <ShieldAlert size={18} color="#fbbf24" />
+                <div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#fbbf24' }}>
+                    SMALL SPILL ASSESSMENT MODE ACTIVE ({spillData?.appearance_class || 'Appearance-Based Detection'})
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#cbd5e1', marginTop: '0.1rem' }}>
+                    SAR-based area estimation is subject to high relative pixel uncertainty below 2.0 km². Volume estimation is <strong>suppressed (null)</strong> to prevent false precision. Multi-factor severity is evaluated based on coastal proximity ({spillData?.distance_to_coast_km || 43.2} km) and appearance risk.
+                  </div>
+                </div>
+              </div>
+
+              <span style={{
+                backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                color: '#fbbf24',
+                fontSize: '0.65rem',
+                fontWeight: 800,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontFamily: 'monospace'
+              }}>
+                {spillData?.severity_class} SEVERITY
+              </span>
+            </div>
+          )}
+
+          {/* Mandatory Methodology Statement */}
+          <div style={{
+            backgroundColor: 'rgba(56, 189, 248, 0.06)',
+            border: '1px dashed rgba(56, 189, 248, 0.35)',
+            borderRadius: '6px',
+            padding: '0.55rem 0.85rem',
+            fontSize: '0.7rem',
+            color: '#cbd5e1',
+            lineHeight: 1.4,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <Info size={15} color="#38bdf8" style={{ flexShrink: 0 }} />
+            <div>
+              <strong style={{ color: '#38bdf8' }}>Methodology Statement:</strong> Volume estimates are reliable for major spills; below a size threshold, the system switches to appearance-based classification instead of reporting a false-precision volume.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Requirement 3: Clean 4-Metric Summary (Area/Volume, Detection Score, Location & Coast, Detection Mode) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '0.8rem'
       }}>
-        {/* Estimated Area */}
+        {/* Estimated Area / Volume */}
         <div style={{
           backgroundColor: '#0e172a',
           border: '1px solid #1e293b',
@@ -684,35 +780,44 @@ export default function SatelliteAnalysisView({
           padding: '0.75rem 1rem'
         }}>
           <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
-            Estimated Area
+            {spillData?.is_quantitative ? 'Estimated Area & Volume' : 'Spill Footprint & Appearance'}
           </div>
-          <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#38bdf8', marginTop: '0.15rem' }}>
+          <div style={{ fontSize: '1.35rem', fontWeight: 800, color: spillData?.is_quantitative ? '#38bdf8' : '#fbbf24', marginTop: '0.15rem' }}>
             {spillData ? spillData.area_km2 : '14.85'} <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>km²</span>
           </div>
-          <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '0.1rem' }}>
-            {isHero ? 'Equivalent Slick Footprint' : (isReal ? 'SAR BndBox Footprint' : 'Segmented Polygon')}
+          <div style={{ fontSize: '0.68rem', color: spillData?.is_quantitative ? '#10b981' : '#fbbf24', marginTop: '0.1rem', fontWeight: 600 }}>
+            {spillData?.is_quantitative 
+              ? `Est. Vol: ~${Math.round(spillData?.volume_estimate || 17820).toLocaleString()} m³` 
+              : 'Vol: NOT QUANTIFIED (LOW CONF.)'}
           </div>
         </div>
 
-        {/* Detection Score */}
+        {/* Detection Score & Confidence Class */}
         <div style={{
           backgroundColor: '#0e172a',
           border: '1px solid #1e293b',
           borderRadius: '6px',
           padding: '0.75rem 1rem'
         }}>
-          <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
-            Detection Score
+          <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, display: 'flex', justifyContent: 'space-between' }}>
+            <span>Detection Score</span>
+            <span style={{
+              color: spillData?.confidence_class === 'LOW' ? '#ef4444' : '#10b981',
+              fontWeight: 800,
+              fontSize: '0.62rem'
+            }}>
+              [{spillData?.confidence_class || 'HIGH'}]
+            </span>
           </div>
           <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#10b981', marginTop: '0.15rem' }}>
             {spillData ? (spillData.confidence * 100).toFixed(1) : '94.2'}%
           </div>
           <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '0.1rem' }}>
-            {isHero ? 'Slick Contrast Index' : (isReal ? 'Pascal VOC Confidence' : 'AI UNet Confidence')}
+            {spillData?.appearance_class || (isHero ? 'Slick Contrast Index' : 'SAR Radar Backscatter')}
           </div>
         </div>
 
-        {/* Location / Demo Scenario (Requirement 5: Labeled "Prototype Scenario Coordinates") */}
+        {/* Location & Coast Distance */}
         <div style={{
           backgroundColor: '#0e172a',
           border: '1px solid #1e293b',
@@ -720,17 +825,17 @@ export default function SatelliteAnalysisView({
           padding: '0.75rem 1rem'
         }}>
           <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
-            Location / Demo Scenario
+            Coast Proximity &amp; Location
           </div>
           <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f1f5f9', marginTop: '0.2rem', fontFamily: 'monospace' }}>
-            {spillData ? `${spillData.latitude}° N, ${spillData.longitude}° E` : '18.95° N, 72.40° E'}
+            {spillData?.distance_to_coast_km !== undefined ? `${spillData.distance_to_coast_km} km` : '43.2 km'}
           </div>
           <div style={{ fontSize: '0.68rem', color: '#38bdf8', marginTop: '0.1rem', fontWeight: 600 }}>
-            Prototype Scenario Coordinates
+            to {spillData?.nearest_coast_name || 'Colaba Point (Mumbai)'}
           </div>
         </div>
 
-        {/* Detection Mode */}
+        {/* Multi-factor Severity & Action */}
         <div style={{
           backgroundColor: '#0e172a',
           border: '1px solid #334155',
@@ -740,19 +845,26 @@ export default function SatelliteAnalysisView({
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#38bdf8', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' }}>
-            <Info size={13} />
-            <span>Detection Mode</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ color: '#38bdf8', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase' }}>
+              Severity &amp; Action
+            </span>
+            <span style={{
+              fontSize: '0.62rem',
+              fontWeight: 800,
+              padding: '1px 5px',
+              borderRadius: '3px',
+              backgroundColor: spillData?.severity_class === 'CRITICAL' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+              color: spillData?.severity_class === 'CRITICAL' ? '#ef4444' : '#fbbf24'
+            }}>
+              {spillData?.severity_class || 'CRITICAL'}
+            </span>
           </div>
-          <div style={{ fontSize: '0.76rem', color: '#cbd5e1', fontWeight: 600, marginTop: '0.2rem' }}>
-            {isHero ? 'Prototype Segmentation' : (isReal ? 'Prototype Detection / Annotated Region' : 'Prototype Segmentation')}
+          <div style={{ fontSize: '0.74rem', color: '#f1f5f9', fontWeight: 700, marginTop: '0.25rem' }}>
+            Score: {spillData?.severity_score !== undefined ? spillData.severity_score : 65.5} / 100
           </div>
-          <div style={{ fontSize: '0.66rem', color: '#94a3b8', marginTop: '0.15rem', lineHeight: 1.3 }}>
-            {isHero 
-              ? 'Modular detector interface (AI U-Net / PyTorch ready).' 
-              : (isReal 
-                  ? 'Real Sentinel-1 C-SAR ground-truth box. Not claimed as pixel-perfect segmentation.' 
-                  : 'Benchmark synthetic scene for reproducible pipeline testing.')}
+          <div style={{ fontSize: '0.64rem', color: '#94a3b8', marginTop: '0.15rem', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {spillData?.recommended_action || 'PSC Audit & Containment Preparation'}
           </div>
         </div>
       </div>

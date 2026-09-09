@@ -12,7 +12,7 @@ Total: 100 points
 
 import math
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from backend.models.schemas import (
     SpillDetection,
     ProbableOriginEstimate,
@@ -205,6 +205,50 @@ class AttributionService:
 
         return reasons
 
+    def detect_ais_anomalies(
+        self,
+        trajectory: List[AISRecord],
+        cpa_record: AISRecord,
+        origin: ProbableOriginEstimate
+    ) -> Tuple[bool, Optional[str]]:
+        """
+        Detects objective AIS behavioral signals (speed drops, transmission gaps, course shifts).
+        These are investigative signals, NOT proof of wrongdoing.
+        """
+        if len(trajectory) < 2:
+            return False, "Insufficient telemetry points for anomaly detection"
+
+        speeds = [r.speed for r in trajectory if r.speed > 0]
+        mean_speed = sum(speeds) / len(speeds) if speeds else 10.0
+
+        # 1. Speed reduction near CPA (> 25% below mean speed)
+        if cpa_record.speed < (mean_speed * 0.75) and mean_speed >= 8.0:
+            return True, f"Speed reduction: slowed to {cpa_record.speed} kts (mean {round(mean_speed, 1)} kts) near release window"
+
+        # 2. Sudden course change near CPA
+        cpa_idx = trajectory.index(cpa_record) if cpa_record in trajectory else -1
+        if 0 < cpa_idx < len(trajectory) - 1:
+            prev_hdg = trajectory[cpa_idx - 1].heading
+            curr_hdg = cpa_record.heading
+            diff = abs(curr_hdg - prev_hdg) % 360
+            if diff > 180:
+                diff = 360 - diff
+            if diff >= 25.0:
+                return True, f"Course alteration: {round(diff, 1)}° heading shift recorded near release corridor"
+
+        # 3. Transmission gap detection (> 45 min gap between consecutive reports)
+        for i in range(len(trajectory) - 1):
+            try:
+                t1 = datetime.strptime(trajectory[i].timestamp, "%Y-%m-%dT%H:%M:%SZ")
+                t2 = datetime.strptime(trajectory[i + 1].timestamp, "%Y-%m-%dT%H:%M:%SZ")
+                gap_mins = (t2 - t1).total_seconds() / 60.0
+                if gap_mins > 45.0:
+                    return True, f"AIS transmission gap: {int(gap_mins)} min telemetry silence observed"
+            except Exception:
+                pass
+
+        return False, "Nominal AIS transit profile — no telemetry anomalies detected"
+
     def correlate_and_rank(
         self,
         spill: SpillDetection,
@@ -233,6 +277,10 @@ class AttributionService:
             )
 
             reasons = self.generate_explainability_reasons(scores, cpa_rec, origin)
+            has_anomaly, anomaly_detail = self.detect_ais_anomalies(trajectory, cpa_rec, origin)
+
+            if has_anomaly:
+                reasons.append(f"AIS Signal: {anomaly_detail}.")
 
             v_name = cpa_rec.vessel_name
             if not ("DEMO" in v_name):
@@ -250,13 +298,56 @@ class AttributionService:
                 cpa_time=cpa_rec.timestamp,
                 scores=scores,
                 why_reasons=reasons,
-                trajectory=trajectory
+                trajectory=trajectory,
+                verification_status="unverified",
+                ais_anomaly_detected=has_anomaly,
+                ais_anomaly_detail=anomaly_detail,
+                original_score=scores.total_score
             ))
 
         # Sort descending by total score
         candidates.sort(key=lambda c: c.scores.total_score, reverse=True)
 
         # Assign 1-based ranks
+        for idx, cand in enumerate(candidates):
+            cand.rank = idx + 1
+
+        return candidates
+
+    def apply_verification_outcome(
+        self,
+        candidates: List[CandidateVessel],
+        target_mmsi: str,
+        outcome: str,
+        notes: str = None
+    ) -> List[CandidateVessel]:
+        """
+        Interactive Verification Loop:
+        Updates candidate verification status and recalculates scores/ranks:
+        - 'not_detected': physical aerial/port inspection found no leak -> score reduced by 60%
+        - 'confirmed': positive physical evidence -> score boosted/confirmed
+        - 'suspected': remains flagged
+        - 'unverified': restored to baseline score
+        """
+        for cand in candidates:
+            if cand.mmsi == target_mmsi:
+                cand.verification_status = outcome
+                orig = cand.original_score or cand.scores.total_score
+                cand.original_score = orig
+
+                if outcome == "not_detected":
+                    # Substantial penalty: 60% reduction
+                    cand.scores.total_score = max(5.0, round(orig * 0.40, 0))
+                    cand.why_reasons.insert(0, f"VERIFICATION UPDATE: Physical inspection conducted — LEAK NOT DETECTED ({notes or 'No active discharge found on hull'}). Score penalized to {cand.scores.total_score}/100.")
+                elif outcome in ["confirmed", "confirmed_source"]:
+                    cand.verification_status = "CONFIRMED SOURCE CANDIDATE"
+                    cand.scores.total_score = min(98.0, max(orig, 96.0))
+                    cand.why_reasons.insert(0, f"VERIFICATION UPDATE: Physical inspection conducted — POSITIVE DISCHARGE CONFIRMED ({notes or 'Hull inspection verified oily residue and discharge pattern matching SAR anomaly'}). Marked as CONFIRMED SOURCE CANDIDATE.")
+                elif outcome == "unverified":
+                    cand.scores.total_score = orig
+
+        # Rerank all candidates based on updated scores
+        candidates.sort(key=lambda c: c.scores.total_score, reverse=True)
         for idx, cand in enumerate(candidates):
             cand.rank = idx + 1
 

@@ -8,24 +8,23 @@ import {
   LayoutDashboard, 
   Play, 
   CheckCircle2, 
-  AlertCircle,
-  BarChart3,
-  Radio
+  AlertCircle 
 } from 'lucide-react';
 
 export default function Header({ 
   activeTab, 
   setActiveTab, 
   onStartDemo, 
-  backendStatus 
+  backendStatus,
+  isLeakConfirmed = false,
+  investigationState = 'CANDIDATE'
 }) {
   const tabs = [
-    { id: 'dashboard', label: 'OVERVIEW', icon: LayoutDashboard },
-    { id: 'satellite', label: 'SATELLITE', icon: Satellite },
-    { id: 'origin', label: 'ORIGIN', icon: Compass },
-    { id: 'vessels', label: 'VESSELS', icon: Ship },
-    { id: 'investigation', label: 'INVESTIGATION', icon: Search },
-    { id: 'analytics', label: 'ANALYTICS', icon: BarChart3 }
+    { id: 'dashboard', label: '1. Dashboard', icon: LayoutDashboard },
+    { id: 'satellite', label: '2. Satellite Analysis', icon: Satellite },
+    { id: 'origin', label: '3. Origin Analysis', icon: Compass },
+    { id: 'vessels', label: '4. Vessel Correlation', icon: Ship },
+    { id: 'investigation', label: '5. Investigation', icon: Search }
   ];
 
   return (
@@ -83,6 +82,33 @@ export default function Header({
 
         {/* Center/Right: Operational Status Indicators */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* TIER-2 ACTIVE Escalation Badge */}
+          {isLeakConfirmed && (
+            <span style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+              border: '1px solid #ef4444',
+              color: '#fca5a5',
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              padding: '0.2rem 0.6rem',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              boxShadow: '0 0 10px rgba(239, 68, 68, 0.4)',
+              letterSpacing: '0.04em'
+            }}>
+              <span style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: '#ef4444',
+                boxShadow: '0 0 8px #ef4444'
+              }}></span>
+              TIER-2 RESPONSE ACTIVE • {investigationState || 'SOURCE VERIFIED — DEMO'}
+            </span>
+          )}
+
           {/* DEMO MODE Badge */}
           <span className="badge-demo" style={{ fontSize: '0.68rem', padding: '0.2rem 0.6rem' }}>
             <span style={{
