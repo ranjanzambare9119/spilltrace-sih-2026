@@ -76,7 +76,7 @@ export async function getAISVessels() {
   return res.json();
 }
 
-export async function correlateAttribution(maxDistKm = 35.0, estimatedAgeHours = 5.5) {
+export async function correlateAttribution(maxDistKm = 100.0, estimatedAgeHours = 5.5) {
   const url = `${API_BASE}/attribution/correlate?max_distance_km=${maxDistKm}&estimated_age_hours=${estimatedAgeHours}`;
   const res = await fetch(url, { method: 'POST' });
   if (!res.ok) throw new Error('Correlation analysis failed');

@@ -62,7 +62,7 @@ export default function VesselCorrelationView({
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
           <button
-            onClick={() => onCorrelateVessels(35.0)}
+            onClick={() => onCorrelateVessels(100.0)}
             disabled={isCorrelating}
             className="btn-primary"
             style={{

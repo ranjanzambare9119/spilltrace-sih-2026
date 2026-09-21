@@ -178,12 +178,43 @@ export default function CandidateVerificationModal({
                   </div>
                   <div style={{ fontSize: '0.68rem', color: '#cbd5e1', marginTop: '0.2rem', lineHeight: 1.4 }}>
                     Physical inspection or aerial FLIR confirmed active discharge matching SAR anomaly.
-                    <strong style={{ color: '#fca5a5' }}> Immediately and automatically executes the downstream response workflow: marks vessel as VERIFIED LEAK (Rank #1, 96/100), sets investigation to SOURCE VERIFIED — DEMO, calculates forward drift (+12h), creates 220 km² exclusion zone, flags 8 route vessels, broadcasts navigational warning, initiates response team deployment, and updates timeline. NO ADDITIONAL CLICKS REQUIRED!</strong>
+                    <strong style={{ color: '#fca5a5' }}> Immediately and automatically executes downstream response workflow: marks vessel as VERIFIED LEAK (Rank #1, 96/100), sets investigation to SOURCE VERIFIED — DEMO, calculates forward drift, creates exclusion zone, flags 8 route vessels, broadcasts navigational warning, initiates response team deployment, and updates timeline. NO ADDITIONAL CLICKS REQUIRED!</strong>
                   </div>
                 </div>
               </label>
 
-              {/* Option 3: UNVERIFIED / RESET */}
+              {/* Option 3: SUSPECTED */}
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.6rem',
+                backgroundColor: selectedOutcome === 'suspected' ? 'rgba(245, 158, 11, 0.14)' : '#070b14',
+                border: `1.5px solid ${selectedOutcome === 'suspected' ? '#f59e0b' : '#1e293b'}`,
+                borderRadius: '6px',
+                padding: '0.65rem 0.85rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}>
+                <input
+                  type="radio"
+                  name="verificationOutcome"
+                  value="suspected"
+                  checked={selectedOutcome === 'suspected'}
+                  onChange={() => setSelectedOutcome('suspected')}
+                  style={{ marginTop: '0.2rem', accentColor: '#f59e0b' }}
+                />
+                <div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span>⚠️ SUSPECTED (Keep Under Active Investigation)</span>
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '0.15rem', lineHeight: 1.35 }}>
+                    Visual or sensor evidence is inconclusive; keep vessel flagged under enhanced surveillance.
+                    <strong style={{ color: '#fbbf24' }}> Retains current ranking and does NOT start the emergency response cascade.</strong>
+                  </div>
+                </div>
+              </label>
+
+              {/* Option 4: UNVERIFIED / RESET */}
               <label style={{
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -270,7 +301,7 @@ export default function CandidateVerificationModal({
             onClick={handleApply}
             disabled={isSubmitting}
             style={{
-              backgroundColor: selectedOutcome === 'confirmed' ? '#dc2626' : (selectedOutcome === 'not_detected' ? '#0284c7' : '#0369a1'),
+              backgroundColor: selectedOutcome === 'confirmed' ? '#dc2626' : (selectedOutcome === 'suspected' ? '#d97706' : (selectedOutcome === 'not_detected' ? '#475569' : '#0369a1')),
               color: '#ffffff',
               border: 'none',
               borderRadius: '6px',
@@ -281,7 +312,7 @@ export default function CandidateVerificationModal({
               display: 'flex',
               alignItems: 'center',
               gap: '0.45rem',
-              boxShadow: selectedOutcome === 'confirmed' ? '0 0 20px rgba(220, 38, 38, 0.55)' : '0 0 16px rgba(2, 132, 199, 0.4)'
+              boxShadow: selectedOutcome === 'confirmed' ? '0 0 20px rgba(220, 38, 38, 0.55)' : (selectedOutcome === 'suspected' ? '0 0 16px rgba(217, 119, 6, 0.4)' : '0 0 16px rgba(2, 132, 199, 0.4)')
             }}
           >
             <RefreshCw size={14} className={isSubmitting ? 'animate-spin' : ''} />
@@ -290,7 +321,9 @@ export default function CandidateVerificationModal({
                 ? 'EXECUTING RESPONSE CASCADE...' 
                 : (selectedOutcome === 'confirmed' 
                   ? '🚨 CONFIRM LEAK & RUN AUTOMATIC CHAIN' 
-                  : (selectedOutcome === 'not_detected' ? 'APPLY PENALTY & RERANK' : 'RESET CANDIDATE'))}
+                  : (selectedOutcome === 'suspected' 
+                    ? '⚠️ FLAG AS SUSPECTED' 
+                    : (selectedOutcome === 'not_detected' ? 'APPLY 60% PENALTY & RERANK' : 'RESET CANDIDATE')))}
             </span>
           </button>
         </div>

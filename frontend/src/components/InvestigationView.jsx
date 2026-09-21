@@ -159,8 +159,21 @@ export default function InvestigationView({
                   <span>🚢</span>
                   <span>{topCandidate.vessel_name}</span>
                 </h3>
-                <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-                  {topCandidate.vessel_type} • MMSI: <strong>{topCandidate.mmsi}</strong> • Flag: <strong>{topCandidate.flag}</strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                    {topCandidate.vessel_type} • MMSI: <strong>{topCandidate.mmsi}</strong> • Flag: <strong>{topCandidate.flag}</strong>
+                  </div>
+                  <span style={{
+                    fontSize: '0.66rem',
+                    padding: '2px 7px',
+                    borderRadius: '4px',
+                    fontWeight: 800,
+                    backgroundColor: topCandidate.oil_compatible ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.12)',
+                    color: topCandidate.oil_compatible ? '#34d399' : '#94a3b8',
+                    border: `1px solid ${topCandidate.oil_compatible ? '#10b981' : '#475569'}`
+                  }}>
+                    {topCandidate.cargo_compatibility || (topCandidate.oil_compatible ? 'Oil Compatible' : 'Not Oil Compatible')}
+                  </span>
                 </div>
               </div>
 
@@ -246,13 +259,13 @@ export default function InvestigationView({
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.82rem', color: '#f1f5f9' }}>
                   <span style={{ fontSize: '1rem' }}>🚢</span>
-                  <span><strong>Vessel context compatible:</strong> High-risk tanker / carrier profile matching persistent slick characteristics.</span>
+                  <span><strong>Cargo Profile:</strong> {topCandidate.cargo_compatibility || (topCandidate.oil_compatible ? 'Oil Compatible' : 'Not Oil Compatible')}.</span>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons: WHY Breakdown + Physical Verification + 1-Click CONFIRM LEAK */}
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Action Buttons: WHY Breakdown + 3 Verification Actions (CONFIRM LEAK / SUSPECTED / NOT DETECTED) */}
+            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
               <button
                 onClick={() => setDetailModalVessel(topCandidate)}
                 style={{
@@ -260,8 +273,8 @@ export default function InvestigationView({
                   color: '#ffffff',
                   border: '1px solid #38bdf8',
                   borderRadius: '6px',
-                  padding: '0.55rem 1.15rem',
-                  fontSize: '0.8rem',
+                  padding: '0.52rem 0.95rem',
+                  fontSize: '0.78rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
@@ -274,27 +287,7 @@ export default function InvestigationView({
                 <span>[ WHY? ] Breakdown</span>
               </button>
 
-              <button
-                onClick={() => setVerifyingVessel(topCandidate)}
-                style={{
-                  background: '#1e293b',
-                  color: '#38bdf8',
-                  border: '1px solid #38bdf8',
-                  borderRadius: '6px',
-                  padding: '0.55rem 1rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem'
-                }}
-              >
-                <UserCheck size={15} />
-                <span>INSPECT / VERIFY</span>
-              </button>
-
-              {/* DIRECT 1-CLICK AUTOMATIC POST-VERIFICATION TRIGGER */}
+              {/* 1. CONFIRM LEAK */}
               <button
                 onClick={() => {
                   if (onVerifyCandidate && !isLeakConfirmed) {
@@ -313,8 +306,8 @@ export default function InvestigationView({
                   color: isLeakConfirmed ? '#34d399' : '#ffffff',
                   border: `1.5px solid ${isLeakConfirmed ? '#10b981' : '#ef4444'}`,
                   borderRadius: '6px',
-                  padding: '0.55rem 1.35rem',
-                  fontSize: '0.82rem',
+                  padding: '0.52rem 1.15rem',
+                  fontSize: '0.8rem',
                   fontWeight: 900,
                   cursor: isLeakConfirmed ? 'default' : 'pointer',
                   display: 'flex',
@@ -324,9 +317,88 @@ export default function InvestigationView({
                   letterSpacing: '0.04em',
                   transition: 'all 0.2s ease'
                 }}
+                title="Immediately execute automatic downstream response chain"
               >
                 {isLeakConfirmed ? <CheckCircle2 size={16} color="#10b981" /> : <AlertTriangle size={16} />}
-                <span>{isLeakConfirmed ? 'LEAK VERIFIED (AUTOMATIC CHAIN ACTIVE)' : 'CONFIRM LEAK'}</span>
+                <span>{isLeakConfirmed ? 'LEAK VERIFIED (CHAIN ACTIVE)' : 'CONFIRM LEAK'}</span>
+              </button>
+
+              {/* 2. SUSPECTED */}
+              <button
+                onClick={() => {
+                  if (onVerifyCandidate) {
+                    onVerifyCandidate(
+                      topCandidate.mmsi,
+                      'suspected',
+                      'Inconclusive telemetry/visual signals; flagged as suspected under heightened monitoring.'
+                    );
+                  }
+                }}
+                style={{
+                  background: topCandidate.verification_status === 'SUSPECTED' ? 'rgba(245, 158, 11, 0.25)' : '#1e293b',
+                  color: '#fbbf24',
+                  border: `1px solid ${topCandidate.verification_status === 'SUSPECTED' ? '#f59e0b' : '#d97706'}`,
+                  borderRadius: '6px',
+                  padding: '0.52rem 0.9rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+                title="Keep candidate under active investigation without emergency cascade"
+              >
+                <AlertTriangle size={15} color="#f59e0b" />
+                <span>{topCandidate.verification_status === 'SUSPECTED' ? 'SUSPECTED (ACTIVE)' : 'SUSPECTED'}</span>
+              </button>
+
+              {/* 3. NOT DETECTED */}
+              <button
+                onClick={() => {
+                  if (onVerifyCandidate) {
+                    onVerifyCandidate(
+                      topCandidate.mmsi,
+                      'not_detected',
+                      'Physical/aerial inspection found clean hull. 60% score penalty applied.'
+                    );
+                  }
+                }}
+                style={{
+                  background: topCandidate.verification_status === 'NOT DETECTED' ? 'rgba(239, 68, 68, 0.2)' : '#1e293b',
+                  color: topCandidate.verification_status === 'NOT DETECTED' ? '#f87171' : '#94a3b8',
+                  border: `1px solid ${topCandidate.verification_status === 'NOT DETECTED' ? '#ef4444' : '#475569'}`,
+                  borderRadius: '6px',
+                  padding: '0.52rem 0.9rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+                title="Penalize score by 60% and rerank fleet without response cascade"
+              >
+                <UserCheck size={15} color="#94a3b8" />
+                <span>NOT DETECTED</span>
+              </button>
+
+              {/* Modal trigger */}
+              <button
+                onClick={() => setVerifyingVessel(topCandidate)}
+                style={{
+                  background: 'transparent',
+                  color: '#64748b',
+                  border: '1px dashed #334155',
+                  borderRadius: '6px',
+                  padding: '0.52rem 0.75rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+                title="Open detailed inspection modal"
+              >
+                Inspector Form...
               </button>
             </div>
           </div>
@@ -413,8 +485,20 @@ export default function InvestigationView({
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                        {vessel.vessel_type} • CPA: {vessel.cpa_distance_km} km
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                          {vessel.vessel_type} • CPA: {vessel.cpa_distance_km} km
+                        </span>
+                        <span style={{
+                          fontSize: '0.58rem',
+                          padding: '1px 5px',
+                          borderRadius: '2px',
+                          fontWeight: 700,
+                          backgroundColor: vessel.oil_compatible ? 'rgba(16,185,129,0.15)' : 'rgba(148,163,184,0.1)',
+                          color: vessel.oil_compatible ? '#34d399' : '#64748b'
+                        }}>
+                          {vessel.oil_compatible ? 'Oil Compatible' : 'Not Oil Compatible'}
+                        </span>
                       </div>
                     </div>
                   </div>

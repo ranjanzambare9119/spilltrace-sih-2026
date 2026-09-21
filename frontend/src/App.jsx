@@ -219,7 +219,7 @@ export default function App() {
     }
   };
 
-  const handleCorrelateVessels = async (maxDist = 35.0) => {
+  const handleCorrelateVessels = async (maxDist = 100.0) => {
     setIsCorrelatingVessels(true);
     try {
       const res = await correlateAttribution(maxDist);
