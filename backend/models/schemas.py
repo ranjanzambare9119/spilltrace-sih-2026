@@ -137,6 +137,8 @@ class CandidateVessel(BaseModel):
     ais_anomaly_detected: bool = False
     ais_anomaly_detail: Optional[str] = None
     original_score: Optional[float] = None
+    oil_compatible: bool = False
+    cargo_compatibility: str = "Not Oil Compatible"
 
 
 class ForwardDriftPrediction(BaseModel):

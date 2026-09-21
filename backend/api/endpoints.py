@@ -183,7 +183,7 @@ def get_ais_records():
 # -------------------------------------------------------------
 @router.post("/attribution/correlate", response_model=AttributionResponse)
 def correlate_and_attribute(
-    max_distance_km: Annotated[float, Query(ge=1.0, le=100.0)] = 35.0,
+    max_distance_km: Annotated[float, Query(ge=1.0, le=150.0)] = 100.0,
     estimated_age_hours: Annotated[float, Query(ge=0.5, le=48.0)] = 5.5
 ):
     """
@@ -368,15 +368,32 @@ def verify_candidate_vessel_route(req: CandidateVerificationRequest):
                 timeline_events=response_service.get_timeline()
             )
         else:
-            outcome_label = req.verification_outcome.upper().replace("_", " ")
+            outcome_clean = req.verification_outcome.lower().strip()
             v_name = target_cand.vessel_name if target_cand else req.mmsi
-            response_service.add_timeline_event(
-                event_type="verification_recorded",
-                title=f"Verification Recorded: {v_name}",
-                description=f"Physical/Aerial Inspection recorded outcome: {outcome_label}. Scores recalculated and fleet dynamically reranked.",
-                actor="Maritime Inspector (Human-in-the-Loop)",
-                badge_color="amber" if req.verification_outcome == "not_detected" else "green"
-            )
+            if outcome_clean in ["not_detected", "not detected", "cleared"]:
+                response_service.add_timeline_event(
+                    event_type="verification_cleared",
+                    title=f"Physical Inspection — NOT DETECTED ({v_name})",
+                    description=f"Physical/aerial inspection found clean hull. Score penalized by 60% and candidate reranked down.",
+                    actor="Investigator (Physical / Aerial Survey)",
+                    badge_color="blue"
+                )
+            elif outcome_clean in ["suspected", "suspect"]:
+                response_service.add_timeline_event(
+                    event_type="verification_suspected",
+                    title=f"Candidate Flagged as SUSPECTED ({v_name})",
+                    description=f"Surveillance logged candidate as SUSPECTED. Active investigation ongoing; no emergency cascade triggered.",
+                    actor="Investigator (Human-in-the-Loop)",
+                    badge_color="amber"
+                )
+            else:
+                response_service.add_timeline_event(
+                    event_type="verification_recorded",
+                    title=f"Verification Recorded: {v_name}",
+                    description=f"Inspection recorded outcome: {req.verification_outcome.upper()}. Fleet recalculated.",
+                    actor="Maritime Inspector (Human-in-the-Loop)",
+                    badge_color="green"
+                )
 
             return CandidateVerificationResponse(
                 candidate_vessels=reranked,

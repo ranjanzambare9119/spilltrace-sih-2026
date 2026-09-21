@@ -62,27 +62,27 @@ mmsi,vessel_name,timestamp,latitude,longitude,speed,heading,vessel_type,flag,dra
 419009876,MT Western Horizon,2026-09-06T06:00:00Z,18.7106,72.00634,13.2,51.0,Crude Tanker,Liberia,9.5,Fujairah
 419009876,MT Western Horizon,2026-09-06T06:30:00Z,18.88499,72.28771,12.8,51.0,Crude Tanker,Liberia,9.5,Fujairah
 419009876,MT Western Horizon,2026-09-06T07:00:00Z,19.08,72.6,12.7,51.0,Crude Tanker,Liberia,9.5,Fujairah
-419004444,Gulf Express,2026-09-05T21:00:00Z,18.98,72.36,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-05T21:30:00Z,18.992,72.371,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-05T22:00:00Z,19.004,72.382,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-05T22:30:00Z,19.016,72.393,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-05T23:00:00Z,19.028,72.404,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-05T23:30:00Z,19.04,72.415,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T00:00:00Z,19.052,72.426,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T00:30:00Z,19.064,72.437,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T01:00:00Z,19.076,72.448,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T01:30:00Z,19.088,72.459,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T02:00:00Z,19.1,72.47,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T02:30:00Z,19.112,72.481,10.5,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T03:00:00Z,19.124,72.492,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T03:30:00Z,19.136,72.503,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T04:00:00Z,19.148,72.514,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T04:30:00Z,19.16,72.525,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T05:00:00Z,19.172,72.536,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T05:30:00Z,19.184,72.547,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T06:00:00Z,19.196,72.558,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T06:30:00Z,19.208,72.569,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
-419004444,Gulf Express,2026-09-06T07:00:00Z,19.22,72.58,5.2,52.0,LNG Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-05T21:00:00Z,18.98,72.36,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-05T21:30:00Z,18.992,72.371,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-05T22:00:00Z,19.004,72.382,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-05T22:30:00Z,19.016,72.393,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-05T23:00:00Z,19.028,72.404,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-05T23:30:00Z,19.04,72.415,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T00:00:00Z,19.052,72.426,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T00:30:00Z,19.064,72.437,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T01:00:00Z,19.076,72.448,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T01:30:00Z,19.088,72.459,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T02:00:00Z,19.1,72.47,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T02:30:00Z,19.112,72.481,10.5,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T03:00:00Z,19.124,72.492,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T03:30:00Z,19.136,72.503,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T04:00:00Z,19.148,72.514,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T04:30:00Z,19.16,72.525,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T05:00:00Z,19.172,72.536,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T05:30:00Z,19.184,72.547,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T06:00:00Z,19.196,72.558,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T06:30:00Z,19.208,72.569,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
+419004444,Gulf Express,2026-09-06T07:00:00Z,19.22,72.58,5.2,52.0,Bulk Carrier,India,6.4,Mumbai High Offshore
 419002222,MT Sea Fortune,2026-09-05T21:00:00Z,18.25,71.924,12.4,46.0,Crude Tanker,Liberia,15.2,Sikka Port
 419002222,MT Sea Fortune,2026-09-05T21:30:00Z,18.30599,71.96592,12.7,47.3,Crude Tanker,Liberia,15.2,Sikka Port
 419002222,MT Sea Fortune,2026-09-05T22:00:00Z,18.36195,72.00768,12.7,47.4,Crude Tanker,Liberia,15.2,Sikka Port
@@ -104,90 +104,90 @@ mmsi,vessel_name,timestamp,latitude,longitude,speed,heading,vessel_type,flag,dra
 419002222,MT Sea Fortune,2026-09-06T06:00:00Z,19.23779,72.67241,12.2,44.9,Crude Tanker,Liberia,15.2,Sikka Port
 419002222,MT Sea Fortune,2026-09-06T06:30:00Z,19.29194,72.71484,12.4,46.2,Crude Tanker,Liberia,15.2,Sikka Port
 419002222,MT Sea Fortune,2026-09-06T07:00:00Z,19.34622,72.75739,12.7,47.4,Crude Tanker,Liberia,15.2,Sikka Port
-419003456,Pacific Trader,2026-09-05T21:00:00Z,20.47639,71.96181,16.3,176.7,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-05T21:30:00Z,20.33844,71.97387,16.2,174.8,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-05T22:00:00Z,20.20302,71.98654,16.3,175.6,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-05T22:30:00Z,20.06687,71.99897,16.5,173.3,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-05T23:00:00Z,19.93002,72.01219,16.3,174.8,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-05T23:30:00Z,19.79417,72.02504,16.6,175.5,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T00:00:00Z,19.65839,72.03715,16.3,175.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T00:30:00Z,19.52237,72.04963,16.3,175.8,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T01:00:00Z,19.38576,72.06232,16.8,176.6,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T01:30:00Z,19.24906,72.07457,16.1,175.1,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T02:00:00Z,19.11381,72.0878,16.2,174.8,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T02:30:00Z,18.97679,72.10017,16.6,173.6,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T03:00:00Z,18.84116,72.11225,16.1,175.7,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T03:30:00Z,18.70342,72.12518,16.0,176.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T04:00:00Z,18.65433,72.19581,16.0,185.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T04:30:00Z,18.64549,72.26221,16.9,185.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T05:00:00Z,18.67452,72.32471,16.1,185.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T05:30:00Z,18.74249,72.38412,16.6,185.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T06:00:00Z,18.84932,72.43954,16.1,185.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T06:30:00Z,18.99527,72.49155,16.8,185.0,Container Ship,India,12.0,Colombo
-419003456,Pacific Trader,2026-09-06T07:00:00Z,19.18,72.54,16.3,185.0,Container Ship,India,12.0,Colombo
-419008888,Ocean Carrier 21,2026-09-05T21:00:00Z,18.94,72.714,1.2,120.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-05T21:30:00Z,18.94118,72.71382,1.2,122.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-05T22:00:00Z,18.94226,72.7133,1.2,124.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-05T22:30:00Z,18.94313,72.71249,1.2,126.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-05T23:00:00Z,18.94373,72.71145,1.2,128.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-05T23:30:00Z,18.94399,72.71028,1.2,130.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T00:00:00Z,18.9439,72.70909,1.2,132.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T00:30:00Z,18.94345,72.70798,1.2,134.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T01:00:00Z,18.9427,72.70705,1.2,136.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T01:30:00Z,18.94171,72.70638,1.2,138.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T02:00:00Z,18.94056,72.70604,1.2,140.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T02:30:00Z,18.93937,72.70605,1.2,142.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T03:00:00Z,18.93823,72.70641,1.2,144.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T03:30:00Z,18.93725,72.7071,1.2,146.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T04:00:00Z,18.93651,72.70804,1.2,148.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T04:30:00Z,18.93609,72.70916,1.2,150.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T05:00:00Z,18.93602,72.71035,1.2,152.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T05:30:00Z,18.9363,72.71151,1.2,154.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T06:00:00Z,18.93691,72.71254,1.2,156.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T06:30:00Z,18.9378,72.71334,1.2,158.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419008888,Ocean Carrier 21,2026-09-06T07:00:00Z,18.93888,72.71384,1.2,160.0,Bulk Carrier,India,8.5,Mumbai Anchorage
-419007890,Blue Wave,2026-09-05T21:00:00Z,18.9102,72.4837,3.2,60.0,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-05T21:30:00Z,18.91332,72.48297,3.3,79.8,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-05T22:00:00Z,18.91594,72.48094,2.9,92.6,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-05T22:30:00Z,18.91766,72.47812,3.4,94.1,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-05T23:00:00Z,18.9182,72.4752,2.9,83.6,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-05T23:30:00Z,18.91747,72.47289,3.0,64.9,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T00:00:00Z,18.9156,72.47176,2.7,44.5,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T00:30:00Z,18.91288,72.47208,2.8,29.5,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T01:00:00Z,18.90973,72.47378,3.0,25.1,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T01:30:00Z,18.90666,72.47644,3.5,33.0,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T02:00:00Z,18.90415,72.4794,2.8,50.2,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T02:30:00Z,18.90259,72.48195,3.3,70.9,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T03:00:00Z,18.90223,72.48346,3.1,87.8,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T03:30:00Z,18.90313,72.48356,3.2,94.9,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T04:00:00Z,18.90515,72.48222,2.8,89.9,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T04:30:00Z,18.90796,72.47978,2.8,74.4,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T05:00:00Z,18.91113,72.47683,3.1,53.9,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T05:30:00Z,18.91415,72.47409,3.5,35.5,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T06:00:00Z,18.91655,72.47223,3.7,25.7,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T06:30:00Z,18.91794,72.47172,3.6,27.8,Fishing Vessel,India,3.2,Sassoon Dock
-419007890,Blue Wave,2026-09-06T07:00:00Z,18.91811,72.47267,3.4,41.2,Fishing Vessel,India,3.2,Sassoon Dock
-419009999,Coastal Runner,2026-09-05T21:00:00Z,18.91,72.82,6.5,270.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-05T21:30:00Z,18.913,72.82195,6.5,265.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-05T22:00:00Z,18.916,72.82359,6.5,260.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-05T22:30:00Z,18.919,72.82466,6.5,255.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-05T23:00:00Z,18.922,72.825,6.5,250.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-05T23:30:00Z,18.925,72.82455,6.5,245.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T00:00:00Z,18.928,72.82338,6.5,240.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T00:30:00Z,18.931,72.82167,6.5,235.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T01:00:00Z,18.934,72.81971,6.5,230.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T01:30:00Z,18.937,72.81779,6.5,225.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T02:00:00Z,18.94,72.81622,6.5,220.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T02:30:00Z,18.943,72.81524,6.5,215.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T03:00:00Z,18.946,72.81502,6.5,210.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T03:30:00Z,18.949,72.81558,6.5,205.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T04:00:00Z,18.952,72.81684,6.5,200.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T04:30:00Z,18.955,72.8186,6.5,195.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T05:00:00Z,18.958,72.82058,6.5,190.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T05:30:00Z,18.961,72.82247,6.5,185.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T06:00:00Z,18.964,72.82397,6.5,180.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T06:30:00Z,18.967,72.82484,6.5,175.0,Patrol Vessel,India,4.8,JNPT Harbour
-419009999,Coastal Runner,2026-09-06T07:00:00Z,18.97,72.82495,6.5,170.0,Patrol Vessel,India,4.8,JNPT Harbour
+419003456,Pacific Trader,2026-09-05T21:00:00Z,20.47639,71.96181,16.3,176.7,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-05T21:30:00Z,20.33844,71.97387,16.2,174.8,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-05T22:00:00Z,20.20302,71.98654,16.3,175.6,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-05T22:30:00Z,20.06687,71.99897,16.5,173.3,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-05T23:00:00Z,19.93002,72.01219,16.3,174.8,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-05T23:30:00Z,19.79417,72.02504,16.6,175.5,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T00:00:00Z,19.65839,72.03715,16.3,175.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T00:30:00Z,19.52237,72.04963,16.3,175.8,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T01:00:00Z,19.38576,72.06232,16.8,176.6,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T01:30:00Z,19.24906,72.07457,16.1,175.1,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T02:00:00Z,19.11381,72.0878,16.2,174.8,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T02:30:00Z,18.97679,72.10017,16.6,173.6,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T03:00:00Z,18.84116,72.11225,16.1,175.7,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T03:30:00Z,18.70342,72.12518,16.0,176.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T04:00:00Z,18.65433,72.19581,16.0,185.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T04:30:00Z,18.64549,72.26221,16.9,185.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T05:00:00Z,18.67452,72.32471,16.1,185.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T05:30:00Z,18.74249,72.38412,16.6,185.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T06:00:00Z,18.84932,72.43954,16.1,185.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T06:30:00Z,18.99527,72.49155,16.8,185.0,Container,India,12.0,Colombo
+419003456,Pacific Trader,2026-09-06T07:00:00Z,19.18,72.54,16.3,185.0,Container,India,12.0,Colombo
+419008888,Ocean Carrier 21,2026-09-05T21:00:00Z,18.94,72.714,1.2,120.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-05T21:30:00Z,18.94118,72.71382,1.2,122.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-05T22:00:00Z,18.94226,72.7133,1.2,124.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-05T22:30:00Z,18.94313,72.71249,1.2,126.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-05T23:00:00Z,18.94373,72.71145,1.2,128.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-05T23:30:00Z,18.94399,72.71028,1.2,130.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T00:00:00Z,18.9439,72.70909,1.2,132.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T00:30:00Z,18.94345,72.70798,1.2,134.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T01:00:00Z,18.9427,72.70705,1.2,136.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T01:30:00Z,18.94171,72.70638,1.2,138.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T02:00:00Z,18.94056,72.70604,1.2,140.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T02:30:00Z,18.93937,72.70605,1.2,142.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T03:00:00Z,18.93823,72.70641,1.2,144.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T03:30:00Z,18.93725,72.7071,1.2,146.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T04:00:00Z,18.93651,72.70804,1.2,148.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T04:30:00Z,18.93609,72.70916,1.2,150.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T05:00:00Z,18.93602,72.71035,1.2,152.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T05:30:00Z,18.9363,72.71151,1.2,154.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T06:00:00Z,18.93691,72.71254,1.2,156.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T06:30:00Z,18.9378,72.71334,1.2,158.0,Container,India,8.5,Mumbai Anchorage
+419008888,Ocean Carrier 21,2026-09-06T07:00:00Z,18.93888,72.71384,1.2,160.0,Container,India,8.5,Mumbai Anchorage
+419007890,Blue Wave,2026-09-05T21:00:00Z,18.9102,72.4837,3.2,60.0,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-05T21:30:00Z,18.91332,72.48297,3.3,79.8,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-05T22:00:00Z,18.91594,72.48094,2.9,92.6,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-05T22:30:00Z,18.91766,72.47812,3.4,94.1,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-05T23:00:00Z,18.9182,72.4752,2.9,83.6,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-05T23:30:00Z,18.91747,72.47289,3.0,64.9,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T00:00:00Z,18.9156,72.47176,2.7,44.5,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T00:30:00Z,18.91288,72.47208,2.8,29.5,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T01:00:00Z,18.90973,72.47378,3.0,25.1,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T01:30:00Z,18.90666,72.47644,3.5,33.0,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T02:00:00Z,18.90415,72.4794,2.8,50.2,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T02:30:00Z,18.90259,72.48195,3.3,70.9,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T03:00:00Z,18.90223,72.48346,3.1,87.8,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T03:30:00Z,18.90313,72.48356,3.2,94.9,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T04:00:00Z,18.90515,72.48222,2.8,89.9,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T04:30:00Z,18.90796,72.47978,2.8,74.4,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T05:00:00Z,18.91113,72.47683,3.1,53.9,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T05:30:00Z,18.91415,72.47409,3.5,35.5,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T06:00:00Z,18.91655,72.47223,3.7,25.7,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T06:30:00Z,18.91794,72.47172,3.6,27.8,LNG Carrier,India,3.2,Sassoon Dock
+419007890,Blue Wave,2026-09-06T07:00:00Z,18.91811,72.47267,3.4,41.2,LNG Carrier,India,3.2,Sassoon Dock
+419009999,FV Marine One,2026-09-05T21:00:00Z,18.91,72.82,6.5,270.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-05T21:30:00Z,18.913,72.82195,6.5,265.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-05T22:00:00Z,18.916,72.82359,6.5,260.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-05T22:30:00Z,18.919,72.82466,6.5,255.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-05T23:00:00Z,18.922,72.825,6.5,250.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-05T23:30:00Z,18.925,72.82455,6.5,245.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T00:00:00Z,18.928,72.82338,6.5,240.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T00:30:00Z,18.931,72.82167,6.5,235.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T01:00:00Z,18.934,72.81971,6.5,230.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T01:30:00Z,18.937,72.81779,6.5,225.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T02:00:00Z,18.94,72.81622,6.5,220.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T02:30:00Z,18.943,72.81524,6.5,215.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T03:00:00Z,18.946,72.81502,6.5,210.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T03:30:00Z,18.949,72.81558,6.5,205.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T04:00:00Z,18.952,72.81684,6.5,200.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T04:30:00Z,18.955,72.8186,6.5,195.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T05:00:00Z,18.958,72.82058,6.5,190.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T05:30:00Z,18.961,72.82247,6.5,185.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T06:00:00Z,18.964,72.82397,6.5,180.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T06:30:00Z,18.967,72.82484,6.5,175.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
+419009999,FV Marine One,2026-09-06T07:00:00Z,18.97,72.82495,6.5,170.0,Fishing Vessel,India,4.8,Mumbai Fishing Grounds
 419006666,MT Coastal Trader,2026-09-05T21:00:00Z,18.2,71.4,13.8,184.0,Product Tanker,Singapore,11.8,Mangalore
 419006666,MT Coastal Trader,2026-09-05T21:30:00Z,18.215,71.418,13.7,184.0,Product Tanker,Singapore,11.8,Mangalore
 419006666,MT Coastal Trader,2026-09-05T22:00:00Z,18.23,71.436,13.5,184.0,Product Tanker,Singapore,11.8,Mangalore

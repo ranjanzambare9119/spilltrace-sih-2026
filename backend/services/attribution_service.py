@@ -32,12 +32,15 @@ class AttributionService:
         # Vessel risk profile weights (max 10 points)
         self.vessel_risk_weights = {
             "crude oil tanker": 8.0,
+            "crude tanker": 8.0,
             "oil tanker": 8.0,
             "chemical tanker": 7.0,
             "product tanker": 7.0,
             "bunkering vessel": 6.5,
             "bulk carrier": 5.0,
+            "container": 4.0,
             "container ship": 4.0,
+            "lng carrier": 3.0,
             "cargo vessel": 3.5,
             "general cargo": 3.5,
             "tug": 2.5,
@@ -46,6 +49,26 @@ class AttributionService:
             "pleasure craft": 1.0,
             "passenger": 1.5
         }
+
+    def check_oil_compatibility(self, vessel_type: str) -> Tuple[bool, str]:
+        """Classifies whether vessel is oil/crude carriage compatible based on vessel type."""
+        vt = vessel_type.lower().strip()
+        if any(k in vt for k in ["crude", "oil tanker"]):
+            return True, "Oil Compatible (Crude/Hydrocarbon Carriage)"
+        elif any(k in vt for k in ["product tanker", "bunker"]):
+            return True, "Oil Compatible (Product/Bunker Carriage)"
+        elif "chemical" in vt:
+            return True, "Oil Compatible (Chemical/Hydrocarbon Carriage)"
+        elif "container" in vt:
+            return False, "Not Oil Compatible (Container Cargo)"
+        elif "bulk" in vt:
+            return False, "Not Oil Compatible (Dry Bulk Cargo)"
+        elif "lng" in vt:
+            return False, "Not Oil Compatible (Liquefied Gas)"
+        elif "fishing" in vt or "trawler" in vt:
+            return False, "Not Oil Compatible (Fishing Fleet)"
+        else:
+            return False, "Not Oil Compatible"
 
     def compute_component_scores(
         self,
@@ -255,7 +278,7 @@ class AttributionService:
         origin: ProbableOriginEstimate,
         env: EnvironmentalConditions,
         records: List[AISRecord],
-        max_dist_km: float = 35.0
+        max_dist_km: float = 100.0
     ) -> List[CandidateVessel]:
         """Correlates all vessels against probable origin, scores them, and returns ranked candidate vessels."""
         grouped = ais_service.group_by_vessel(records)
@@ -268,7 +291,7 @@ class AttributionService:
                 origin.probable_origin_longitude
             )
 
-            # Spatial filter
+            # Spatial filter (default 100 km captures all ~10 demo scenario vessels)
             if cpa_dist > max_dist_km:
                 continue
 
@@ -276,7 +299,11 @@ class AttributionService:
                 cpa_dist, cpa_rec, origin, env, trajectory
             )
 
+            is_oil_comp, comp_label = self.check_oil_compatibility(cpa_rec.vessel_type)
+
             reasons = self.generate_explainability_reasons(scores, cpa_rec, origin)
+            reasons.append(f"Cargo Profile: {comp_label}.")
+
             has_anomaly, anomaly_detail = self.detect_ais_anomalies(trajectory, cpa_rec, origin)
 
             if has_anomaly:
@@ -302,7 +329,9 @@ class AttributionService:
                 verification_status="unverified",
                 ais_anomaly_detected=has_anomaly,
                 ais_anomaly_detail=anomaly_detail,
-                original_score=scores.total_score
+                original_score=scores.total_score,
+                oil_compatible=is_oil_comp,
+                cargo_compatibility=comp_label
             ))
 
         # Sort descending by total score
@@ -325,25 +354,30 @@ class AttributionService:
         Interactive Verification Loop:
         Updates candidate verification status and recalculates scores/ranks:
         - 'not_detected': physical aerial/port inspection found no leak -> score reduced by 60%
-        - 'confirmed': positive physical evidence -> score boosted/confirmed
-        - 'suspected': remains flagged
+        - 'confirmed': positive physical evidence -> score boosted, status VERIFIED LEAK
+        - 'suspected': remains flagged under active investigation without cascade
         - 'unverified': restored to baseline score
         """
+        clean_outcome = outcome.lower().strip()
         for cand in candidates:
             if cand.mmsi == target_mmsi:
-                cand.verification_status = outcome
                 orig = cand.original_score or cand.scores.total_score
                 cand.original_score = orig
 
-                if outcome == "not_detected":
+                if clean_outcome in ["not_detected", "not detected", "cleared"]:
+                    cand.verification_status = "NOT DETECTED"
                     # Substantial penalty: 60% reduction
                     cand.scores.total_score = max(5.0, round(orig * 0.40, 0))
-                    cand.why_reasons.insert(0, f"VERIFICATION UPDATE: Physical inspection conducted — LEAK NOT DETECTED ({notes or 'No active discharge found on hull'}). Score penalized to {cand.scores.total_score}/100.")
-                elif outcome in ["confirmed", "confirmed_source"]:
-                    cand.verification_status = "CONFIRMED SOURCE CANDIDATE"
+                    cand.why_reasons.insert(0, f"VERIFICATION UPDATE: Physical inspection conducted — LEAK NOT DETECTED ({notes or 'No active discharge found on hull'}). Score penalized by 60% to {cand.scores.total_score}/100.")
+                elif clean_outcome in ["confirmed", "confirmed_source", "verified leak", "verified"]:
+                    cand.verification_status = "VERIFIED LEAK"
                     cand.scores.total_score = min(98.0, max(orig, 96.0))
-                    cand.why_reasons.insert(0, f"VERIFICATION UPDATE: Physical inspection conducted — POSITIVE DISCHARGE CONFIRMED ({notes or 'Hull inspection verified oily residue and discharge pattern matching SAR anomaly'}). Marked as CONFIRMED SOURCE CANDIDATE.")
-                elif outcome == "unverified":
+                    cand.why_reasons.insert(0, f"VERIFICATION UPDATE: Physical/aerial inspection conducted — POSITIVE DISCHARGE CONFIRMED ({notes or 'Hull inspection verified oily residue and discharge pattern matching SAR anomaly'}). Marked as VERIFIED — DEMO.")
+                elif clean_outcome in ["suspected", "suspect"]:
+                    cand.verification_status = "SUSPECTED"
+                    cand.why_reasons.insert(0, f"VERIFICATION UPDATE: Candidate flagged as SUSPECTED ({notes or 'Visual/sensor evidence inconclusive; surveillance ongoing'}). Kept under investigation without response cascade.")
+                elif clean_outcome == "unverified":
+                    cand.verification_status = "unverified"
                     cand.scores.total_score = orig
 
         # Rerank all candidates based on updated scores
