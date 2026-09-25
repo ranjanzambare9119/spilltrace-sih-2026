@@ -152,10 +152,13 @@ class ForwardDriftPrediction(BaseModel):
     predicted_longitude: float
     total_forward_distance_km: float
     forward_drift_path: List[List[float]] = []  # [[lat, lon, t_hours, radius_km], ...]
+    milestones: List[Dict[str, Any]] = []  # [{hours, label, latitude, longitude, distance_km, uncertainty_radius_km, spread_area_km2, expected_time}]
+    spread_corridor_polygon: List[List[float]] = []  # [[lat, lon], ...]
     exclusion_zone_polygon: List[List[float]] = []  # [[lat, lon], ...]
     uncertainty_radius_km: float = 4.5
     hazard_area_km2: float = 24.8
     prediction_label: str = "FORWARD DRIFT PREDICTION (SIMPLIFIED / PROTOTYPE PREDICTION)"
+    environmental_drivers: Optional[Dict[str, Any]] = None
 
 
 class AtRiskVessel(BaseModel):

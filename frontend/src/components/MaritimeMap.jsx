@@ -13,6 +13,7 @@ export default function MaritimeMap({
   showOrigin = true,
   showDrift = true,
   showForwardDrift = true,
+  showSpreadCorridor = true,
   showExclusionZone = true,
   showVessels = true,
   showAtRiskVessels = true,
@@ -33,6 +34,7 @@ export default function MaritimeMap({
     origin: showOrigin,
     drift: showDrift,
     forwardDrift: showForwardDrift,
+    spreadCorridor: showSpreadCorridor,
     exclusionZone: showExclusionZone,
     vessels: showVessels,
     atRiskVessels: showAtRiskVessels
@@ -47,11 +49,12 @@ export default function MaritimeMap({
       origin: showOrigin,
       drift: showDrift,
       forwardDrift: showForwardDrift,
+      spreadCorridor: showSpreadCorridor,
       exclusionZone: showExclusionZone,
       vessels: showVessels,
       atRiskVessels: showAtRiskVessels
     });
-  }, [showSpill, showOrigin, showDrift, showForwardDrift, showExclusionZone, showVessels, showAtRiskVessels]);
+  }, [showSpill, showOrigin, showDrift, showForwardDrift, showSpreadCorridor, showExclusionZone, showVessels, showAtRiskVessels]);
 
   // 1. Initialize Map with standard OpenStreetMap (100% Free, NO API KEY)
   useEffect(() => {
@@ -145,26 +148,59 @@ export default function MaritimeMap({
         `);
       }
 
-      // Pulsing spill centroid
+      // Pulsing spill centroid with explicit CURRENT SPILL tactical badge
       const spillIcon = L.divIcon({
         className: 'custom-spill-icon',
         html: `
           <div style="
-            width: 18px; 
-            height: 18px; 
-            background: ${spillColor}; 
-            border: 2px solid #ffffff; 
-            border-radius: 50%;
-            box-shadow: 0 0 12px ${spillColor};
-          " class="pulsing-spill-marker"></div>
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            transform: translateY(-8px);
+          ">
+            <div style="
+              background: rgba(220, 38, 38, 0.95);
+              color: #ffffff;
+              border: 1px solid #ffffff;
+              border-radius: 3px;
+              padding: 1px 5px;
+              font-size: 9px;
+              font-weight: 800;
+              letter-spacing: 0.04em;
+              white-space: nowrap;
+              box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+              margin-bottom: 2px;
+            ">CURRENT SPILL</div>
+            <div style="
+              width: 16px; 
+              height: 16px; 
+              background: ${spillColor}; 
+              border: 2px solid #ffffff; 
+              border-radius: 50%;
+              box-shadow: 0 0 14px ${spillColor};
+            " class="pulsing-spill-marker"></div>
+          </div>
         `,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9]
+        iconSize: [80, 36],
+        iconAnchor: [40, 30]
       });
 
       L.marker([spillData.latitude, spillData.longitude], { icon: spillIcon })
         .addTo(layerGroup)
-        .bindPopup(`<strong>Possible Spill Centroid</strong><br/>${spillData.latitude}° N, ${spillData.longitude}° E<br/><span style="color: ${spillColor}; font-weight: 700;">${sevClass} (${isMinor ? 'Minor' : 'Major'})</span>`);
+        .bindPopup(`
+          <div style="font-size: 0.8rem; line-height: 1.45;">
+            <div style="color: #ef4444; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.2rem;">
+              ● CURRENT DETECTED SPILL
+            </div>
+            <div><strong>Location:</strong> ${spillData.latitude}° N, ${spillData.longitude}° E</div>
+            <div><strong>Severity:</strong> <span style="color: ${spillColor}; font-weight: 700;">${sevClass} (${isMinor ? 'Minor' : 'Major'})</span></div>
+            <div><strong>Detected Area:</strong> ${spillData.area_km2} km²</div>
+            <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.2rem;">
+              Active detection center. Backward leeway determines origin; forward leeway models predicted spread corridor.
+            </div>
+          </div>
+        `);
     }
 
     // 2. PROBABLE ORIGIN LAYER
@@ -275,73 +311,220 @@ export default function MaritimeMap({
       }
     }
 
-    // 4. FORWARD DRIFT TRAJECTORY & DIFFUSION CENTROID LAYER
+    // 4. FORWARD DRIFT TRAJECTORY, DIRECTION ARROW & FUTURE POSITIONS (+1h, +3h, +6h)
     if (layers.forwardDrift && forwardDrift) {
+      const fwdSpeed = forwardDrift.net_drift_speed_kts || 1.68;
+      const fwdAngle = forwardDrift.net_drift_direction_deg || 54.3;
+      const startLat = forwardDrift.detected_latitude || spillData?.latitude || 18.95;
+      const startLon = forwardDrift.detected_longitude || spillData?.longitude || 72.40;
+
+      // 4a. Forward Trajectory Line
       if (forwardDrift.forward_drift_path && forwardDrift.forward_drift_path.length > 0) {
         const fwdPath = forwardDrift.forward_drift_path.map(p => [p[0], p[1]]);
         L.polyline(fwdPath, {
-          color: '#f59e0b',
+          color: '#fbbf24',
           weight: 3.5,
           dashArray: '8, 6',
           opacity: 0.95
         }).addTo(layerGroup).bindPopup(`
-          <div style="font-size: 0.8rem;">
-            <strong style="color: #fbbf24;">Forward Drift Forecast (+${forwardDrift.forecast_hours || 6}h)</strong><br/>
-            Predicted Velocity: <strong>${forwardDrift.net_drift_speed_kts} kts @ ${forwardDrift.net_drift_direction_deg}°</strong><br/>
-            Projected Distance: <strong>${forwardDrift.total_forward_distance_km} km</strong><br/>
-            <em>Simplified Hydrodynamic Vector Model</em>
+          <div style="font-size: 0.8rem; line-height: 1.45;">
+            <div style="color: #fbbf24; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.2rem;">
+              ➔ Forward Drift Forecast (+${forwardDrift.forecast_hours || 6}h)
+            </div>
+            <div><strong>Heading:</strong> ${fwdAngle}° (Northeast)</div>
+            <div><strong>Velocity:</strong> ${fwdSpeed} kts</div>
+            <div><strong>Total Distance:</strong> ${forwardDrift.total_forward_distance_km} km</div>
+            <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.25rem;">
+              SIMPLIFIED FORWARD DRIFT PREDICTION (Leeway 2-vector model)
+            </div>
+          </div>
+        `);
+      }
+
+      // 4b. Extract or derive milestones at +1h, +3h, +6h
+      let milestones = forwardDrift.milestones;
+      if (!milestones || milestones.length === 0) {
+        const fwdRad = (fwdAngle * Math.PI) / 180;
+        const cosLat = Math.cos((startLat * Math.PI) / 180);
+        milestones = [1, 3, 6].map(hr => {
+          const distKm = Number((fwdSpeed * hr * 1.852).toFixed(2));
+          const dLat = (distKm * Math.cos(fwdRad)) / 111.0;
+          const dLon = (distKm * Math.sin(fwdRad)) / (111.0 * cosLat);
+          return {
+            hours: hr,
+            label: `+${hr}h`,
+            latitude: Number((startLat + dLat).toFixed(4)),
+            longitude: Number((startLon + dLon).toFixed(4)),
+            distance_km: distKm,
+            uncertainty_radius_km: Number((2.17 + hr * 0.4).toFixed(2)),
+            expected_time: `${String(6 + hr).padStart(2, '0')}:00 UTC`
+          };
+        });
+      }
+
+      // 4c. Forward Drift Direction Arrow Badge along path (positioned between +1h and +3h for optimal clearance)
+      if (milestones.length > 0) {
+        const refM1 = milestones[0];
+        const refM2 = milestones.length > 1 ? milestones[1] : milestones[0];
+        const arrowLat = (refM1.latitude + refM2.latitude) / 2;
+        const arrowLon = (refM1.longitude + refM2.longitude) / 2;
+        const fwdArrowIcon = L.divIcon({
+          className: 'custom-fwd-arrow-badge',
+          html: `
+            <div style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              background: rgba(15, 23, 42, 0.95);
+              border: 1.5px solid #fbbf24;
+              border-radius: 16px;
+              padding: 2px 8px;
+              box-shadow: 0 0 14px rgba(245, 158, 11, 0.5);
+              white-space: nowrap;
+            ">
+              <span style="
+                transform: rotate(${fwdAngle - 90}deg);
+                display: inline-block;
+                color: #fbbf24;
+                font-size: 13px;
+                font-weight: 900;
+              ">➔</span>
+              <span style="font-size: 10px; font-weight: 800; color: #fbbf24; font-family: monospace;">
+                FORWARD DRIFT ${fwdAngle}° (${fwdSpeed} kts)
+              </span>
+            </div>
+          `,
+          iconSize: [160, 24],
+          iconAnchor: [80, 12]
+        });
+        L.marker([arrowLat, arrowLon], { icon: fwdArrowIcon }).addTo(layerGroup);
+      }
+
+      // 4d. Predicted Future Positions & Uncertainty Circles at +1h, +3h, +6h
+      milestones.forEach((m) => {
+        // Uncertainty Region Circle
+        L.circle([m.latitude, m.longitude], {
+          radius: (m.uncertainty_radius_km || 3.0) * 1000,
+          color: '#fbbf24',
+          weight: 1.5,
+          fillColor: '#fbbf24',
+          fillOpacity: 0.08,
+          dashArray: '4, 4'
+        }).addTo(layerGroup).bindPopup(`
+          <div style="font-size: 0.8rem; line-height: 1.45;">
+            <div style="color: #fbbf24; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.2rem;">
+              Uncertainty Region: ${m.label} Position
+            </div>
+            <div><strong>Diffusion Radius:</strong> ±${m.uncertainty_radius_km} km</div>
+            <div><strong>Coordinates:</strong> ${m.latitude}° N, ${m.longitude}° E</div>
+            <div><strong>Distance from Slick:</strong> +${m.distance_km} km</div>
+            <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.25rem;">
+              SIMPLIFIED FORWARD DRIFT PREDICTION
+            </div>
           </div>
         `);
 
-        // Forward centroid marker
-        const fwdLat = forwardDrift.predicted_latitude;
-        const fwdLon = forwardDrift.predicted_longitude;
-        const fwdIcon = L.divIcon({
-          className: 'custom-fwd-icon',
+        // Milestone Pill Marker (+1h, +3h, +6h)
+        const is6h = m.hours >= 6;
+        const mIcon = L.divIcon({
+          className: `custom-milestone-${m.hours}h`,
           html: `
             <div style="
-              width: 20px; 
-              height: 20px; 
-              background: #f59e0b; 
-              border: 2px dashed #ffffff; 
-              border-radius: 50%;
-              box-shadow: 0 0 16px #f59e0b;
               display: flex;
+              flex-direction: column;
               align-items: center;
-              justify-content: center;
-              font-size: 10px;
-              color: #000000;
-              font-weight: 900;
-            ">+6h</div>
+              cursor: pointer;
+              transform: translateY(-8px);
+            ">
+              <div style="
+                background: ${is6h ? '#b45309' : '#0f172a'};
+                color: #ffffff;
+                border: 1.5px solid #fbbf24;
+                border-radius: 4px;
+                padding: 1px 5px;
+                font-size: 9px;
+                font-weight: 800;
+                font-family: monospace;
+                white-space: nowrap;
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+                margin-bottom: 2px;
+              ">${m.label} (+${m.distance_km}km)</div>
+              <div style="
+                width: ${is6h ? '14px' : '10px'};
+                height: ${is6h ? '14px' : '10px'};
+                background: #fbbf24;
+                border: 2px solid #ffffff;
+                border-radius: 50%;
+                box-shadow: 0 0 10px #fbbf24;
+              "></div>
+            </div>
           `,
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
+          iconSize: [85, 30],
+          iconAnchor: [42, 25]
         });
 
-        L.marker([fwdLat, fwdLon], { icon: fwdIcon })
+        L.marker([m.latitude, m.longitude], { icon: mIcon })
           .addTo(layerGroup)
-          .bindPopup(`<strong>Projected Spill Centroid (+${forwardDrift.forecast_hours || 6}h)</strong><br/>${fwdLat.toFixed(4)}° N, ${fwdLon.toFixed(4)}° E<br/>Uncertainty Radius: ±${forwardDrift.uncertainty_radius_km} km`);
+          .bindPopup(`
+            <div style="font-size: 0.8rem; line-height: 1.45;">
+              <div style="color: #fbbf24; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.2rem;">
+                Predicted Spill Position (${m.label})
+              </div>
+              <div><strong>Coordinates:</strong> ${m.latitude}° N, ${m.longitude}° E</div>
+              <div><strong>Projected Distance:</strong> +${m.distance_km} km</div>
+              <div><strong>Uncertainty Envelope:</strong> ±${m.uncertainty_radius_km} km</div>
+              <div><strong>Estimated Arrival:</strong> ~${m.expected_time || ''}</div>
+              <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.25rem;">
+                SIMPLIFIED FORWARD DRIFT PREDICTION (NOAA/IMO Vector Model)
+              </div>
+            </div>
+          `);
+      });
+    }
+
+    // 5. PREDICTED SPREAD CORRIDOR LAYER
+    if (layers.spreadCorridor && forwardDrift) {
+      const spreadPoly = forwardDrift.spread_corridor_polygon || forwardDrift.exclusion_zone_polygon;
+      if (spreadPoly && spreadPoly.length > 0) {
+        L.polygon(spreadPoly, {
+          color: '#f59e0b',
+          weight: 1.5,
+          fillColor: '#f59e0b',
+          fillOpacity: 0.12,
+          dashArray: '5, 5'
+        }).addTo(layerGroup).bindPopup(`
+          <div style="font-size: 0.8rem; line-height: 1.45; min-width: 200px;">
+            <div style="color: #fbbf24; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.2rem;">
+              ▨ Predicted Spread Corridor (+6h)
+            </div>
+            <div><strong>Corridor Area:</strong> ~${forwardDrift.hazard_area_km2 || 24.8} km²</div>
+            <div><strong>Diffusion Envelope:</strong> Expanding to ±${forwardDrift.uncertainty_radius_km || 4.5} km</div>
+            <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.25rem;">
+              SIMPLIFIED FORWARD DRIFT PREDICTION: Physical leeway expansion corridor along dominant surface current and wind forcing.
+            </div>
+          </div>
+        `);
       }
     }
 
-    // 5. DYNAMIC EXCLUSION ZONE CORRIDOR POLYGON
+    // 6. DYNAMIC EXCLUSION ZONE CORRIDOR POLYGON
     if (layers.exclusionZone && forwardDrift && forwardDrift.exclusion_zone_polygon?.length > 0) {
       L.polygon(forwardDrift.exclusion_zone_polygon, {
         color: '#f43f5e',
         weight: 2,
         fillColor: '#f43f5e',
         fillOpacity: 0.18,
-        dashArray: '5, 5'
+        dashArray: '6, 6'
       }).addTo(layerGroup).bindPopup(`
-        <div style="font-size: 0.8rem; line-height: 1.45; min-width: 200px;">
+        <div style="font-size: 0.8rem; line-height: 1.45; min-width: 210px;">
           <div style="color: #f43f5e; font-weight: 800; font-size: 0.85rem; margin-bottom: 0.2rem;">
-            ⚠️ Dynamic Exclusion Zone (+6h Corridor)
+            ⚠️ Dynamic Exclusion Zone (+6h Safety Perimeter)
           </div>
-          <div><strong>Hazard Area:</strong> ~${forwardDrift.hazard_area_km2 || 24.8} km²</div>
-          <div><strong>Buffer Envelope:</strong> ±${forwardDrift.uncertainty_radius_km || 4.5} km diffusion</div>
-          <div><strong>Status:</strong> Active Maritime Navigation Warning</div>
+          <div><strong>Safety Buffer:</strong> Spread corridor + 1.5–2.5 km navigation buffer</div>
+          <div><strong>Total Protected Area:</strong> ~${forwardDrift.hazard_area_km2 || 24.8} km²</div>
+          <div><strong>Status:</strong> Active Maritime Navigation Warning Perimeter</div>
           <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.25rem;">
-            Decision-support advisory boundary to safeguard approaching commercial vessels and plan containment boom deployment.
+            Navigational exclusion boundary used to flag approaching fairway traffic and dispatch automated NAVTEX broadcast advisories.
           </div>
         </div>
       `);
@@ -699,7 +882,15 @@ export default function MaritimeMap({
               checked={layers.forwardDrift} 
               onChange={e => setLayers(prev => ({ ...prev, forwardDrift: e.target.checked }))} 
             />
-            <span style={{ color: '#fbbf24', fontWeight: 600 }}>➔ +6h Fwd Drift</span>
+            <span style={{ color: '#fbbf24', fontWeight: 600 }}>➔ Fwd Drift (+1h/+3h/+6h)</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={layers.spreadCorridor} 
+              onChange={e => setLayers(prev => ({ ...prev, spreadCorridor: e.target.checked }))} 
+            />
+            <span style={{ color: '#f59e0b', fontWeight: 600 }}>▨ Spread Corridor</span>
           </label>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
             <input 
@@ -747,10 +938,12 @@ export default function MaritimeMap({
           alignItems: 'center',
           gap: '0.85rem'
         }}>
-          <div><span style={{ color: '#ef4444' }}>■</span> Possible Spill</div>
+          <div><span style={{ color: '#ef4444' }}>■</span> Current Spill</div>
           <div><span style={{ color: '#f59e0b' }}>◌</span> Probable Origin (±3.5km)</div>
           <div><span style={{ color: '#00f0ff' }}>➔</span> Drift Track</div>
-          <div><span style={{ color: '#fbbf24' }}>⇢</span> +6h Forecast</div>
+          <div><span style={{ color: '#fbbf24' }}>➔</span> Fwd Drift Vector</div>
+          <div><span style={{ color: '#fbbf24' }}>◷</span> +1h / +3h / +6h Positions</div>
+          <div><span style={{ color: '#f59e0b' }}>▨</span> Spread Corridor</div>
           <div><span style={{ color: '#f43f5e' }}>▨</span> Exclusion Zone</div>
           <div><span style={{ color: '#38bdf8' }}>━━</span> Candidate Tracks</div>
           <div><span style={{ color: '#f87171' }}>●</span> At-Risk Ships</div>

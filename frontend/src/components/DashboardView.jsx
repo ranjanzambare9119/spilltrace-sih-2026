@@ -792,8 +792,213 @@ export default function DashboardView({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: CURRENT RESPONSE STATUS (PANEL 6) + TOP RECOMMENDED ACTIONS */}
+        {/* RIGHT COLUMN: FORWARD SPILL PREDICTION + CURRENT RESPONSE STATUS + TOP RECOMMENDED ACTIONS */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          {/* PANEL: DEDICATED FORWARD SPILL PREDICTION */}
+          <div style={{
+            backgroundColor: '#0e172a',
+            border: '1px solid #1e293b',
+            borderLeft: '4px solid #f59e0b',
+            borderRadius: '10px',
+            padding: '0.85rem 1.1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.65rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Compass size={17} color="#fbbf24" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                  FORWARD SPILL PREDICTION
+                </span>
+              </div>
+
+              <span style={{
+                backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                color: '#fbbf24',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                fontSize: '0.62rem',
+                fontWeight: 800,
+                padding: '2px 6px',
+                borderRadius: '3px',
+                textTransform: 'uppercase'
+              }}>
+                SIMPLIFIED PREDICTION (PROTOTYPE)
+              </span>
+            </div>
+
+            {/* Visual Answer: WHERE WILL THE OIL GO NEXT? */}
+            <div style={{
+              backgroundColor: '#070b14',
+              border: '1px solid #1e293b',
+              borderRadius: '6px',
+              padding: '0.55rem 0.8rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.8rem'
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.2rem' }}>
+                  <span style={{
+                    fontSize: '0.58rem',
+                    fontWeight: 900,
+                    color: '#fbbf24',
+                    letterSpacing: '0.05em',
+                    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                    padding: '1px 5px',
+                    borderRadius: '3px',
+                    border: '1px solid rgba(245, 158, 11, 0.25)'
+                  }}>
+                    WHERE WILL THE OIL GO NEXT?
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.64rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
+                  Expected Movement Heading
+                </div>
+                <div style={{ fontSize: '0.86rem', fontWeight: 800, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem' }}>
+                  <span style={{ color: '#fbbf24', fontSize: '1.1rem' }}>➔</span>
+                  <span>Drifting Northeast ({forwardDrift?.net_drift_direction_deg || 54.3}°) towards Fairway Corridor</span>
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '0.62rem', color: '#94a3b8', textTransform: 'uppercase' }}>Drift Speed</div>
+                <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fbbf24', fontFamily: 'monospace' }}>
+                  {forwardDrift?.net_drift_speed_kts || 1.68} kts
+                </div>
+              </div>
+            </div>
+
+            {/* Core Metrics 4-Box Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '0.45rem'
+            }}>
+              <div style={{ backgroundColor: '#070b14', border: '1px solid #1e293b', borderRadius: '4px', padding: '0.4rem 0.5rem' }}>
+                <div style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase' }}>Horizon</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.1rem' }}>
+                  +{isLeakConfirmed ? 12 : (forwardDrift?.forecast_hours || 6)}h
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: '#070b14', border: '1px solid #1e293b', borderRadius: '4px', padding: '0.4rem 0.5rem' }}>
+                <div style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase' }}>Pred. Distance</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fbbf24', marginTop: '0.1rem' }}>
+                  ~{forwardDrift?.total_forward_distance_km || 18.6} km
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: '#070b14', border: '1px solid #1e293b', borderRadius: '4px', padding: '0.4rem 0.5rem' }}>
+                <div style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase' }}>Drift Vector</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#38bdf8', marginTop: '0.1rem' }}>
+                  {forwardDrift?.net_drift_direction_deg || 54.3}°
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: '#070b14', border: '1px solid #1e293b', borderRadius: '4px', padding: '0.4rem 0.5rem' }}>
+                <div style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase' }}>Uncertainty</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f59e0b', marginTop: '0.1rem' }}>
+                  ±{forwardDrift?.uncertainty_radius_km || 4.5} km
+                </div>
+              </div>
+            </div>
+
+            {/* Hour-by-Hour Milestones Progression (+1h, +3h, +6h) */}
+            <div style={{
+              backgroundColor: '#070b14',
+              border: '1px solid #1e293b',
+              borderRadius: '6px',
+              padding: '0.45rem 0.6rem'
+            }}>
+              <div style={{ fontSize: '0.62rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.35rem' }}>
+                Predicted Future Positions (+1h, +3h, +6h)
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
+                {(forwardDrift?.milestones?.length ? forwardDrift.milestones : [
+                  { label: '+1h', distance_km: 3.1, uncertainty_radius_km: 2.6, expected_time: '07:00 UTC' },
+                  { label: '+3h', distance_km: 9.3, uncertainty_radius_km: 3.4, expected_time: '09:00 UTC' },
+                  { label: '+6h', distance_km: 18.6, uncertainty_radius_km: 4.6, expected_time: '12:00 UTC' }
+                ]).map((m, idx) => (
+                  <div key={idx} style={{
+                    backgroundColor: '#0e172a',
+                    border: '1px solid #1e293b',
+                    borderRadius: '4px',
+                    padding: '0.35rem 0.45rem',
+                    fontSize: '0.66rem'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, color: '#fbbf24' }}>
+                      <span>{m.label}</span>
+                      <span style={{ color: '#94a3b8', fontFamily: 'monospace' }}>{m.expected_time}</span>
+                    </div>
+                    <div style={{ color: '#cbd5e1', marginTop: '0.15rem' }}>+{m.distance_km} km</div>
+                    <div style={{ color: '#64748b', fontSize: '0.6rem' }}>Spread: ±{m.uncertainty_radius_km} km</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Main Environmental Drivers */}
+            <div style={{
+              fontSize: '0.68rem',
+              color: '#94a3b8',
+              backgroundColor: 'rgba(15, 23, 42, 0.6)',
+              border: '1px solid #1e293b',
+              borderRadius: '4px',
+              padding: '0.4rem 0.6rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.2rem'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 700, color: '#cbd5e1' }}>Main Drivers:</span>
+                <span style={{ color: '#34d399' }}>
+                  {forwardDrift?.environmental_drivers?.dominant_factor || 'Surface Current (71%) + Wind Leeway (29%)'}
+                </span>
+              </div>
+              <div style={{ color: '#64748b', fontSize: '0.62rem' }}>
+                Surface Current: 1.2 kts @ 50° • Surface Wind: 14 kts @ 65° (Leeway 3.0%)
+              </div>
+            </div>
+
+            {/* Downstream Safety Workflow Step Chain */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: '#070b14',
+              border: '1px solid #1e293b',
+              borderRadius: '6px',
+              padding: '0.4rem 0.6rem',
+              fontSize: '0.65rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#94a3b8', flexWrap: 'wrap' }}>
+                <span style={{ color: '#fbbf24', fontWeight: 700 }}>FORWARD DRIFT</span>
+                <span>➔</span>
+                <span style={{ color: '#fbbf24', fontWeight: 700 }}>PREDICTED SPREAD</span>
+                <span>➔</span>
+                <span style={{ color: '#f43f5e', fontWeight: 700 }}>EXCLUSION (~25 km²)</span>
+                <span>➔</span>
+                <span style={{ color: '#f87171', fontWeight: 700 }}>{atRiskVessels?.filter(v => v.risk_state !== 'OUTSIDE RISK')?.length || 8} AT-RISK</span>
+              </div>
+              <button
+                onClick={() => onNavigateTab('notifications')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#38bdf8',
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  padding: 0,
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                View Dispatches &rarr;
+              </button>
+            </div>
+          </div>
+
           {/* PANEL 6: CURRENT RESPONSE STATUS */}
           <div style={{
             backgroundColor: '#0e172a',
@@ -920,7 +1125,17 @@ export default function DashboardView({
                 </div>
 
                 <button
-                  onClick={() => onNavigateTab('investigation')}
+                  onClick={() => {
+                    if (onVerifyCandidate && topCandidate) {
+                      onVerifyCandidate(
+                        topCandidate.mmsi,
+                        'confirmed',
+                        'On-scene aerial FLIR & physical inspection confirmed active discharge matching SAR anomaly morphology.'
+                      );
+                    } else if (onNavigateTab) {
+                      onNavigateTab('investigation');
+                    }
+                  }}
                   style={{
                     background: 'linear-gradient(135deg, #dc2626, #991b1b)',
                     color: '#ffffff',

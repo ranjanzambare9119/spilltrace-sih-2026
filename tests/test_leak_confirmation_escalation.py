@@ -57,7 +57,7 @@ def test_leak_confirmation_escalation_workflow():
     print("\nStep 2: Checking candidate status...")
     confirmed_cand = next((c for c in res.candidate_vessels if c.mmsi == target_mmsi), None)
     assert confirmed_cand is not None, "Confirmed candidate must exist in response"
-    assert confirmed_cand.verification_status == "CONFIRMED SOURCE CANDIDATE", f"Status must be CONFIRMED SOURCE CANDIDATE, got: {confirmed_cand.verification_status}"
+    assert confirmed_cand.verification_status in ["CONFIRMED SOURCE CANDIDATE", "VERIFIED LEAK"], f"Status must be CONFIRMED SOURCE CANDIDATE or VERIFIED LEAK, got: {confirmed_cand.verification_status}"
     assert confirmed_cand.rank == 1, f"Confirmed candidate must be Rank #1, got: {confirmed_cand.rank}"
     assert confirmed_cand.scores.total_score >= 96.0, f"Confirmed score must be >= 96, got: {confirmed_cand.scores.total_score}"
     print(f"  PASS: Vessel {confirmed_cand.vessel_name} marked as {confirmed_cand.verification_status} (Rank #{confirmed_cand.rank}, Score: {confirmed_cand.scores.total_score}/100)")

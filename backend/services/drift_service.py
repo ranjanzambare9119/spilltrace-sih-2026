@@ -179,29 +179,95 @@ class DriftService:
             radius_km = round(base_radius_km + (t_h * uncertainty_growth_rate * 0.8), 2)
             forward_path.append([p_lat, p_lon, t_h, radius_km])
 
-        # Generate Exclusion Zone Polygon around corridor
+        # Generate Spread Corridor Polygon (natural diffusion envelope)
+        # and Exclusion Zone Polygon (buffer with navigation safety margin)
         perp_bearing_left = (net_drift_dir_deg - 90) % 360
         perp_bearing_right = (net_drift_dir_deg + 90) % 360
         left_rad = math.radians(perp_bearing_left)
         right_rad = math.radians(perp_bearing_right)
 
         cos_lat = math.cos(math.radians(spill.latitude))
-        polygon_left = []
-        polygon_right = []
+        spread_left = []
+        spread_right = []
+        exclusion_left = []
+        exclusion_right = []
 
         buffer_offset = 2.5 if is_confirmed else 1.5
         for pt in forward_path:
             p_lat, p_lon, _, r_km = pt
+            # Physical spread envelope
+            s_lat = round(p_lat + (r_km * math.cos(left_rad)) / 111.0, 5)
+            s_lon = round(p_lon + (r_km * math.sin(left_rad)) / (111.0 * cos_lat), 5)
+            spread_left.append([s_lat, s_lon])
+            
+            sr_lat = round(p_lat + (r_km * math.cos(right_rad)) / 111.0, 5)
+            sr_lon = round(p_lon + (r_km * math.sin(right_rad)) / (111.0 * cos_lat), 5)
+            spread_right.append([sr_lat, sr_lon])
+
+            # Safety exclusion buffer
             buf_km = r_km + buffer_offset
             l_lat = round(p_lat + (buf_km * math.cos(left_rad)) / 111.0, 5)
             l_lon = round(p_lon + (buf_km * math.sin(left_rad)) / (111.0 * cos_lat), 5)
-            polygon_left.append([l_lat, l_lon])
+            exclusion_left.append([l_lat, l_lon])
             
             r_lat = round(p_lat + (buf_km * math.cos(right_rad)) / 111.0, 5)
             r_lon = round(p_lon + (buf_km * math.sin(right_rad)) / (111.0 * cos_lat), 5)
-            polygon_right.append([r_lat, r_lon])
+            exclusion_right.append([r_lat, r_lon])
 
-        exclusion_zone_polygon = polygon_left + list(reversed(polygon_right))
+        spread_corridor_polygon = spread_left + list(reversed(spread_right))
+        exclusion_zone_polygon = exclusion_left + list(reversed(exclusion_right))
+
+        # Explicit forward milestones at +1h, +3h, +6h (and +12h if confirmed)
+        target_milestones = [1.0, 3.0, 6.0]
+        if is_confirmed and forecast_hours >= 12.0:
+            target_milestones.append(12.0)
+
+        milestones = []
+        try:
+            det_dt = datetime.strptime(spill.detection_time, "%Y-%m-%dT%H:%M:%SZ")
+        except Exception:
+            det_dt = datetime(2026, 9, 6, 6, 0, 0)
+
+        for hr in target_milestones:
+            if hr > forecast_hours:
+                continue
+            m_dist_km = round(net_drift_speed_kts * hr * 1.852, 2)
+            m_d_lat = (m_dist_km * math.cos(fwd_rad)) / 111.0
+            m_d_lon = (m_dist_km * math.sin(fwd_rad)) / (111.0 * cos_lat)
+            m_lat = round(spill.latitude + m_d_lat, 4)
+            m_lon = round(spill.longitude + m_d_lon, 4)
+            m_uncertainty_km = round(base_radius_km + (hr * uncertainty_growth_rate * 0.8), 2)
+            m_spread_area_km2 = round(math.pi * (m_uncertainty_km ** 2), 1)
+            eta_dt = det_dt + timedelta(hours=hr)
+            milestones.append({
+                "hours": hr,
+                "label": f"+{int(hr)}h",
+                "latitude": m_lat,
+                "longitude": m_lon,
+                "distance_km": m_dist_km,
+                "uncertainty_radius_km": m_uncertainty_km,
+                "spread_area_km2": m_spread_area_km2,
+                "expected_time": eta_dt.strftime("%H:%M UTC")
+            })
+
+        # Main Environmental Drivers Breakdown
+        total_forcing = c_speed_kts + w_speed_kts
+        current_share_pct = round((c_speed_kts / total_forcing * 100), 1) if total_forcing > 0 else 50.0
+        wind_share_pct = round(100.0 - current_share_pct, 1)
+
+        environmental_drivers = {
+            "current_speed_kts": env.current_speed,
+            "current_direction_deg": env.current_direction,
+            "current_forcing_pct": current_share_pct,
+            "wind_speed_kts": env.wind_speed,
+            "wind_direction_deg": env.wind_direction,
+            "leeway_factor_pct": round(env.leeway_factor * 100, 1),
+            "effective_wind_speed_kts": round(w_speed_kts, 2),
+            "wind_forcing_pct": wind_share_pct,
+            "dominant_factor": f"Surface Ocean Current ({current_share_pct}%)",
+            "model_type": "SIMPLIFIED FORWARD DRIFT PREDICTION",
+            "model_disclaimer": "Simplified prototype estimate based on NOAA/IMO leeway vector addition (Current + 3% Wind). Operational deployment incorporates ECMWF high-resolution winds and INCOIS/HYCOM currents."
+        }
 
         final_uncertainty_km = round(base_radius_km + (forecast_hours * uncertainty_growth_rate), 1)
         if is_confirmed:
@@ -210,7 +276,7 @@ class DriftService:
         else:
             avg_width_km = (forward_path[0][3] + forward_path[-1][3]) + 3.0
             hazard_area_km2 = round(total_drift_km * avg_width_km, 1)
-            label = "FORWARD DRIFT PREDICTION (SIMPLIFIED / PROTOTYPE PREDICTION)"
+            label = "SIMPLIFIED FORWARD DRIFT PREDICTION (PROTOTYPE PREDICTION)"
 
         return ForwardDriftPrediction(
             spill_id=spill.spill_id,
@@ -223,10 +289,13 @@ class DriftService:
             predicted_longitude=pred_lon,
             total_forward_distance_km=round(total_drift_km, 2),
             forward_drift_path=forward_path,
+            milestones=milestones,
+            spread_corridor_polygon=spread_corridor_polygon,
             exclusion_zone_polygon=exclusion_zone_polygon,
             uncertainty_radius_km=final_uncertainty_km,
             hazard_area_km2=hazard_area_km2,
-            prediction_label=label
+            prediction_label=label,
+            environmental_drivers=environmental_drivers
         )
 
 drift_service = DriftService()
