@@ -26,7 +26,9 @@ export default function InvestigationView({
   onSelectVessel,
   onVerifyCandidate,
   isLeakConfirmed = false,
-  investigationState = 'CANDIDATE'
+  investigationState = 'CANDIDATE',
+  onLoadDemo,
+  isDemoActive
 }) {
   const [detailModalVessel, setDetailModalVessel] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -90,10 +92,55 @@ export default function InvestigationView({
         </div>
       </div>
 
-      {/* Main Container: Top Candidate Hero Card + Other Candidates */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '1.2rem' }}>
-        {/* Left Column: TOP CANDIDATE VISUALLY DOMINANT HERO */}
-        {topCandidate ? (
+      {/* Main Container: Top Candidate Hero Card + Other Candidates OR Clean Empty State */}
+      {candidates.length === 0 ? (
+        <div style={{
+          backgroundColor: '#0a101d',
+          border: '1px solid #1e293b',
+          borderRadius: '10px',
+          padding: '4rem 2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          gap: '1.2rem',
+          minHeight: '420px'
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Award size={30} color="#38bdf8" />
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f1f5f9', margin: '0 0 0.4rem 0' }}>
+              NO INCIDENT UNDER INVESTIGATION
+            </h3>
+            <p style={{ fontSize: '0.84rem', color: '#94a3b8', maxWidth: '480px', margin: 0, lineHeight: 1.5 }}>
+              No candidate vessels have been attributed to an incident yet. Complete satellite analysis and AIS vessel correlation, or load the synthetic demo scenario.
+            </p>
+          </div>
+          {onLoadDemo && (
+            <button
+              onClick={onLoadDemo}
+              className="btn-primary"
+              style={{ padding: '0.65rem 1.6rem', fontSize: '0.85rem', fontWeight: 800 }}
+            >
+              LOAD DEMO SCENARIO
+            </button>
+          )}
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '1.2rem' }}>
+          {/* Left Column: TOP CANDIDATE VISUALLY DOMINANT HERO */}
+          {topCandidate ? (
           <div style={{
             backgroundColor: '#0e172a',
             border: '2px solid #38bdf8',
@@ -555,6 +602,7 @@ export default function InvestigationView({
           </div>
         </div>
       </div>
+      )}
 
       {/* MODAL 1: 5-FACTOR SCORE BREAKDOWN */}
       {detailModalVessel && (

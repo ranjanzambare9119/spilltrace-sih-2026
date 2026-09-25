@@ -19,7 +19,9 @@ export default function VesselCorrelationView({
   onSelectVessel,
   onCorrelateVessels,
   isCorrelating,
-  onProceedToInvestigation
+  onProceedToInvestigation,
+  onLoadDemo,
+  isDemoActive
 }) {
   const [inspectVessel, setInspectVessel] = useState(null);
 
@@ -130,73 +132,114 @@ export default function VesselCorrelationView({
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', overflowY: 'auto', flex: 1 }}>
-            {candidates.map((vessel) => {
-              const isSelected = selectedVessel && selectedVessel.mmsi === vessel.mmsi;
-              const isRank1 = vessel.rank === 1;
-              const score = vessel.scores?.total_score || 0;
-
-              return (
-                <div
-                  key={vessel.mmsi}
-                  onClick={() => {
-                    onSelectVessel(vessel);
-                    setInspectVessel(vessel);
-                  }}
-                  style={{
-                    backgroundColor: isSelected ? '#162444' : '#070b14',
-                    border: isSelected 
-                      ? (isRank1 ? '1.5px solid #38bdf8' : '1.5px solid #f59e0b') 
-                      : '1px solid #1e293b',
-                    borderRadius: '6px',
-                    padding: '0.75rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <div style={{
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '4px',
-                      backgroundColor: isRank1 ? '#0284c7' : '#1e293b',
-                      color: '#ffffff',
-                      fontWeight: 800,
-                      fontSize: '0.8rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      #{vessel.rank}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f1f5f9' }}>
-                        {vessel.vessel_name.replace(' - DEMO', '')}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                        {vessel.vessel_type}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{
-                      fontSize: '1.05rem',
-                      fontWeight: 800,
-                      fontFamily: 'monospace',
-                      color: isRank1 ? '#38bdf8' : (score >= 50 ? '#fbbf24' : '#94a3b8')
-                    }}>
-                      {score}<span style={{ fontSize: '0.72rem', fontWeight: 500 }}>/100</span>
-                    </div>
-                    <div style={{ fontSize: '0.65rem', color: '#64748b' }}>
-                      Likelihood
-                    </div>
-                  </div>
+            {candidates.length === 0 ? (
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2.5rem 1rem',
+                textAlign: 'center',
+                gap: '0.8rem'
+              }}>
+                <div style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Ship size={22} color="#38bdf8" />
                 </div>
-              );
-            })}
+                <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#f1f5f9' }}>
+                  No Candidate Vessels Correlated
+                </div>
+                <p style={{ fontSize: '0.72rem', color: '#94a3b8', margin: 0, lineHeight: 1.4 }}>
+                  Awaiting AIS vessel correlation against estimated release origin.
+                </p>
+                {onLoadDemo && (
+                  <button
+                    onClick={onLoadDemo}
+                    className="btn-primary"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', fontWeight: 800, marginTop: '0.3rem' }}
+                  >
+                    LOAD DEMO SCENARIO
+                  </button>
+                )}
+              </div>
+            ) : (
+              candidates.map((vessel) => {
+                const isSelected = selectedVessel && selectedVessel.mmsi === vessel.mmsi;
+                const isRank1 = vessel.rank === 1;
+                const score = vessel.scores?.total_score || 0;
+
+                return (
+                  <div
+                    key={vessel.mmsi}
+                    onClick={() => {
+                      onSelectVessel(vessel);
+                      setInspectVessel(vessel);
+                    }}
+                    style={{
+                      backgroundColor: isSelected ? '#162444' : '#070b14',
+                      border: isSelected 
+                        ? (isRank1 ? '1.5px solid #38bdf8' : '1.5px solid #f59e0b') 
+                        : '1px solid #1e293b',
+                      borderRadius: '6px',
+                      padding: '0.75rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <div style={{
+                        width: '26px',
+                        height: '26px',
+                        borderRadius: '4px',
+                        backgroundColor: isRank1 ? '#0284c7' : '#1e293b',
+                        color: '#ffffff',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        #{vessel.rank}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f1f5f9' }}>
+                          {vessel.vessel_name.replace(' - DEMO', '')}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                          {vessel.vessel_type}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{
+                        fontSize: '1.05rem',
+                        fontWeight: 800,
+                        fontFamily: 'monospace',
+                        color: isRank1 ? '#38bdf8' : (score >= 50 ? '#fbbf24' : '#94a3b8')
+                      }}>
+                        {score}<span style={{ fontSize: '0.72rem', fontWeight: 500 }}>/100</span>
+                      </div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>
+                        Source-Likelihood
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
 
           {/* Optional Clicked Vessel Detail Card */}
@@ -250,6 +293,7 @@ export default function VesselCorrelationView({
             onSelectVessel={onSelectVessel}
             height="100%"
             autoFit={true}
+            onLoadDemo={onLoadDemo}
           />
         </div>
       </div>

@@ -7,6 +7,7 @@ import {
   Search, 
   LayoutDashboard, 
   Play, 
+  X,
   CheckCircle2, 
   AlertCircle,
   Bell
@@ -15,8 +16,11 @@ import {
 export default function Header({ 
   activeTab, 
   setActiveTab, 
+  onLoadDemo,
+  onExitDemo,
   onStartDemo, 
-  backendStatus,
+  isDemoActive = false,
+  backendStatus = true,
   isLeakConfirmed = false,
   investigationState = 'CANDIDATE',
   notificationsCount = 0
@@ -83,91 +87,124 @@ export default function Header({
           </div>
         </div>
 
-        {/* Center/Right: Operational Status Indicators */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Center/Right: Realistic Operational Status Indicators */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
           {/* TIER-2 ACTIVE Escalation Badge */}
           {isLeakConfirmed && (
             <span style={{
-              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
               border: '1px solid #ef4444',
               color: '#fca5a5',
-              fontSize: '0.68rem',
+              fontSize: '0.66rem',
               fontWeight: 800,
-              padding: '0.2rem 0.6rem',
+              padding: '0.2rem 0.55rem',
               borderRadius: '4px',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              boxShadow: '0 0 10px rgba(239, 68, 68, 0.4)',
+              gap: '0.35rem',
               letterSpacing: '0.04em'
             }}>
               <span style={{
-                width: '7px',
-                height: '7px',
+                width: '6px',
+                height: '6px',
                 borderRadius: '50%',
                 backgroundColor: '#ef4444',
-                boxShadow: '0 0 8px #ef4444'
+                boxShadow: '0 0 6px #ef4444'
               }}></span>
               TIER-2 RESPONSE ACTIVE • {investigationState || 'SOURCE VERIFIED — DEMO'}
             </span>
           )}
 
-          {/* DEMO MODE Badge */}
-          <span className="badge-demo" style={{ fontSize: '0.68rem', padding: '0.2rem 0.6rem' }}>
+          {/* DATA MODE Indicator (Requirement 4 & 24) */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.68rem',
+            padding: '0.2rem 0.55rem',
+            borderRadius: '4px',
+            fontWeight: 700,
+            backgroundColor: isDemoActive ? 'rgba(245, 158, 11, 0.12)' : '#0d1526',
+            border: isDemoActive ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid #1e293b',
+            color: isDemoActive ? '#fbbf24' : '#94a3b8'
+          }}>
             <span style={{
-              width: '7px',
-              height: '7px',
+              width: '6px',
+              height: '6px',
               borderRadius: '50%',
-              backgroundColor: '#f59e0b',
-              boxShadow: '0 0 6px #f59e0b'
+              backgroundColor: isDemoActive ? '#f59e0b' : '#64748b',
+              boxShadow: isDemoActive ? '0 0 6px #f59e0b' : 'none'
             }}></span>
-            DEMO MODE
-          </span>
+            <span>DATA MODE: {isDemoActive ? 'DEMO SCENARIO (SIMULATED)' : 'NO LIVE FEED'}</span>
+          </div>
 
           {/* SYSTEM ONLINE Indicator */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.35rem',
-            fontSize: '0.7rem',
-            color: backendStatus ? '#10b981' : '#f87171',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            border: `1px solid ${backendStatus ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-            padding: '0.2rem 0.6rem',
+            fontSize: '0.68rem',
+            color: backendStatus ? '#34d399' : '#f87171',
+            backgroundColor: backendStatus ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.1)',
+            border: `1px solid ${backendStatus ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.3)'}`,
+            padding: '0.2rem 0.55rem',
             borderRadius: '4px',
             fontWeight: 700
           }}>
             <span style={{
-              width: '6px',
-              height: '6px',
+              width: '5px',
+              height: '5px',
               borderRadius: '50%',
               backgroundColor: backendStatus ? '#10b981' : '#ef4444',
-              boxShadow: backendStatus ? '0 0 6px #10b981' : '0 0 6px #ef4444'
+              boxShadow: backendStatus ? '0 0 5px #10b981' : 'none'
             }}></span>
-            <span>{backendStatus ? 'SYSTEM ONLINE' : 'SYSTEM CONNECTING...'}</span>
+            <span>{backendStatus ? 'SYSTEM ONLINE' : 'CONNECTING...'}</span>
           </div>
 
-          {/* Quick Demo Flow Trigger */}
-          <button 
-            onClick={onStartDemo}
-            style={{
-              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-              color: '#ffffff',
-              border: '1px solid #38bdf8',
-              borderRadius: '6px',
-              padding: '0.38rem 0.9rem',
-              fontSize: '0.76rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              boxShadow: '0 0 12px rgba(56, 189, 248, 0.35)',
-              letterSpacing: '0.04em'
-            }}
-          >
-            <Play size={13} fill="#ffffff" />
-          </button>
+          {/* LOAD DEMO SCENARIO / EXIT DEMO Button */}
+          {!isDemoActive ? (
+            <button 
+              onClick={() => {
+                if (onLoadDemo) onLoadDemo();
+                else if (onStartDemo) onStartDemo();
+              }}
+              className="btn-primary"
+              style={{
+                padding: '0.35rem 0.85rem',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                borderRadius: '5px',
+                gap: '0.4rem',
+                cursor: 'pointer'
+              }}
+              title="Activate synthetic SIH demonstration scenario"
+            >
+              <Play size={12} fill="#ffffff" />
+              <span>LOAD DEMO SCENARIO</span>
+            </button>
+          ) : (
+            <button
+              onClick={onExitDemo}
+              style={{
+                background: '#162033',
+                color: '#cbd5e1',
+                border: '1px solid #334155',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '5px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease'
+              }}
+              title="Exit demo and return to clean monitoring state"
+            >
+              <X size={12} color="#94a3b8" />
+              <span>EXIT DEMO</span>
+            </button>
+          )}
         </div>
       </div>
 

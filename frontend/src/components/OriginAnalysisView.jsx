@@ -19,11 +19,17 @@ export default function OriginAnalysisView({
   envData,
   onEstimateOrigin,
   isEstimating,
-  onProceedToVessels
+  onProceedToVessels,
+  onLoadDemo,
+  isDemoActive
 }) {
   const [hasCalculated, setHasCalculated] = useState(!!originData);
 
   const handleEstimateClick = async () => {
+    if (!spillData && onLoadDemo) {
+      await onLoadDemo();
+      return;
+    }
     await onEstimateOrigin(5.5, 3.5);
     setHasCalculated(true);
   };
@@ -141,8 +147,8 @@ export default function OriginAnalysisView({
       {/* Large Map Focus (65-70% height) */}
       <div style={{
         flex: 1,
-        minHeight: '500px',
-        backgroundColor: '#0e172a',
+        minHeight: '480px',
+        backgroundColor: '#0a101d',
         border: '1px solid #1e293b',
         borderRadius: '8px',
         overflow: 'hidden',
@@ -150,6 +156,36 @@ export default function OriginAnalysisView({
         display: 'flex',
         flexDirection: 'column'
       }}>
+        {!spillData && !originData && (
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            backgroundColor: 'rgba(10, 16, 29, 0.92)',
+            border: '1px solid #1e293b',
+            borderRadius: '6px',
+            padding: '0.6rem 1.2rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.8rem',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+          }}>
+            <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+              No active incident. Run Satellite Analysis or load demo scenario.
+            </span>
+            {onLoadDemo && (
+              <button
+                onClick={onLoadDemo}
+                className="btn-primary"
+                style={{ padding: '0.35rem 0.8rem', fontSize: '0.74rem', fontWeight: 800 }}
+              >
+                LOAD DEMO SCENARIO
+              </button>
+            )}
+          </div>
+        )}
         <MaritimeMap 
           spillData={spillData}
           originData={originData}
@@ -158,6 +194,7 @@ export default function OriginAnalysisView({
           showDrift={true}
           height="100%"
           autoFit={true}
+          onLoadDemo={onLoadDemo}
         />
       </div>
 
@@ -167,59 +204,59 @@ export default function OriginAnalysisView({
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: '0.8rem'
       }}>
-        {/* Status 1: 🛢️ Possible Spill */}
+        {/* Status 1: 🛢️ Detected Slick Center */}
         <div style={{
-          backgroundColor: '#0e172a',
+          backgroundColor: '#0a101d',
           border: '1px solid #1e293b',
           borderLeft: '4px solid #ef4444',
           borderRadius: '6px',
           padding: '0.75rem 0.9rem'
         }}>
           <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
-            🛢️ Possible Spill
+            🛢️ Detected Slick Center
           </div>
           <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f1f5f9', marginTop: '0.2rem', fontFamily: 'monospace' }}>
-            {spillData ? `${spillData.latitude}° N, ${spillData.longitude}° E` : '18.95° N, 72.40° E'}
+            {spillData ? `${spillData.latitude}° N, ${spillData.longitude}° E` : 'NO ACTIVE DETECTION'}
           </div>
           <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.15rem' }}>
-            Area: {spillData ? spillData.area_km2 : 14.8} km² • Conf: {spillData ? (spillData.confidence * 100).toFixed(0) : 94}%
+            {spillData ? `Area: ${spillData.area_km2} km² • Conf: ${(spillData.confidence * 100).toFixed(0)}%` : 'Awaiting satellite analysis'}
           </div>
         </div>
 
-        {/* Status 2: 🟠 Probable Origin */}
+        {/* Status 2: 🟠 Probable Release Origin */}
         <div style={{
-          backgroundColor: '#0e172a',
+          backgroundColor: '#0a101d',
           border: '1px solid #1e293b',
           borderLeft: '4px solid #f59e0b',
           borderRadius: '6px',
           padding: '0.75rem 0.9rem'
         }}>
           <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
-            🟠 Estimated Origin Region
+            🟠 Probable Release Origin
           </div>
           <div style={{ fontSize: '1rem', fontWeight: 800, color: '#fbbf24', marginTop: '0.2rem', fontFamily: 'monospace' }}>
             {originData 
               ? `${originData.probable_origin_latitude}° N, ${originData.probable_origin_longitude}° E` 
-              : 'Click "Estimate Origin"'}
+              : (spillData ? 'Click "Estimate Origin"' : 'AWAITING INCIDENT')}
           </div>
           <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.15rem' }}>
-            {originData ? `Dispersion buffer: ±${originData.origin_uncertainty_km} km` : 'Origin envelope awaiting run'}
+            {originData ? `Dispersion buffer: ±${originData.origin_uncertainty_km} km` : 'Origin envelope awaiting simulation'}
           </div>
         </div>
 
-        {/* Status 3: ➡️ Drift Direction */}
+        {/* Status 3: ➡️ Net Drift Vector */}
         <div style={{
-          backgroundColor: '#0e172a',
+          backgroundColor: '#0a101d',
           border: '1px solid #1e293b',
           borderLeft: '4px solid #00f0ff',
           borderRadius: '6px',
           padding: '0.75rem 0.9rem'
         }}>
           <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
-            ➡️ Drift Direction
+            ➡️ Net Drift Vector
           </div>
           <div style={{ fontSize: '1rem', fontWeight: 800, color: '#00f0ff', marginTop: '0.2rem' }}>
-            {originData ? `${originData.net_drift_direction_deg}° (${originData.net_drift_speed_kts} kts)` : '54.3° (1.7 kts)'}
+            {originData ? `${originData.net_drift_direction_deg}° (${originData.net_drift_speed_kts} kts)` : (spillData ? 'Pending backward run' : '--')}
           </div>
           <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.15rem' }}>
             Net surface leeway displacement

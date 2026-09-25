@@ -25,7 +25,9 @@ export default function NotificationsView({
   confirmedSource = null,
   incidentSeverity = 'ACTIVE RESPONSE (CRITICAL)',
   onNavigateTab = () => {},
-  onUnverify = null
+  onUnverify = null,
+  onLoadDemo,
+  isDemoActive = false
 }) {
   const [filterType, setFilterType] = useState('ALL'); // 'ALL' | 'WARNING' | 'SAFETY'
   const [copiedWarning, setCopiedWarning] = useState(false);
@@ -132,15 +134,19 @@ export default function NotificationsView({
           fontSize: '0.74rem'
         }}>
           <span style={{ color: '#94a3b8' }}>Incident:</span>
-          <strong style={{ color: '#f1f5f9', fontWeight: 800 }}>ST-2026-DEMO-001</strong>
+          <strong style={{ color: '#f1f5f9', fontWeight: 800 }}>
+            {isDemoActive ? 'ST-2026-DEMO-001' : 'NO ACTIVE INCIDENT'}
+          </strong>
           <span style={{ color: '#475569' }}>•</span>
           <span style={{ color: '#94a3b8' }}>Scenario:</span>
-          <span style={{ color: '#38bdf8', fontWeight: 700 }}>Arabian Sea — DEMO</span>
+          <span style={{ color: isDemoActive ? '#38bdf8' : '#94a3b8', fontWeight: 700 }}>
+            {isDemoActive ? 'Arabian Sea — DEMO' : 'Awaiting Incident / Simulation'}
+          </span>
         </div>
 
         {/* Empty State Box */}
         <div style={{
-          backgroundColor: '#0e172a',
+          backgroundColor: '#0a101d',
           border: '1px solid #1e293b',
           borderRadius: '12px',
           padding: '3rem 2.5rem',
@@ -209,28 +215,44 @@ export default function NotificationsView({
             <strong style={{ color: '#94a3b8' }}>Workflow Tip:</strong> Navigate to <span style={{ color: '#38bdf8' }}>5. Investigation</span>, inspect candidate vessel <span style={{ color: '#f1f5f9' }}>MT Ocean Pioneer</span>, and click <span style={{ color: '#ef4444', fontWeight: 800 }}>CONFIRM LEAK</span>. The system will automatically execute the post-verification response chain and route you directly back to this page with the generated records.
           </div>
 
-          <button
-            onClick={() => onNavigateTab('investigation')}
-            style={{
-              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-              color: '#ffffff',
-              border: '1px solid #38bdf8',
-              borderRadius: '6px',
-              padding: '0.65rem 1.6rem',
-              fontSize: '0.82rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              boxShadow: '0 0 16px rgba(56, 189, 248, 0.35)',
-              letterSpacing: '0.03em',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <span>Go to Investigation</span>
-            <ChevronRight size={16} />
-          </button>
+          <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {!isDemoActive && onLoadDemo && (
+              <button
+                onClick={onLoadDemo}
+                className="btn-primary"
+                style={{
+                  padding: '0.65rem 1.4rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                LOAD DEMO SCENARIO
+              </button>
+            )}
+            <button
+              onClick={() => onNavigateTab('investigation')}
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                color: '#ffffff',
+                border: '1px solid #38bdf8',
+                borderRadius: '6px',
+                padding: '0.65rem 1.6rem',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 0 16px rgba(56, 189, 248, 0.35)',
+                letterSpacing: '0.03em',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>Go to Investigation</span>
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -64,6 +64,15 @@ export default function App() {
   const [responseDeployment, setResponseDeployment] = useState(null);
   const [navigationalWarning, setNavigationalWarning] = useState(null);
 
+  // Realistic Demo Scenario vs Monitoring State
+  const [isDemoActive, setIsDemoActive] = useState(() => {
+    try {
+      return localStorage.getItem('spilltrace_demo_active') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
   // Guided Demo & Modal State
   const [isGuidedDemoOpen, setIsGuidedDemoOpen] = useState(false);
   const [inspectVessel, setInspectVessel] = useState(null);
@@ -95,7 +104,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Initial Data Fetch
+  // Initial Baseline Metadata Fetch (Does NOT load active incident unless demo was saved active)
   useEffect(() => {
     async function init() {
       try {
@@ -120,41 +129,44 @@ export default function App() {
         if (env) setEnvData(env);
         if (ais) setAisData(ais);
 
-        // Pre-fetch baseline correlation for instant Dashboard and Demo readiness
-        const correlationRes = await correlateAttribution();
-        if (correlationRes) {
-          setSpillData(correlationRes.spill);
-          setOriginData(correlationRes.origin);
-          setCandidateVessels(correlationRes.candidate_vessels);
-          if (correlationRes.forward_drift) setForwardDrift(correlationRes.forward_drift);
-          if (correlationRes.at_risk_vessels) setAtRiskVessels(correlationRes.at_risk_vessels);
-          if (correlationRes.recommended_actions) setRecommendedActions(correlationRes.recommended_actions);
-          if (correlationRes.timeline_events) setTimelineEvents(correlationRes.timeline_events);
-          if (correlationRes.candidate_vessels?.length > 0) {
-            setSelectedVessel(correlationRes.candidate_vessels[0]);
-          }
-        }
-
-        // Restore saved confirmed incident state across page refreshes (Requirement 13)
-        try {
-          const savedConfirmed = localStorage.getItem('spilltrace_confirmed_incident');
-          if (savedConfirmed) {
-            const parsed = JSON.parse(savedConfirmed);
-            if (parsed.isLeakConfirmed) {
-              setIsLeakConfirmed(true);
-              if (parsed.confirmedSource) setConfirmedSource(parsed.confirmedSource);
-              if (parsed.incidentSeverity) setIncidentSeverity(parsed.incidentSeverity);
-              if (parsed.investigationState) setInvestigationState(parsed.investigationState);
-              if (parsed.atRiskVessels && parsed.atRiskVessels.length > 0) setAtRiskVessels(parsed.atRiskVessels);
-              if (parsed.forwardDrift) setForwardDrift(parsed.forwardDrift);
-              if (parsed.responseDeployment) setResponseDeployment(parsed.responseDeployment);
-              if (parsed.navigationalWarning) setNavigationalWarning(parsed.navigationalWarning);
-              if (parsed.timelineEvents && parsed.timelineEvents.length > 0) setTimelineEvents(parsed.timelineEvents);
-              if (parsed.recommendedActions && parsed.recommendedActions.length > 0) setRecommendedActions(parsed.recommendedActions);
+        // ONLY load synthetic incident if demo scenario was explicitly active
+        const savedDemo = localStorage.getItem('spilltrace_demo_active') === 'true';
+        if (savedDemo) {
+          const correlationRes = await correlateAttribution().catch(() => null);
+          if (correlationRes) {
+            setSpillData(correlationRes.spill);
+            setOriginData(correlationRes.origin);
+            setCandidateVessels(correlationRes.candidate_vessels || []);
+            if (correlationRes.forward_drift) setForwardDrift(correlationRes.forward_drift);
+            if (correlationRes.at_risk_vessels) setAtRiskVessels(correlationRes.at_risk_vessels);
+            if (correlationRes.recommended_actions) setRecommendedActions(correlationRes.recommended_actions);
+            if (correlationRes.timeline_events) setTimelineEvents(correlationRes.timeline_events);
+            if (correlationRes.candidate_vessels?.length > 0) {
+              setSelectedVessel(correlationRes.candidate_vessels[0]);
             }
           }
-        } catch (e) {
-          console.warn('Restore confirmed state warning:', e);
+
+          // Restore saved confirmed incident state across page refreshes
+          try {
+            const savedConfirmed = localStorage.getItem('spilltrace_confirmed_incident');
+            if (savedConfirmed) {
+              const parsed = JSON.parse(savedConfirmed);
+              if (parsed.isLeakConfirmed) {
+                setIsLeakConfirmed(true);
+                if (parsed.confirmedSource) setConfirmedSource(parsed.confirmedSource);
+                if (parsed.incidentSeverity) setIncidentSeverity(parsed.incidentSeverity);
+                if (parsed.investigationState) setInvestigationState(parsed.investigationState);
+                if (parsed.atRiskVessels && parsed.atRiskVessels.length > 0) setAtRiskVessels(parsed.atRiskVessels);
+                if (parsed.forwardDrift) setForwardDrift(parsed.forwardDrift);
+                if (parsed.responseDeployment) setResponseDeployment(parsed.responseDeployment);
+                if (parsed.navigationalWarning) setNavigationalWarning(parsed.navigationalWarning);
+                if (parsed.timelineEvents && parsed.timelineEvents.length > 0) setTimelineEvents(parsed.timelineEvents);
+                if (parsed.recommendedActions && parsed.recommendedActions.length > 0) setRecommendedActions(parsed.recommendedActions);
+              }
+            }
+          } catch (e) {
+            console.warn('Restore confirmed state warning:', e);
+          }
         }
       } catch (err) {
         console.warn('Init fetch warning:', err);
@@ -163,6 +175,65 @@ export default function App() {
 
     init();
   }, []);
+
+  // Demo Scenario Activation and Deactivation
+  const handleLoadDemoScenario = async () => {
+    setIsDemoActive(true);
+    try {
+      localStorage.setItem('spilltrace_demo_active', 'true');
+    } catch (e) {}
+
+    setIsCorrelatingVessels(true);
+    try {
+      const [analysisRes, correlationRes] = await Promise.all([
+        analyzeSatellite('demo_sar_oil.png', 'major').catch(() => null),
+        correlateAttribution().catch(() => null)
+      ]);
+
+      if (analysisRes) {
+        setSpillData(analysisRes);
+      } else if (correlationRes?.spill) {
+        setSpillData(correlationRes.spill);
+      }
+
+      if (correlationRes) {
+        setOriginData(correlationRes.origin);
+        setCandidateVessels(correlationRes.candidate_vessels || []);
+        if (correlationRes.forward_drift) setForwardDrift(correlationRes.forward_drift);
+        if (correlationRes.at_risk_vessels) setAtRiskVessels(correlationRes.at_risk_vessels);
+        if (correlationRes.recommended_actions) setRecommendedActions(correlationRes.recommended_actions);
+        if (correlationRes.timeline_events) setTimelineEvents(correlationRes.timeline_events);
+        if (correlationRes.candidate_vessels?.length > 0) {
+          setSelectedVessel(correlationRes.candidate_vessels[0]);
+        }
+      }
+      showNotification('Demo Scenario Loaded: Arabian Sea Sector 04 Synthetic Spill & AIS correlation active.', 'success');
+    } catch (err) {
+      showNotification(`Failed to load demo scenario: ${err.message}`, 'error');
+    } finally {
+      setIsCorrelatingVessels(false);
+    }
+  };
+
+  const handleExitDemo = () => {
+    setIsDemoActive(false);
+    setSpillData(null);
+    setOriginData(null);
+    setCandidateVessels([]);
+    setSelectedVessel(null);
+    setForwardDrift(null);
+    setAtRiskVessels([]);
+    setIsLeakConfirmed(false);
+    setConfirmedSource(null);
+    setResponseDeployment(null);
+    setNavigationalWarning(null);
+    setInvestigationState('CANDIDATE');
+    try {
+      localStorage.removeItem('spilltrace_demo_active');
+      localStorage.removeItem('spilltrace_confirmed_incident');
+    } catch (e) {}
+    showNotification('Exited Demo Scenario. Returned to baseline maritime monitoring state.', 'info');
+  };
 
   // Handlers for individual pipeline stages
   const handleAnalyzeSatellite = async (filenameOverride = null, scenarioOverride = null) => {
@@ -386,6 +457,9 @@ export default function App() {
             ? (atRiskVessels.filter(v => v.risk_state !== 'OUTSIDE RISK').length || 8)
             : 0
         }
+        isDemoActive={isDemoActive}
+        onLoadDemo={handleLoadDemoScenario}
+        onExitDemo={handleExitDemo}
       />
 
       {/* Floating Notification Toast */}
@@ -440,6 +514,9 @@ export default function App() {
             incidentSeverity={incidentSeverity}
             responseDeployment={responseDeployment}
             navigationalWarning={navigationalWarning}
+            isDemoActive={isDemoActive}
+            onLoadDemo={handleLoadDemoScenario}
+            onExitDemo={handleExitDemo}
           />
         )}
 
@@ -459,6 +536,8 @@ export default function App() {
               handleNavigateTab('origin');
               handleEstimateOrigin();
             }}
+            isDemoActive={isDemoActive}
+            onLoadDemo={handleLoadDemoScenario}
           />
         )}
 
@@ -473,6 +552,8 @@ export default function App() {
               handleNavigateTab('vessels');
               handleCorrelateVessels();
             }}
+            isDemoActive={isDemoActive}
+            onLoadDemo={handleLoadDemoScenario}
           />
         )}
 
@@ -487,6 +568,8 @@ export default function App() {
             onCorrelateVessels={handleCorrelateVessels}
             isCorrelating={isCorrelatingVessels}
             onProceedToInvestigation={() => handleNavigateTab('investigation')}
+            isDemoActive={isDemoActive}
+            onLoadDemo={handleLoadDemoScenario}
           />
         )}
 
@@ -500,6 +583,8 @@ export default function App() {
             onVerifyCandidate={handleVerifyCandidate}
             isLeakConfirmed={isLeakConfirmed}
             investigationState={investigationState}
+            isDemoActive={isDemoActive}
+            onLoadDemo={handleLoadDemoScenario}
           />
         )}
 
@@ -513,6 +598,8 @@ export default function App() {
             incidentSeverity={incidentSeverity}
             onNavigateTab={handleNavigateTab}
             onUnverify={() => handleVerifyCandidate(confirmedSource?.mmsi || '419001234', 'unverified')}
+            isDemoActive={isDemoActive}
+            onLoadDemo={handleLoadDemoScenario}
           />
         )}
       </main>

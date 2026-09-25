@@ -13,6 +13,7 @@ import {
   Send, 
   Search, 
   Play, 
+  X,
   Bell,
   Clock,
   ArrowRight,
@@ -33,10 +34,13 @@ export default function DashboardView({
   selectedVessel,
   onSelectVessel,
   onNavigateTab,
+  onLoadDemo,
+  onExitDemo,
   onStartDemo,
   onSelectScenario,
   onTriggerAction,
   onVerifyCandidate,
+  isDemoActive = false,
   isLeakConfirmed = false,
   investigationState = 'CANDIDATE',
   confirmedSource = null,
@@ -79,6 +83,299 @@ export default function DashboardView({
     }
     setActiveModalAction(null);
   };
+
+  const hasIncident = Boolean(isDemoActive || spillData);
+
+  const handleDemoClick = () => {
+    if (onLoadDemo) onLoadDemo();
+    else if (onStartDemo) onStartDemo();
+  };
+
+  if (!hasIncident) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        padding: '1rem 1.4rem',
+        maxWidth: '1720px',
+        margin: '0 auto',
+        minHeight: 'calc(100vh - 80px)',
+        boxSizing: 'border-box'
+      }}>
+        {/* TOP STATUS BAR: MARITIME SURVEILLANCE & MONITORING */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          backgroundColor: '#0a101d',
+          border: '1px solid #1e293b',
+          borderRadius: '8px',
+          padding: '0.8rem 1.3rem',
+          flexWrap: 'wrap',
+          gap: '0.8rem',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+              <span style={{
+                fontSize: '0.66rem',
+                fontWeight: 700,
+                color: '#94a3b8',
+                backgroundColor: '#0f172a',
+                border: '1px solid #1e293b',
+                padding: '0.15rem 0.5rem',
+                borderRadius: '4px'
+              }}>
+                DATA MODE: NO LIVE FEED
+              </span>
+              <span style={{
+                fontSize: '0.66rem',
+                fontWeight: 700,
+                color: '#34d399',
+                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                padding: '0.15rem 0.5rem',
+                borderRadius: '4px'
+              }}>
+                SYSTEM STATUS: ONLINE
+              </span>
+              <span style={{
+                fontSize: '0.66rem',
+                fontWeight: 700,
+                color: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
+                padding: '0.15rem 0.5rem',
+                borderRadius: '4px'
+              }}>
+                SECTOR 04: ARABIAN SEA (MONITORING)
+              </span>
+            </div>
+            <h1 style={{
+              fontSize: '1.25rem',
+              fontWeight: 800,
+              color: '#f8fafc',
+              margin: 0
+            }}>
+              MARITIME SURVEILLANCE & MONITORING DASHBOARD
+            </h1>
+            <p style={{ fontSize: '0.74rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
+              Autonomous satellite SAR slick detection, leeway drift hindcasting, and historical AIS correlation.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <button
+              onClick={handleDemoClick}
+              className="btn-primary"
+              style={{
+                padding: '0.5rem 1.1rem',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                borderRadius: '6px'
+              }}
+            >
+              <Play size={14} fill="#ffffff" />
+              <span>LOAD DEMO SCENARIO</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 2-COLUMN MAIN CONTENT GRID */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) 420px',
+          gap: '1rem',
+          flex: 1
+        }}>
+          {/* LEFT: BASE NAUTICAL MARITIME MAP */}
+          <div style={{
+            backgroundColor: '#0a101d',
+            border: '1px solid #1e293b',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '520px',
+            position: 'relative'
+          }}>
+            <div style={{
+              padding: '0.6rem 1rem',
+              borderBottom: '1px solid #1e293b',
+              backgroundColor: '#070c16',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.04em' }}>
+                SPATIAL INTELLIGENCE MAP — BASE SURVEILLANCE CHART
+              </span>
+              <span style={{ fontSize: '0.68rem', color: '#64748b' }}>
+                OpenStreetMap Maritime Base • No Active Incident
+              </span>
+            </div>
+            <div style={{ flex: 1, minHeight: '480px', position: 'relative' }}>
+              <MaritimeMap
+                spillData={null}
+                originData={null}
+                candidateVessels={[]}
+                onLoadDemo={handleDemoClick}
+                interactiveLegend={false}
+              />
+            </div>
+          </div>
+
+          {/* RIGHT: MONITORING STATUS & CORE PIPELINE CAPABILITIES */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}>
+            {/* NO ACTIVE INCIDENT STATUS BOX */}
+            <div style={{
+              backgroundColor: '#0a101d',
+              border: '1px solid #1e293b',
+              borderRadius: '8px',
+              padding: '1.2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.7rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{
+                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '6px',
+                  padding: '0.4rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <ShieldCheck size={20} color="#34d399" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f1f5f9', margin: 0 }}>
+                    NO ACTIVE INCIDENT DETECTED
+                  </h3>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                    Sector clean • Metocean monitoring standby
+                  </span>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.76rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                No active oil-spill incident is currently loaded. No live satellite or AIS telemetry feed is currently connected. System is ready for analysis.
+              </p>
+
+              <div style={{
+                backgroundColor: '#070c16',
+                border: '1px solid #142033',
+                borderRadius: '6px',
+                padding: '0.7rem 0.9rem',
+                fontSize: '0.72rem',
+                color: '#94a3b8',
+                lineHeight: 1.45
+              }}>
+                To evaluate the end-to-end attribution and proactive response workflow under Smart India Hackathon (SIH 2026 PS-143), click below to ingest the synthetic Arabian Sea demonstration scenario.
+              </div>
+
+              <button
+                onClick={handleDemoClick}
+                className="btn-primary"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  padding: '0.6rem 1rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  borderRadius: '6px',
+                  marginTop: '0.3rem'
+                }}
+              >
+                <Play size={14} fill="#ffffff" />
+                <span>LOAD DEMO SCENARIO</span>
+              </button>
+            </div>
+
+            {/* CORE CAPABILITIES CHECKLIST (SIH PS-143 ALIGNMENT) */}
+            <div style={{
+              backgroundColor: '#0a101d',
+              border: '1px solid #1e293b',
+              borderRadius: '8px',
+              padding: '1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.65rem',
+              flex: 1
+            }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                SpillTrace Decision Support Capabilities
+              </span>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+                <div style={{
+                  backgroundColor: '#070c16',
+                  border: '1px solid #142033',
+                  borderRadius: '6px',
+                  padding: '0.6rem 0.8rem'
+                }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#38bdf8', marginBottom: '0.15rem' }}>
+                    1. Satellite SAR Slick Detection
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                    Deep U-Net segmentation mask, geometric area calculation, and appearance classification.
+                  </div>
+                </div>
+
+                <div style={{
+                  backgroundColor: '#070c16',
+                  border: '1px solid #142033',
+                  borderRadius: '6px',
+                  padding: '0.6rem 0.8rem'
+                }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#fbbf24', marginBottom: '0.15rem' }}>
+                    2. Hydrodynamic Leeway Hindcasting
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                    Oceanographic drift backtracking to compute probable release origin envelope (±3.5 km) & release window.
+                  </div>
+                </div>
+
+                <div style={{
+                  backgroundColor: '#070c16',
+                  border: '1px solid #142033',
+                  borderRadius: '6px',
+                  padding: '0.6rem 0.8rem'
+                }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#34d399', marginBottom: '0.15rem' }}>
+                    3. AIS Multi-Vessel Correlation
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                    Screening of 10 scenario vessels with 8-factor Source-Likelihood scoring & cargo carriage validation.
+                  </div>
+                </div>
+
+                <div style={{
+                  backgroundColor: '#070c16',
+                  border: '1px solid #142033',
+                  borderRadius: '6px',
+                  padding: '0.6rem 0.8rem'
+                }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#fca5a5', marginBottom: '0.15rem' }}>
+                    4. Forward Drift & Fairway Protection
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                    Dynamic exclusion zone generation, identification of 8 at-risk vessels, and simulated NAVAREA VIII dispatches.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -173,6 +470,29 @@ export default function DashboardView({
 
         {/* Right: Quick Action Navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+          {onExitDemo && (
+            <button
+              onClick={onExitDemo}
+              style={{
+                background: '#162033',
+                color: '#cbd5e1',
+                border: '1px solid #334155',
+                borderRadius: '6px',
+                padding: '0.45rem 0.85rem',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}
+              title="Exit demo mode and return to clean monitoring state"
+            >
+              <X size={13} color="#94a3b8" />
+              <span>Exit Demo</span>
+            </button>
+          )}
+
           <button
             onClick={() => onNavigateTab('satellite')}
             style={{

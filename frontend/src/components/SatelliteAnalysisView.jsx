@@ -9,7 +9,8 @@ import {
   Loader2,
   ZoomIn,
   ShieldAlert,
-  Info
+  Info,
+  Satellite
 } from 'lucide-react';
 import { getStaticUrl } from '../api/client';
 
@@ -21,7 +22,9 @@ export default function SatelliteAnalysisView({
   onAnalyzeImage,
   isAnalyzing,
   onSelectScenario,
-  onProceedToOrigin
+  onProceedToOrigin,
+  isDemoActive = false,
+  onLoadDemo = null
 }) {
   const [selectedScenario, setSelectedScenario] = useState('default');
   const [maskOpacity, setMaskOpacity] = useState(0.70);
@@ -260,9 +263,77 @@ export default function SatelliteAnalysisView({
         </div>
       </div>
 
-      {/* Main Result: "POSSIBLE OIL SPILL" Notification Bar */}
-      {spillData && (
+      {/* When NO satellite scene is analyzed: Clean Empty State (Requirement 10) */}
+      {!spillData ? (
         <div style={{
+          backgroundColor: '#0a101d',
+          border: '1px solid #1e293b',
+          borderRadius: '8px',
+          padding: '3.5rem 2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          gap: '1.1rem',
+          flex: 1
+        }}>
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(56, 189, 248, 0.08)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Satellite size={28} color="#38bdf8" />
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc', margin: '0 0 0.4rem 0' }}>
+              NO SATELLITE SCENE LOADED
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', maxWidth: '540px', lineHeight: 1.5, margin: 0 }}>
+              Select a satellite scene from the toolbar above to run deep SAR segmentation, or load the synthetic demo scenario to evaluate the complete attribution pipeline.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={() => onAnalyzeImage()}
+              disabled={isAnalyzing}
+              className="btn-primary"
+              style={{ padding: '0.6rem 1.3rem', fontSize: '0.82rem', fontWeight: 800 }}
+            >
+              <Play size={14} fill="#ffffff" />
+              <span>ANALYZE SELECTED SCENE ({selectedImage})</span>
+            </button>
+
+            {onLoadDemo && (
+              <button
+                onClick={onLoadDemo}
+                style={{
+                  background: '#162033',
+                  color: '#cbd5e1',
+                  border: '1px solid #334155',
+                  padding: '0.6rem 1.3rem',
+                  borderRadius: '6px',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                LOAD DEMO SCENARIO
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Main Result: "POSSIBLE OIL SPILL" Notification Bar */}
+          <div style={{
           backgroundColor: isHero ? 'rgba(56, 189, 248, 0.08)' : 'rgba(16, 185, 129, 0.08)',
           border: isHero ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
           borderRadius: '6px',
@@ -296,7 +367,6 @@ export default function SatelliteAnalysisView({
             </span>
           </div>
         </div>
-      )}
 
       {/* Main Focus: Large SAR Image Viewer with Attractive Visual Overlay */}
       <div style={{
@@ -868,6 +938,8 @@ export default function SatelliteAnalysisView({
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

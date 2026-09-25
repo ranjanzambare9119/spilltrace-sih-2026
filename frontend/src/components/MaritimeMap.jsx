@@ -19,7 +19,8 @@ export default function MaritimeMap({
   interactiveLegend = true,
   height = '100%',
   minHeight = '500px',
-  autoFit = true
+  autoFit = true,
+  onLoadDemo = null
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -38,6 +39,8 @@ export default function MaritimeMap({
   });
 
   // Sync prop changes to internal layer state
+  const hasIncidentData = Boolean(spillData || originData || (candidateVessels && candidateVessels.length > 0));
+
   useEffect(() => {
     setLayers({
       spill: showSpill,
@@ -579,8 +582,65 @@ export default function MaritimeMap({
         </div>
       )}
 
-      {/* Layer Controls Floating Pill */}
-      {interactiveLegend && (
+      {/* When NO incident is loaded: Clean Monitoring Overlay (Requirement 8) */}
+      {!hasIncidentData && (
+        <>
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            zIndex: 500,
+            backgroundColor: 'rgba(10, 16, 29, 0.92)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid #1e293b',
+            borderRadius: '6px',
+            padding: '0.45rem 0.85rem',
+            fontSize: '0.72rem',
+            color: '#cbd5e1',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.55rem',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.5)'
+          }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }}></span>
+            <div>
+              <span style={{ fontWeight: 700, color: '#f1f5f9' }}>MARITIME MONITORING</span>
+              <span style={{ color: '#64748b', marginLeft: '0.4rem' }}>• Sector 04 (Arabian Sea) • No active incident</span>
+            </div>
+          </div>
+
+          {onLoadDemo && (
+            <div style={{
+              position: 'absolute',
+              bottom: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 500,
+              backgroundColor: 'rgba(10, 16, 29, 0.95)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid #334155',
+              borderRadius: '6px',
+              padding: '0.5rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.6)'
+            }}>
+              <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>No incident data currently loaded.</span>
+              <button 
+                onClick={onLoadDemo}
+                className="btn-primary"
+                style={{ padding: '0.35rem 0.8rem', fontSize: '0.72rem', fontWeight: 700, borderRadius: '4px' }}
+              >
+                <span>LOAD DEMO SCENARIO</span>
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Layer Controls Floating Pill (Only when incident is active) */}
+      {hasIncidentData && interactiveLegend && (
         <div style={{
           position: 'absolute',
           top: '10px',
@@ -598,6 +658,17 @@ export default function MaritimeMap({
           color: '#cbd5e1',
           boxShadow: '0 4px 14px rgba(0,0,0,0.5)'
         }}>
+          <span style={{
+            fontSize: '0.64rem',
+            fontWeight: 800,
+            color: '#f59e0b',
+            borderRight: '1px solid #334155',
+            paddingRight: '0.6rem',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            DEMO SCENARIO
+          </span>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
             <input 
               type="checkbox" 
@@ -657,32 +728,34 @@ export default function MaritimeMap({
         </div>
       )}
 
-      {/* Floating Tactical Legend */}
-      <div style={{
-        position: 'absolute',
-        bottom: '12px',
-        left: '12px',
-        zIndex: 500,
-        backgroundColor: 'rgba(10, 17, 32, 0.92)',
-        backdropFilter: 'blur(8px)',
-        border: '1px solid #1e293b',
-        borderRadius: '6px',
-        padding: '0.4rem 0.75rem',
-        fontSize: '0.72rem',
-        color: '#cbd5e1',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: '0.85rem'
-      }}>
-        <div><span style={{ color: '#ef4444' }}>■</span> Possible Spill</div>
-        <div><span style={{ color: '#f59e0b' }}>◌</span> Probable Origin (±3.5km)</div>
-        <div><span style={{ color: '#00f0ff' }}>➔</span> Drift Track</div>
-        <div><span style={{ color: '#fbbf24' }}>⇢</span> +6h Forecast</div>
-        <div><span style={{ color: '#f43f5e' }}>▨</span> Exclusion Zone</div>
-        <div><span style={{ color: '#38bdf8' }}>━━</span> Candidate Tracks</div>
-        <div><span style={{ color: '#f87171' }}>●</span> At-Risk Ships</div>
-      </div>
+      {/* Floating Tactical Legend (Only when incident is active) */}
+      {hasIncidentData && (
+        <div style={{
+          position: 'absolute',
+          bottom: '12px',
+          left: '12px',
+          zIndex: 500,
+          backgroundColor: 'rgba(10, 17, 32, 0.92)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid #1e293b',
+          borderRadius: '6px',
+          padding: '0.4rem 0.75rem',
+          fontSize: '0.72rem',
+          color: '#cbd5e1',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '0.85rem'
+        }}>
+          <div><span style={{ color: '#ef4444' }}>■</span> Possible Spill</div>
+          <div><span style={{ color: '#f59e0b' }}>◌</span> Probable Origin (±3.5km)</div>
+          <div><span style={{ color: '#00f0ff' }}>➔</span> Drift Track</div>
+          <div><span style={{ color: '#fbbf24' }}>⇢</span> +6h Forecast</div>
+          <div><span style={{ color: '#f43f5e' }}>▨</span> Exclusion Zone</div>
+          <div><span style={{ color: '#38bdf8' }}>━━</span> Candidate Tracks</div>
+          <div><span style={{ color: '#f87171' }}>●</span> At-Risk Ships</div>
+        </div>
+      )}
     </div>
   );
 }
