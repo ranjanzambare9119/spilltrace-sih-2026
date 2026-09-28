@@ -207,3 +207,305 @@ body {
   background: #273549;
   border-color: #475569;
 }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN SYSTEM (DESKTOP / TABLET / MOBILE)
+   Breakpoints:
+   - Desktop: >= 1024px
+   - Tablet:  768px - 1023px
+   - Mobile:  <= 767px (down to 360px)
+   ========================================================================== */
+
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Responsive Page Container */
+.page-container {
+  padding: 1.25rem 1.5rem;
+  max-width: 1720px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive Typography with clamp() */
+.heading-xl {
+  font-size: clamp(1.02rem, 1.8vw, 1.3rem) !important;
+  line-height: 1.25 !important;
+  word-break: break-word;
+}
+
+.heading-lg {
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem) !important;
+  line-height: 1.25 !important;
+  word-break: break-word;
+}
+
+.kpi-value-lg {
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem) !important;
+  line-height: 1.15 !important;
+}
+
+/* Responsive Grids */
+.kpi-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 0.9rem;
+  width: 100%;
+}
+
+.dashboard-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  width: 100%;
+}
+
+.monitoring-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 1rem;
+  width: 100%;
+}
+
+.correlation-grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+.investigation-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.notifications-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(0, 1.05fr);
+  gap: 1.2rem;
+  align-items: start;
+  width: 100%;
+}
+
+.fwd-metrics-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.fwd-milestones-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+/* Map Responsive Heights (Req 5: Desktop 500-600px, Tablet 400-500px, Mobile 350-450px) */
+.map-responsive-wrapper {
+  width: 100%;
+  min-height: 520px;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Leaflet Responsive Popups */
+.leaflet-popup-content-wrapper {
+  max-width: min(300px, 84vw) !important;
+}
+.leaflet-popup-content {
+  margin: 10px 12px !important;
+  overflow-wrap: break-word;
+}
+
+/* Desktop vs Mobile visibility helpers */
+.desktop-only {
+  display: flex;
+}
+.desktop-table-only {
+  display: block;
+}
+.mobile-only {
+  display: none !important;
+}
+.mobile-cards-only {
+  display: none !important;
+}
+
+/* Responsive Modal Dialogs (Req 10) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  background-color: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   TABLET BREAKPOINT (768px to 1023px)
+   ========================================================================== */
+@media (max-width: 1023px) {
+  .page-container {
+    padding: 1rem 1.15rem !important;
+  }
+
+  .kpi-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .dashboard-main-grid,
+  .monitoring-grid,
+  .correlation-grid,
+  .investigation-grid,
+  .notifications-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .dashboard-secondary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .map-responsive-wrapper {
+    min-height: 440px !important;
+    height: 440px !important;
+  }
+}
+
+/* ==========================================================================
+   MOBILE BREAKPOINT (<= 767px, tested down to 360px)
+   ========================================================================== */
+@media (max-width: 767px) {
+  .page-container {
+    padding: 0.75rem 0.8rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .desktop-table-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: flex !important;
+  }
+
+  .mobile-cards-only {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .kpi-grid-4 {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  .dashboard-main-grid,
+  .dashboard-secondary-grid,
+  .monitoring-grid,
+  .correlation-grid,
+  .investigation-grid,
+  .notifications-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .fwd-metrics-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .fwd-milestones-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .map-responsive-wrapper {
+    min-height: 380px !important;
+    height: 380px !important;
+  }
+
+  /* Touch-friendly buttons & full-width action stacks on mobile */
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  .mobile-full-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 40px !important;
+    box-sizing: border-box !important;
+  }
+
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .modal-overlay {
+    padding: 0.5rem !important;
+  }
+
+  .modal-card {
+    width: 94vw !important;
+    max-width: 94vw !important;
+    max-height: 90vh !important;
+  }
+
+  .modal-footer-btns {
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+
+  .modal-footer-btns button {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+  }
+
+  /* Prevent select dropdowns from overflowing narrow mobile viewports */
+  select {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Landscape Mobile Optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  .map-responsive-wrapper {
+    min-height: 320px !important;
+    height: 320px !important;
+  }
+  .modal-card {
+    max-height: 92vh !important;
+  }
+}
+

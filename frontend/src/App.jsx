@@ -466,8 +466,8 @@ export default function App() {
       {notification && (
         <div style={{
           position: 'fixed',
-          bottom: '20px',
-          right: '20px',
+          bottom: '16px',
+          right: '16px',
           zIndex: 5000,
           backgroundColor: notification.type === 'error' ? '#ef4444' : (notification.type === 'success' ? '#065f46' : '#0369a1'),
           color: '#ffffff',
@@ -480,7 +480,7 @@ export default function App() {
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          maxWidth: '440px'
+          maxWidth: 'min(440px, calc(100vw - 32px))'
         }}>
           <span>{notification.type === 'error' ? '⚠️' : '✓'}</span>
           <span>{notification.msg}</span>
@@ -488,7 +488,7 @@ export default function App() {
       )}
 
       {/* Main View Router */}
-      <main style={{ flex: 1, overflowY: 'auto' }}>
+      <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         {activeTab === 'dashboard' && (
           <DashboardView
             spillData={spillData}
@@ -629,7 +629,7 @@ export default function App() {
 
       {/* Visual Feedback Animation: Response Cascade Overlay */}
       {cascadeState && (
-        <div style={{
+        <div className="modal-overlay" style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -643,13 +643,15 @@ export default function App() {
           justifyContent: 'center',
           animation: 'fadeIn 0.2s ease-out'
         }}>
-          <div style={{
+          <div className="modal-card" style={{
             backgroundColor: '#0a1120',
             border: '2px solid #ef4444',
             borderRadius: '12px',
-            padding: '1.8rem 2.2rem',
+            padding: '1.4rem 1.5rem',
             maxWidth: '580px',
             width: '92%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
             boxShadow: '0 0 45px rgba(239, 68, 68, 0.45)',
             display: 'flex',
             flexDirection: 'column',

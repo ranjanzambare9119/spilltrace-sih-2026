@@ -32,6 +32,7 @@ export default function NotificationsView({
   const [filterType, setFilterType] = useState('ALL'); // 'ALL' | 'WARNING' | 'SAFETY'
   const [copiedWarning, setCopiedWarning] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedCardId, setExpandedCardId] = useState(null);
 
   // Extract flagged route vessels that received notifications
   const flaggedVessels = (atRiskVessels || []).filter(
@@ -111,27 +112,31 @@ export default function NotificationsView({
   // ============================================================================
   if (totalNotifications === 0 && !isLeakConfirmed) {
     return (
-      <div style={{
-        padding: '2rem 1.5rem',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 'calc(100vh - 120px)',
-        backgroundColor: '#070b14',
-        boxSizing: 'border-box'
-      }}>
+      <div
+        className="page-container"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 'calc(100vh - 120px)',
+          backgroundColor: '#070b14'
+        }}
+      >
         {/* Incident Context Ribbon */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.8rem',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
           backgroundColor: '#0e172a',
           border: '1px solid #1e293b',
           borderRadius: '6px',
-          padding: '0.45rem 1rem',
-          marginBottom: '2.5rem',
-          fontSize: '0.74rem'
+          padding: '0.45rem 0.9rem',
+          marginBottom: '1.75rem',
+          fontSize: '0.72rem',
+          maxWidth: '100%'
         }}>
           <span style={{ color: '#94a3b8' }}>Incident:</span>
           <strong style={{ color: '#f1f5f9', fontWeight: 800 }}>
@@ -149,7 +154,7 @@ export default function NotificationsView({
           backgroundColor: '#0a101d',
           border: '1px solid #1e293b',
           borderRadius: '12px',
-          padding: '3rem 2.5rem',
+          padding: '2.2rem 1.4rem',
           maxWidth: '520px',
           width: '100%',
           textAlign: 'center',
@@ -157,7 +162,7 @@ export default function NotificationsView({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '1.2rem'
+          gap: '1.1rem'
         }}>
           <div style={{
             width: '64px',
@@ -175,7 +180,7 @@ export default function NotificationsView({
 
           <div>
             <h2 style={{
-              fontSize: '1.4rem',
+              fontSize: '1.3rem',
               fontWeight: 900,
               color: '#f8fafc',
               margin: '0 0 0.4rem 0',
@@ -184,7 +189,7 @@ export default function NotificationsView({
               NOTIFICATIONS
             </h2>
             <p style={{
-              fontSize: '0.92rem',
+              fontSize: '0.9rem',
               fontWeight: 700,
               color: '#cbd5e1',
               margin: '0 0 0.5rem 0'
@@ -205,7 +210,7 @@ export default function NotificationsView({
             backgroundColor: 'rgba(15, 23, 42, 0.8)',
             border: '1px solid #1e293b',
             borderRadius: '6px',
-            padding: '0.75rem 1rem',
+            padding: '0.75rem 0.9rem',
             fontSize: '0.72rem',
             color: '#64748b',
             textAlign: 'left',
@@ -215,14 +220,14 @@ export default function NotificationsView({
             <strong style={{ color: '#94a3b8' }}>Workflow Tip:</strong> Navigate to <span style={{ color: '#38bdf8' }}>5. Investigation</span>, inspect candidate vessel <span style={{ color: '#f1f5f9' }}>MT Ocean Pioneer</span>, and click <span style={{ color: '#ef4444', fontWeight: 800 }}>CONFIRM LEAK</span>. The system will automatically execute the post-verification response chain and route you directly back to this page with the generated records.
           </div>
 
-          <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
             {!isDemoActive && onLoadDemo && (
               <button
                 onClick={onLoadDemo}
-                className="btn-primary"
+                className="btn-primary mobile-full-btn"
                 style={{
-                  padding: '0.65rem 1.4rem',
-                  fontSize: '0.82rem',
+                  padding: '0.6rem 1.3rem',
+                  fontSize: '0.8rem',
                   fontWeight: 800,
                   cursor: 'pointer'
                 }}
@@ -232,13 +237,14 @@ export default function NotificationsView({
             )}
             <button
               onClick={() => onNavigateTab('investigation')}
+              className="mobile-full-btn"
               style={{
                 background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                 color: '#ffffff',
                 border: '1px solid #38bdf8',
                 borderRadius: '6px',
-                padding: '0.65rem 1.6rem',
-                fontSize: '0.82rem',
+                padding: '0.6rem 1.4rem',
+                fontSize: '0.8rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'flex',
@@ -262,15 +268,16 @@ export default function NotificationsView({
   // ACTIVE STATE: NOTIFICATIONS GENERATED
   // ============================================================================
   return (
-    <div style={{
-      padding: '1.2rem 1.5rem 2.5rem 1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1.2rem',
-      minHeight: 'calc(100vh - 120px)',
-      backgroundColor: '#070b14',
-      boxSizing: 'border-box'
-    }}>
+    <div
+      className="page-container"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.1rem',
+        minHeight: 'calc(100vh - 120px)',
+        backgroundColor: '#070b14'
+      }}
+    >
       {/* 1. Header Bar with Incident Reference (Requirement 3 & 8) */}
       <div style={{
         display: 'flex',
@@ -279,12 +286,12 @@ export default function NotificationsView({
         backgroundColor: '#0e172a',
         border: '1px solid #1e293b',
         borderRadius: '8px',
-        padding: '0.9rem 1.25rem',
+        padding: '0.85rem 1.1rem',
         flexWrap: 'wrap',
         gap: '0.8rem'
       }}>
         {/* Title & Subtitle */}
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <div style={{
               backgroundColor: 'rgba(56, 189, 248, 0.15)',
@@ -293,13 +300,13 @@ export default function NotificationsView({
               padding: '0.35rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              flexShrink: 0
             }}>
               <Bell size={20} color="#38bdf8" />
             </div>
-            <div>
-              <h1 style={{
-                fontSize: '1.25rem',
+            <div style={{ minWidth: 0 }}>
+              <h1 className="heading-lg" style={{
                 fontWeight: 900,
                 color: '#f8fafc',
                 margin: 0,
@@ -320,25 +327,26 @@ export default function NotificationsView({
         </div>
 
         {/* Compact Incident Reference & Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
           {/* Incident Reference Pill (Requirement 8) */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
+            flexWrap: 'wrap',
+            gap: '0.45rem',
             backgroundColor: '#070b14',
             border: '1px solid #1e293b',
             borderRadius: '6px',
-            padding: '0.4rem 0.85rem',
-            fontSize: '0.74rem'
+            padding: '0.4rem 0.75rem',
+            fontSize: '0.72rem'
           }}>
             <div>
-              <span style={{ color: '#64748b', fontSize: '0.68rem', textTransform: 'uppercase', fontWeight: 700, marginRight: '0.35rem' }}>Incident:</span>
+              <span style={{ color: '#64748b', fontSize: '0.66rem', textTransform: 'uppercase', fontWeight: 700, marginRight: '0.3rem' }}>Incident:</span>
               <strong style={{ color: '#f1f5f9', fontWeight: 800 }}>ST-2026-DEMO-001</strong>
             </div>
             <span style={{ color: '#334155' }}>|</span>
             <div>
-              <span style={{ color: '#64748b', fontSize: '0.68rem', textTransform: 'uppercase', fontWeight: 700, marginRight: '0.35rem' }}>Scenario:</span>
+              <span style={{ color: '#64748b', fontSize: '0.66rem', textTransform: 'uppercase', fontWeight: 700, marginRight: '0.3rem' }}>Scenario:</span>
               <span style={{ color: '#38bdf8', fontWeight: 700 }}>Arabian Sea — DEMO</span>
             </div>
           </div>
@@ -349,9 +357,9 @@ export default function NotificationsView({
               backgroundColor: 'rgba(239, 68, 68, 0.15)',
               border: '1px solid #ef4444',
               color: '#fca5a5',
-              fontSize: '0.72rem',
+              fontSize: '0.68rem',
               fontWeight: 800,
-              padding: '0.4rem 0.75rem',
+              padding: '0.38rem 0.65rem',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -363,9 +371,10 @@ export default function NotificationsView({
                 height: '6px',
                 borderRadius: '50%',
                 backgroundColor: '#ef4444',
-                boxShadow: '0 0 6px #ef4444'
+                boxShadow: '0 0 6px #ef4444',
+                flexShrink: 0
               }}></span>
-              SOURCE: {confirmedSource.name || 'MT Ocean Pioneer'} (VERIFIED LEAK)
+              <span>SOURCE: {confirmedSource.name || 'MT Ocean Pioneer'} (VERIFIED LEAK)</span>
             </div>
           )}
 
@@ -392,11 +401,7 @@ export default function NotificationsView({
       </div>
 
       {/* 2. Compact Summary Cards (Requirement 3) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '1rem'
-      }}>
+      <div className="kpi-grid-4">
         {/* Card 1: TOTAL NOTIFICATIONS */}
         <div style={{
           backgroundColor: '#0e172a',
@@ -523,12 +528,7 @@ export default function NotificationsView({
       </div>
 
       {/* 3. Main Split View: Notification Table (Left/Center) + Broadcast Summary (Right) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1.75fr 1.05fr',
-        gap: '1.2rem',
-        alignItems: 'start'
-      }}>
+      <div className="notifications-grid">
         {/* LEFT COLUMN: Clean Table / List of Notifications (Requirements 4 & 5) */}
         <div style={{
           backgroundColor: '#0e172a',
@@ -558,7 +558,7 @@ export default function NotificationsView({
             </div>
 
             {/* Filter Tabs & Search */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
               <div style={{
                 display: 'flex',
                 backgroundColor: '#070b14',
@@ -642,8 +642,8 @@ export default function NotificationsView({
             </div>
           </div>
 
-          {/* Table (Requirement 4) */}
-          <div style={{ overflowX: 'auto' }}>
+          {/* Desktop Table (Requirement 4) */}
+          <div className="desktop-table-only" style={{ overflowX: 'auto' }}>
             <table style={{
               width: '100%',
               borderCollapse: 'collapse',
@@ -791,6 +791,105 @@ export default function NotificationsView({
             </table>
           </div>
 
+          {/* Mobile Compact Notification Cards (Section 8) */}
+          <div className="mobile-cards-only" style={{ padding: '0.85rem', flexDirection: 'column', gap: '0.65rem' }}>
+            {filteredRecords.map((item, idx) => {
+              const isExpanded = expandedCardId === (item.id || idx);
+              const isInside = item.riskStatus === 'INSIDE ZONE';
+              const isApproaching = item.riskStatus === 'APPROACHING';
+
+              return (
+                <div
+                  key={item.id || idx}
+                  style={{
+                    backgroundColor: '#070b14',
+                    border: '1px solid #1e293b',
+                    borderRadius: '8px',
+                    padding: '0.8rem 0.9rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.45rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f1f5f9' }}>
+                        {item.vesselName}
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
+                        {item.vesselType} • <span style={{ fontFamily: 'monospace', color: '#94a3b8' }}>{item.mmsi}</span>
+                      </div>
+                    </div>
+                    <span style={{
+                      backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                      border: '1px solid #10b981',
+                      color: '#34d399',
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      padding: '0.15rem 0.45rem',
+                      borderRadius: '4px',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      Status: SIMULATED
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '0.74rem', color: '#cbd5e1', lineHeight: 1.35 }}>
+                    <strong style={{ color: '#94a3b8' }}>Reason:</strong> {item.reason}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.15rem' }}>
+                    <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                      Time: {item.time}
+                    </div>
+                    <button
+                      onClick={() => setExpandedCardId(isExpanded ? null : (item.id || idx))}
+                      style={{
+                        backgroundColor: isExpanded ? '#0284c7' : '#1e293b',
+                        color: '#ffffff',
+                        border: '1px solid #38bdf8',
+                        borderRadius: '4px',
+                        padding: '0.25rem 0.65rem',
+                        fontSize: '0.68rem',
+                        fontWeight: 800,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isExpanded ? 'HIDE' : 'VIEW'}
+                    </button>
+                  </div>
+
+                  {isExpanded && (
+                    <div style={{
+                      marginTop: '0.35rem',
+                      paddingTop: '0.5rem',
+                      borderTop: '1px solid #1e293b',
+                      fontSize: '0.7rem',
+                      color: '#cbd5e1',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.3rem'
+                    }}>
+                      <div>
+                        <span style={{ color: '#64748b' }}>Dispatch Type: </span>
+                        <strong style={{ color: '#38bdf8' }}>{item.notificationType}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748b' }}>Risk State: </span>
+                        <strong style={{ color: isInside ? '#f87171' : (isApproaching ? '#fbbf24' : '#38bdf8') }}>
+                          {item.riskStatus}
+                        </strong>
+                      </div>
+                      <div style={{ color: '#94a3b8', fontStyle: 'italic' }}>
+                        Advisory: Potential oil-spill risk detected along affected route. Maintain 3 NM CPA from exclusion zone.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           {/* Table Footer */}
           <div style={{
             padding: '0.65rem 1rem',
@@ -799,6 +898,8 @@ export default function NotificationsView({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.4rem',
             fontSize: '0.7rem',
             color: '#64748b'
           }}>

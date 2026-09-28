@@ -110,23 +110,25 @@ export default function GuidedDemoMode({
     }}>
       {/* Top Banner: Progress Indicator & Controls */}
       <div style={{
-        height: '56px',
+        minHeight: '56px',
         backgroundColor: '#0a1120',
         borderBottom: '1px solid #1e293b',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 1.5rem',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        padding: '0.5rem 1rem',
         flexShrink: 0
       }}>
         {/* Brand & Demo Tag */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <div style={{
             background: 'linear-gradient(135deg, #0284c7, #0369a1)',
-            padding: '0.35rem 0.6rem',
+            padding: '0.3rem 0.55rem',
             borderRadius: '6px',
             fontWeight: 800,
-            fontSize: '0.85rem',
+            fontSize: '0.8rem',
             color: '#ffffff',
             letterSpacing: '0.04em'
           }}>
@@ -139,7 +141,7 @@ export default function GuidedDemoMode({
         </div>
 
         {/* 5-Step Visual Progress Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           {stepLabels.map((item, idx) => {
             const isActive = step === item.num;
             const isCompleted = step > item.num;
@@ -151,7 +153,7 @@ export default function GuidedDemoMode({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.35rem',
+                    gap: '0.3rem',
                     cursor: 'pointer',
                     opacity: isActive ? 1 : (isCompleted ? 0.8 : 0.4),
                     transition: 'all 0.2s ease'
@@ -166,14 +168,14 @@ export default function GuidedDemoMode({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.72rem',
+                    fontSize: '0.7rem',
                     fontWeight: 800,
                     boxShadow: isActive ? '0 0 10px #38bdf8' : 'none'
                   }}>
                     {isCompleted ? '✓' : item.num}
                   </span>
-                  <span style={{
-                    fontSize: '0.76rem',
+                  <span className="desktop-only" style={{
+                    fontSize: '0.74rem',
                     fontWeight: isActive ? 800 : 600,
                     color: isActive ? '#38bdf8' : (isCompleted ? '#cbd5e1' : '#64748b'),
                     letterSpacing: '0.04em'
@@ -182,7 +184,7 @@ export default function GuidedDemoMode({
                   </span>
                 </div>
                 {idx < stepLabels.length - 1 && (
-                  <span style={{ color: '#334155', fontSize: '0.75rem' }}>➔</span>
+                  <span style={{ color: '#334155', fontSize: '0.7rem' }}>➔</span>
                 )}
               </React.Fragment>
             );
@@ -190,7 +192,7 @@ export default function GuidedDemoMode({
         </div>
 
         {/* Presenter Controls (Play/Pause, Step navigation, Close) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <button
             onClick={() => setStep(prev => Math.max(1, prev - 1))}
             disabled={step === 1}
@@ -199,8 +201,8 @@ export default function GuidedDemoMode({
               border: '1px solid #334155',
               color: step === 1 ? '#475569' : '#cbd5e1',
               borderRadius: '4px',
-              padding: '0.35rem 0.65rem',
-              fontSize: '0.74rem',
+              padding: '0.35rem 0.6rem',
+              fontSize: '0.72rem',
               fontWeight: 600,
               cursor: step === 1 ? 'not-allowed' : 'pointer'
             }}
@@ -215,8 +217,8 @@ export default function GuidedDemoMode({
               border: isPlaying ? '1px solid #38bdf8' : '1px solid #0284c7',
               color: '#ffffff',
               borderRadius: '4px',
-              padding: '0.35rem 0.75rem',
-              fontSize: '0.74rem',
+              padding: '0.35rem 0.65rem',
+              fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer',
               display: 'flex',
@@ -245,8 +247,8 @@ export default function GuidedDemoMode({
               border: '1px solid #334155',
               color: step === 5 ? '#475569' : '#cbd5e1',
               borderRadius: '4px',
-              padding: '0.35rem 0.65rem',
-              fontSize: '0.74rem',
+              padding: '0.35rem 0.6rem',
+              fontSize: '0.72rem',
               fontWeight: 600,
               cursor: step === 5 ? 'not-allowed' : 'pointer'
             }}
@@ -262,7 +264,7 @@ export default function GuidedDemoMode({
               color: '#94a3b8',
               padding: '0.35rem',
               cursor: 'pointer',
-              marginLeft: '0.5rem'
+              marginLeft: '0.2rem'
             }}
           >
             <X size={20} />
@@ -307,19 +309,19 @@ export default function GuidedDemoMode({
             {/* Floating Info Card: STEP 1 */}
             <div style={{
               position: 'absolute',
-              bottom: '36px',
-              left: '40px',
+              bottom: '20px',
+              left: '16px',
               zIndex: 500,
               backgroundColor: 'rgba(10, 17, 32, 0.94)',
               backdropFilter: 'blur(8px)',
               border: '1px solid #1e293b',
               borderLeft: '5px solid #38bdf8',
               borderRadius: '8px',
-              padding: '1.2rem 1.6rem',
+              padding: '1rem 1.2rem',
               boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
-              minWidth: '300px'
+              maxWidth: 'min(420px, calc(100vw - 32px))'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
                 <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   STEP 1 — SAR SCENE INGESTION
                 </span>
@@ -327,7 +329,7 @@ export default function GuidedDemoMode({
                   backgroundColor: 'rgba(56, 189, 248, 0.15)',
                   color: '#38bdf8',
                   border: '1px solid #38bdf8',
-                  fontSize: '0.65rem',
+                  fontSize: '0.62rem',
                   fontWeight: 800,
                   padding: '1px 5px',
                   borderRadius: '3px'
@@ -335,7 +337,7 @@ export default function GuidedDemoMode({
                   SYNTHETIC SAR-LIKE DEMONSTRATION
                 </span>
               </div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f1f5f9' }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f1f5f9' }}>
                 SAR BACKSCATTER SCENE
               </div>
               <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.4rem', lineHeight: 1.4 }}>
@@ -407,19 +409,19 @@ export default function GuidedDemoMode({
             {/* Floating Info Card: STEP 2 DETECT */}
             <div style={{
               position: 'absolute',
-              bottom: '36px',
-              left: '40px',
+              bottom: '20px',
+              left: '16px',
               zIndex: 500,
               backgroundColor: 'rgba(10, 17, 32, 0.94)',
               backdropFilter: 'blur(8px)',
               border: '1px solid #1e293b',
               borderLeft: '5px solid #00f0ff',
               borderRadius: '8px',
-              padding: '1.2rem 1.6rem',
+              padding: '1rem 1.2rem',
               boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
-              minWidth: '310px'
+              maxWidth: 'min(420px, calc(100vw - 32px))'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
                 <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#00f0ff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   STEP 2 — HIGHLIGHT SLICK
                 </span>
@@ -427,7 +429,7 @@ export default function GuidedDemoMode({
                   backgroundColor: 'rgba(56, 189, 248, 0.15)',
                   color: '#38bdf8',
                   border: '1px solid #38bdf8',
-                  fontSize: '0.65rem',
+                  fontSize: '0.62rem',
                   fontWeight: 800,
                   padding: '1px 5px',
                   borderRadius: '3px'
@@ -437,7 +439,7 @@ export default function GuidedDemoMode({
               </div>
 
               {/* Requirement 7: Display POSSIBLE OIL SPILL & Prototype Detection */}
-              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#f1f5f9', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#f1f5f9', letterSpacing: '-0.02em' }}>
                 POSSIBLE OIL SPILL
               </div>
               <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#38bdf8', marginTop: '0.1rem' }}>
@@ -447,13 +449,13 @@ export default function GuidedDemoMode({
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '1.4rem', marginTop: '0.5rem' }}>
                 <div>
                   <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase' }}>Estimated Area</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'monospace' }}>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'monospace' }}>
                     14.8 <span style={{ fontSize: '0.85rem' }}>km²</span>
                   </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase' }}>Detection Score</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981', fontFamily: 'monospace' }}>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#10b981', fontFamily: 'monospace' }}>
                     94%
                   </div>
                 </div>
@@ -483,25 +485,25 @@ export default function GuidedDemoMode({
             {step === 3 && (
               <div style={{
                 position: 'absolute',
-                bottom: '36px',
-                left: '40px',
+                bottom: '20px',
+                left: '16px',
                 zIndex: 500,
                 backgroundColor: 'rgba(10, 17, 32, 0.94)',
                 backdropFilter: 'blur(8px)',
                 border: '1px solid #1e293b',
                 borderLeft: '5px solid #f59e0b',
                 borderRadius: '8px',
-                padding: '1.2rem 1.6rem',
+                padding: '1rem 1.2rem',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
-                minWidth: '320px'
+                maxWidth: 'min(420px, calc(100vw - 32px))'
               }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                   STEP 3 — REVERSE DRIFT MODELING
                 </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#f1f5f9' }}>
+                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#f1f5f9' }}>
                   PROBABLE ORIGIN
                 </div>
-                <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fbbf24', marginTop: '0.2rem', fontFamily: 'monospace' }}>
+                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fbbf24', marginTop: '0.2rem', fontFamily: 'monospace' }}>
                   ±3.5 km uncertainty envelope
                 </div>
                 <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.5rem', lineHeight: 1.4 }}>
@@ -517,25 +519,25 @@ export default function GuidedDemoMode({
             {step === 4 && (
               <div style={{
                 position: 'absolute',
-                bottom: '36px',
-                left: '40px',
+                bottom: '20px',
+                left: '16px',
                 zIndex: 500,
                 backgroundColor: 'rgba(10, 17, 32, 0.94)',
                 backdropFilter: 'blur(8px)',
                 border: '1px solid #1e293b',
                 borderLeft: '5px solid #38bdf8',
                 borderRadius: '8px',
-                padding: '1.2rem 1.6rem',
+                padding: '1rem 1.2rem',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
-                minWidth: '320px'
+                maxWidth: 'min(420px, calc(100vw - 32px))'
               }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                   STEP 4 — AIS TRAJECTORIES
                 </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f1f5f9' }}>
+                <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#f1f5f9' }}>
                   VESSEL TRAJECTORIES
                 </div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#38bdf8', marginTop: '0.2rem' }}>
+                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#38bdf8', marginTop: '0.2rem' }}>
                   {vesselRevealCount} candidate vessels correlated
                 </div>
                 <div style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: '0.4rem' }}>
@@ -548,16 +550,18 @@ export default function GuidedDemoMode({
             {step === 5 && topCandidate && (
               <div style={{
                 position: 'absolute',
-                top: '24px',
-                left: '36px',
+                top: '16px',
+                left: '16px',
                 zIndex: 500,
                 backgroundColor: 'rgba(10, 17, 32, 0.96)',
                 backdropFilter: 'blur(10px)',
                 border: '2px solid #38bdf8',
                 borderRadius: '10px',
-                padding: '1.4rem 1.6rem',
+                padding: '1.1rem 1.25rem',
                 boxShadow: '0 12px 35px rgba(56, 189, 248, 0.25)',
-                maxWidth: '440px'
+                maxWidth: 'min(440px, calc(100vw - 32px))',
+                maxHeight: 'calc(100vh - 96px)',
+                overflowY: 'auto'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{

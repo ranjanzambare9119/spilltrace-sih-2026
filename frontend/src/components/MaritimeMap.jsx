@@ -27,6 +27,7 @@ export default function MaritimeMap({
   const mapInstanceRef = useRef(null);
   const layerGroupRef = useRef(null);
   const [tileError, setTileError] = useState(false);
+  const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
 
   // Layer visibility toggles
   const [layers, setLayers] = useState({
@@ -83,6 +84,15 @@ export default function MaritimeMap({
       mapInstanceRef.current = map;
     }
 
+    const handleWindowResize = () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+    window.addEventListener('orientationchange', handleWindowResize);
+
     // Observe container resizes and force Leaflet to recalculate dimensions
     const ro = new ResizeObserver(() => {
       if (mapInstanceRef.current) {
@@ -97,6 +107,8 @@ export default function MaritimeMap({
     const t3 = setTimeout(() => mapInstanceRef.current?.invalidateSize(), 500);
 
     return () => {
+      window.removeEventListener('resize', handleWindowResize);
+      window.removeEventListener('orientationchange', handleWindowResize);
       ro.disconnect();
       clearTimeout(t1);
       clearTimeout(t2);
@@ -719,22 +731,24 @@ export default function MaritimeMap({
   }, [spillData, originData, forwardDrift, candidateVessels, atRiskVessels, selectedVessel, layers, autoFit]);
 
   return (
-    <div style={{
-      position: 'relative',
-      width: '100%',
-      height: height || '100%',
-      minHeight: minHeight || '500px',
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <div
+      className="map-responsive-wrapper"
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: height || '100%',
+        minHeight: minHeight || '500px',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       {/* Map Container */}
       <div
         ref={mapContainerRef}
         style={{
           width: '100%',
           height: '100%',
-          minHeight: minHeight || '500px',
           flex: 1,
           backgroundColor: '#07101e'
         }}
@@ -757,6 +771,7 @@ export default function MaritimeMap({
           display: 'flex',
           alignItems: 'center',
           gap: '0.45rem',
+          maxWidth: 'calc(100% - 24px)',
           boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
           pointerEvents: 'none'
         }}>
@@ -777,16 +792,17 @@ export default function MaritimeMap({
             backdropFilter: 'blur(8px)',
             border: '1px solid #1e293b',
             borderRadius: '6px',
-            padding: '0.45rem 0.85rem',
+            padding: '0.45rem 0.75rem',
             fontSize: '0.72rem',
             color: '#cbd5e1',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.55rem',
+            gap: '0.5rem',
+            maxWidth: 'calc(100% - 24px)',
             boxShadow: '0 4px 14px rgba(0,0,0,0.5)'
           }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }}></span>
-            <div>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', flexShrink: 0 }}></span>
+            <div style={{ lineHeight: 1.35 }}>
               <span style={{ fontWeight: 700, color: '#f1f5f9' }}>MARITIME MONITORING</span>
               <span style={{ color: '#64748b', marginLeft: '0.4rem' }}>• Sector 04 (Arabian Sea) • No active incident</span>
             </div>
@@ -803,13 +819,17 @@ export default function MaritimeMap({
               backdropFilter: 'blur(8px)',
               border: '1px solid #334155',
               borderRadius: '6px',
-              padding: '0.5rem 1rem',
+              padding: '0.5rem 0.9rem',
               display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
               alignItems: 'center',
-              gap: '0.75rem',
+              gap: '0.6rem',
+              width: 'max-content',
+              maxWidth: 'calc(100% - 24px)',
               boxShadow: '0 4px 16px rgba(0,0,0,0.6)'
             }}>
-              <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>No incident data currently loaded.</span>
+              <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>No incident data currently loaded.</span>
               <button 
                 onClick={onLoadDemo}
                 className="btn-primary"
@@ -822,25 +842,136 @@ export default function MaritimeMap({
         </>
       )}
 
-      {/* Layer Controls Floating Pill (Only when incident is active) */}
+      {/* Mobile Compact Layer & Legend Toggle Button (<= 767px) */}
+      {hasIncidentData && (
+        <div
+          className="mobile-only"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            zIndex: 520,
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            maxWidth: 'calc(100% - 20px)'
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setMobileControlsOpen((prev) => !prev)}
+            style={{
+              backgroundColor: 'rgba(10, 17, 32, 0.95)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid #334155',
+              borderRadius: '6px',
+              padding: '0.38rem 0.65rem',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              color: '#38bdf8',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.6)'
+            }}
+          >
+            <span>⚙ {mobileControlsOpen ? 'Hide Layers & Legend' : 'Layers & Legend'}</span>
+          </button>
+
+          {mobileControlsOpen && (
+            <div
+              style={{
+                marginTop: '0.4rem',
+                backgroundColor: 'rgba(10, 17, 32, 0.96)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid #334155',
+                borderRadius: '6px',
+                padding: '0.6rem 0.75rem',
+                fontSize: '0.7rem',
+                color: '#cbd5e1',
+                maxHeight: '260px',
+                overflowY: 'auto',
+                width: 'min(270px, calc(100vw - 32px))',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.75)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.45rem'
+              }}
+            >
+              {interactiveLegend && (
+                <>
+                  <div style={{ fontSize: '0.64rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase' }}>
+                    Map Layers (Demo Scenario)
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.spill} onChange={e => setLayers(prev => ({ ...prev, spill: e.target.checked }))} />
+                      <span style={{ color: '#ef4444', fontWeight: 600 }}>Spill</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.origin} onChange={e => setLayers(prev => ({ ...prev, origin: e.target.checked }))} />
+                      <span style={{ color: '#f59e0b', fontWeight: 600 }}>Origin</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.drift} onChange={e => setLayers(prev => ({ ...prev, drift: e.target.checked }))} />
+                      <span style={{ color: '#00f0ff', fontWeight: 600 }}>Drift</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.forwardDrift} onChange={e => setLayers(prev => ({ ...prev, forwardDrift: e.target.checked }))} />
+                      <span style={{ color: '#fbbf24', fontWeight: 600 }}>Fwd Drift</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.spreadCorridor} onChange={e => setLayers(prev => ({ ...prev, spreadCorridor: e.target.checked }))} />
+                      <span style={{ color: '#f59e0b', fontWeight: 600 }}>Corridor</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.exclusionZone} onChange={e => setLayers(prev => ({ ...prev, exclusionZone: e.target.checked }))} />
+                      <span style={{ color: '#f43f5e', fontWeight: 600 }}>Exclusion</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.vessels} onChange={e => setLayers(prev => ({ ...prev, vessels: e.target.checked }))} />
+                      <span style={{ color: '#38bdf8', fontWeight: 600 }}>AIS Tracks</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={layers.atRiskVessels} onChange={e => setLayers(prev => ({ ...prev, atRiskVessels: e.target.checked }))} />
+                      <span style={{ color: '#f87171', fontWeight: 600 }}>At-Risk</span>
+                    </label>
+                  </div>
+                </>
+              )}
+              <div style={{ borderTop: '1px solid #1e293b', paddingTop: '0.4rem', fontSize: '0.66rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem' }}>
+                <div><span style={{ color: '#ef4444' }}>■</span> Spill</div>
+                <div><span style={{ color: '#f59e0b' }}>◌</span> Origin</div>
+                <div><span style={{ color: '#fbbf24' }}>◷</span> +1/+3/+6h</div>
+                <div><span style={{ color: '#f43f5e' }}>▨</span> Risk Zone</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Desktop Layer Controls Floating Pill (Only when incident is active) */}
       {hasIncidentData && interactiveLegend && (
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          zIndex: 500,
-          backgroundColor: 'rgba(10, 17, 32, 0.92)',
-          backdropFilter: 'blur(8px)',
-          border: '1px solid #1e293b',
-          borderRadius: '6px',
-          padding: '0.45rem 0.75rem',
-          fontSize: '0.72rem',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-          color: '#cbd5e1',
-          boxShadow: '0 4px 14px rgba(0,0,0,0.5)'
-        }}>
+        <div
+          className="desktop-only"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            zIndex: 500,
+            backgroundColor: 'rgba(10, 17, 32, 0.92)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid #1e293b',
+            borderRadius: '6px',
+            padding: '0.45rem 0.75rem',
+            fontSize: '0.72rem',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            maxWidth: 'calc(100% - 20px)',
+            color: '#cbd5e1',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.5)'
+          }}
+        >
           <span style={{
             fontSize: '0.64rem',
             fontWeight: 800,
@@ -919,25 +1050,28 @@ export default function MaritimeMap({
         </div>
       )}
 
-      {/* Floating Tactical Legend (Only when incident is active) */}
+      {/* Desktop Floating Tactical Legend (Only when incident is active) */}
       {hasIncidentData && (
-        <div style={{
-          position: 'absolute',
-          bottom: '12px',
-          left: '12px',
-          zIndex: 500,
-          backgroundColor: 'rgba(10, 17, 32, 0.92)',
-          backdropFilter: 'blur(8px)',
-          border: '1px solid #1e293b',
-          borderRadius: '6px',
-          padding: '0.4rem 0.75rem',
-          fontSize: '0.72rem',
-          color: '#cbd5e1',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: '0.85rem'
-        }}>
+        <div
+          className="desktop-only"
+          style={{
+            position: 'absolute',
+            bottom: '12px',
+            left: '12px',
+            zIndex: 500,
+            backgroundColor: 'rgba(10, 17, 32, 0.92)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid #1e293b',
+            borderRadius: '6px',
+            padding: '0.4rem 0.75rem',
+            fontSize: '0.72rem',
+            color: '#cbd5e1',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            maxWidth: 'calc(100% - 65px)',
+            gap: '0.85rem'
+          }}
+        >
           <div><span style={{ color: '#ef4444' }}>■</span> Current Spill</div>
           <div><span style={{ color: '#f59e0b' }}>◌</span> Probable Origin (±3.5km)</div>
           <div><span style={{ color: '#00f0ff' }}>➔</span> Drift Track</div>

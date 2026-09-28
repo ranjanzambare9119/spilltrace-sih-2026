@@ -67,7 +67,7 @@ export default function HumanConfirmationModal({
   };
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: 'fixed',
       inset: 0,
       zIndex: 4000,
@@ -78,14 +78,15 @@ export default function HumanConfirmationModal({
       justifyContent: 'center',
       padding: '1rem'
     }}>
-      <div style={{
+      <div className="modal-card" style={{
         backgroundColor: '#0e172a',
         border: `1px solid ${details.color}`,
         borderRadius: '10px',
         width: '560px',
         maxWidth: '95vw',
-        boxShadow: `0 12px 36px rgba(0, 0, 0, 0.9), 0 0 20px ${details.color}33`,
-        overflow: 'hidden'
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        boxShadow: `0 12px 36px rgba(0, 0, 0, 0.9), 0 0 20px ${details.color}33`
       }}>
         {/* Header */}
         <div style={{
@@ -207,7 +208,7 @@ export default function HumanConfirmationModal({
         </div>
 
         {/* Footer Buttons */}
-        <div style={{
+        <div className="modal-footer-btns" style={{
           backgroundColor: '#0a1120',
           borderTop: '1px solid #1e293b',
           padding: '0.85rem 1.25rem',

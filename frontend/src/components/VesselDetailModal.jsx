@@ -6,7 +6,7 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
   const scores = vessel.scores;
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -20,7 +20,7 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
       zIndex: 2000,
       padding: '1rem'
     }}>
-      <div style={{
+      <div className="modal-card" style={{
         backgroundColor: '#0e172a',
         border: '1px solid #334155',
         borderRadius: '10px',
@@ -34,17 +34,18 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
       }}>
         {/* Modal Header */}
         <div style={{
-          padding: '1rem 1.4rem',
+          padding: '1rem 1.2rem',
           borderBottom: '1px solid #1e293b',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: '0.6rem',
           backgroundColor: '#0a1120'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Ship size={20} color="#38bdf8" />
+            <Ship size={20} color="#38bdf8" style={{ flexShrink: 0 }} />
             <div>
-              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#f1f5f9' }}>
+              <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f1f5f9' }}>
                 {vessel.vessel_name} — Explainability Deep Dive
               </div>
               <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
@@ -60,7 +61,8 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
               border: '0',
               color: '#94a3b8',
               cursor: 'pointer',
-              padding: '0.2rem'
+              padding: '0.2rem',
+              flexShrink: 0
             }}
           >
             <X size={20} />
@@ -68,7 +70,7 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+        <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
           {/* Why Section */}
           <div style={{
             backgroundColor: '#070b14',
@@ -94,8 +96,8 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
           {/* Telemetry Summary */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: '0.8rem'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: '0.7rem'
           }}>
             <div style={{ backgroundColor: '#070b14', padding: '0.6rem', borderRadius: '6px', border: '1px solid #1e293b' }}>
               <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>CPA Distance</div>
@@ -120,7 +122,7 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
             <div style={{ fontWeight: 700, color: '#f1f5f9', marginBottom: '0.4rem' }}>
               Transparent Component Breakdown (0–100 Points):
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.5rem' }}>
               <div style={{ backgroundColor: '#070b14', padding: '0.5rem', borderRadius: '4px' }}>
                 Distance Score: <strong>{scores?.distance_score} / 30</strong>
               </div>
@@ -133,7 +135,7 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
               <div style={{ backgroundColor: '#070b14', padding: '0.5rem', borderRadius: '4px' }}>
                 Heading Alignment: <strong>{scores?.heading_score} / 15</strong>
               </div>
-              <div style={{ backgroundColor: '#070b14', padding: '0.5rem', borderRadius: '4px', gridColumn: 'span 2' }}>
+              <div style={{ backgroundColor: '#070b14', padding: '0.5rem', borderRadius: '4px' }}>
                 Vessel Risk Class: <strong>{scores?.vessel_type_score} / 10</strong>
               </div>
             </div>
@@ -154,8 +156,8 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
         </div>
 
         {/* Modal Footer */}
-        <div style={{
-          padding: '0.8rem 1.4rem',
+        <div className="modal-footer-btns" style={{
+          padding: '0.8rem 1.2rem',
           borderTop: '1px solid #1e293b',
           display: 'flex',
           justifyContent: 'flex-end',
@@ -164,7 +166,7 @@ export default function VesselDetailModal({ vessel, originData, onClose }) {
           <button
             onClick={onClose}
             style={{
-              padding: '0.45rem 1rem',
+              padding: '0.5rem 1rem',
               backgroundColor: '#1e293b',
               color: '#ffffff',
               border: '1px solid #334155',

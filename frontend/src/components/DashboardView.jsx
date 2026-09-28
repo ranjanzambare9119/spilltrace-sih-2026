@@ -93,16 +93,15 @@ export default function DashboardView({
 
   if (!hasIncident) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        padding: '1rem 1.4rem',
-        maxWidth: '1720px',
-        margin: '0 auto',
-        minHeight: 'calc(100vh - 80px)',
-        boxSizing: 'border-box'
-      }}>
+      <div
+        className="page-container"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          minHeight: 'calc(100vh - 80px)'
+        }}
+      >
         {/* TOP STATUS BAR: MARITIME SURVEILLANCE & MONITORING */}
         <div style={{
           display: 'flex',
@@ -111,15 +110,15 @@ export default function DashboardView({
           backgroundColor: '#0a101d',
           border: '1px solid #1e293b',
           borderRadius: '8px',
-          padding: '0.8rem 1.3rem',
+          padding: '0.8rem 1.1rem',
           flexWrap: 'wrap',
           gap: '0.8rem',
           boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
         }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+          <div style={{ minWidth: 0, flex: '1 1 260px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
               <span style={{
-                fontSize: '0.66rem',
+                fontSize: '0.64rem',
                 fontWeight: 700,
                 color: '#94a3b8',
                 backgroundColor: '#0f172a',
@@ -130,7 +129,7 @@ export default function DashboardView({
                 DATA MODE: NO LIVE FEED
               </span>
               <span style={{
-                fontSize: '0.66rem',
+                fontSize: '0.64rem',
                 fontWeight: 700,
                 color: '#34d399',
                 backgroundColor: 'rgba(16, 185, 129, 0.08)',
@@ -141,7 +140,7 @@ export default function DashboardView({
                 SYSTEM STATUS: ONLINE
               </span>
               <span style={{
-                fontSize: '0.66rem',
+                fontSize: '0.64rem',
                 fontWeight: 700,
                 color: '#38bdf8',
                 backgroundColor: 'rgba(56, 189, 248, 0.08)',
@@ -152,8 +151,7 @@ export default function DashboardView({
                 SECTOR 04: ARABIAN SEA (MONITORING)
               </span>
             </div>
-            <h1 style={{
-              fontSize: '1.25rem',
+            <h1 className="heading-xl" style={{
               fontWeight: 800,
               color: '#f8fafc',
               margin: 0
@@ -165,10 +163,10 @@ export default function DashboardView({
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
             <button
               onClick={handleDemoClick}
-              className="btn-primary"
+              className="btn-primary mobile-full-btn"
               style={{
                 padding: '0.5rem 1.1rem',
                 fontSize: '0.78rem',
@@ -183,12 +181,12 @@ export default function DashboardView({
         </div>
 
         {/* 2-COLUMN MAIN CONTENT GRID */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) 420px',
-          gap: '1rem',
-          flex: 1
-        }}>
+        <div
+          className="monitoring-grid"
+          style={{
+            flex: 1
+          }}
+        >
           {/* LEFT: BASE NAUTICAL MARITIME MAP */}
           <div style={{
             backgroundColor: '#0a101d',
@@ -197,25 +195,26 @@ export default function DashboardView({
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            minHeight: '520px',
             position: 'relative'
           }}>
             <div style={{
-              padding: '0.6rem 1rem',
+              padding: '0.6rem 0.9rem',
               borderBottom: '1px solid #1e293b',
               backgroundColor: '#070c16',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '0.4rem'
             }}>
-              <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.04em' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.04em' }}>
                 SPATIAL INTELLIGENCE MAP — BASE SURVEILLANCE CHART
               </span>
-              <span style={{ fontSize: '0.68rem', color: '#64748b' }}>
+              <span style={{ fontSize: '0.66rem', color: '#64748b' }}>
                 OpenStreetMap Maritime Base • No Active Incident
               </span>
             </div>
-            <div style={{ flex: 1, minHeight: '480px', position: 'relative' }}>
+            <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
               <MaritimeMap
                 spillData={null}
                 originData={null}
@@ -378,16 +377,15 @@ export default function DashboardView({
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '0.9rem',
-      padding: '0.9rem 1.4rem',
-      maxWidth: '1720px',
-      margin: '0 auto',
-      minHeight: 'calc(100vh - 80px)',
-      boxSizing: 'border-box'
-    }}>
+    <div
+      className="page-container"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.9rem',
+        minHeight: 'calc(100vh - 80px)'
+      }}
+    >
       {/* 1. TOP SITUATION COMMAND BAR */}
       <div style={{
         display: 'flex',
@@ -396,15 +394,15 @@ export default function DashboardView({
         backgroundColor: '#0e172a',
         border: '1px solid #1e293b',
         borderRadius: '10px',
-        padding: '0.75rem 1.2rem',
+        padding: '0.75rem 1.1rem',
         boxShadow: '0 4px 18px rgba(0,0,0,0.5)',
         flexWrap: 'wrap',
         gap: '0.8rem'
       }}>
         {/* Left: Incident Title & Badges */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <span className="badge-demo" style={{ fontSize: '0.68rem', padding: '0.15rem 0.55rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: 0, flex: '1 1 280px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span className="badge-demo" style={{ fontSize: '0.66rem', padding: '0.15rem 0.5rem' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#f59e0b', boxShadow: '0 0 6px #f59e0b' }}></span>
               SYNTHETIC DEMO AIS SCENARIO
             </span>
@@ -415,9 +413,9 @@ export default function DashboardView({
                 : (isWatchlist ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)'),
               border: `1px solid ${isLeakConfirmed ? '#ef4444' : (isWatchlist ? '#f59e0b' : '#ef4444')}`,
               color: isLeakConfirmed ? '#fca5a5' : (isWatchlist ? '#fbbf24' : '#f87171'),
-              fontSize: '0.68rem',
+              fontSize: '0.66rem',
               fontWeight: 800,
-              padding: '0.18rem 0.55rem',
+              padding: '0.18rem 0.5rem',
               borderRadius: '4px',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
@@ -438,10 +436,11 @@ export default function DashboardView({
                   color: '#38bdf8',
                   border: '1px solid #0284c7',
                   borderRadius: '4px',
-                  padding: '0.2rem 0.5rem',
-                  fontSize: '0.68rem',
+                  padding: '0.2rem 0.45rem',
+                  fontSize: '0.66rem',
                   fontWeight: 700,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  maxWidth: '100%'
                 }}
                 title="Switch test scenario archetype"
               >
@@ -454,13 +453,11 @@ export default function DashboardView({
             )}
           </div>
 
-          <h1 style={{
-            fontSize: '1.25rem',
+          <h1 className="heading-xl" style={{
             fontWeight: 900,
             color: '#f8fafc',
             letterSpacing: '-0.02em',
-            margin: 0,
-            lineHeight: 1.2
+            margin: 0
           }}>
             {isLeakConfirmed 
               ? 'INCIDENT COMMAND: TIER-2 RESPONSE ACTIVE (CONFIRMED SOURCE)' 
@@ -469,7 +466,7 @@ export default function DashboardView({
         </div>
 
         {/* Right: Quick Action Navigation */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
           {onExitDemo && (
             <button
               onClick={onExitDemo}
@@ -478,13 +475,13 @@ export default function DashboardView({
                 color: '#cbd5e1',
                 border: '1px solid #334155',
                 borderRadius: '6px',
-                padding: '0.45rem 0.85rem',
-                fontSize: '0.74rem',
+                padding: '0.42rem 0.75rem',
+                fontSize: '0.72rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.35rem'
+                gap: '0.3rem'
               }}
               title="Exit demo mode and return to clean monitoring state"
             >
@@ -500,13 +497,13 @@ export default function DashboardView({
               color: '#38bdf8',
               border: '1px solid #1e293b',
               borderRadius: '6px',
-              padding: '0.45rem 0.85rem',
-              fontSize: '0.74rem',
+              padding: '0.42rem 0.75rem',
+              fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem'
+              gap: '0.3rem'
             }}
           >
             <Play size={13} fill="#38bdf8" />
@@ -520,13 +517,13 @@ export default function DashboardView({
               color: '#ffffff',
               border: '1px solid #38bdf8',
               borderRadius: '6px',
-              padding: '0.48rem 1rem',
-              fontSize: '0.76rem',
+              padding: '0.45rem 0.85rem',
+              fontSize: '0.74rem',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
+              gap: '0.35rem',
               boxShadow: '0 0 14px rgba(56, 189, 248, 0.3)'
             }}
           >
@@ -541,13 +538,13 @@ export default function DashboardView({
               color: isLeakConfirmed ? '#f87171' : '#f1f5f9',
               border: `1px solid ${isLeakConfirmed ? '#ef4444' : '#334155'}`,
               borderRadius: '6px',
-              padding: '0.45rem 0.85rem',
-              fontSize: '0.74rem',
+              padding: '0.42rem 0.75rem',
+              fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem'
+              gap: '0.3rem'
             }}
           >
             <Bell size={13} color={isLeakConfirmed ? '#ef4444' : '#38bdf8'} />
@@ -556,12 +553,8 @@ export default function DashboardView({
         </div>
       </div>
 
-      {/* 2. THE 4 PRIMARY INCIDENT KPI CARDS (CLEAN & NON-DUPLICATE) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '0.85rem'
-      }}>
+      {/* 2. THE 4 PRIMARY INCIDENT KPI CARDS (4 cols Desktop -> 2 cols Tablet -> 1 col Mobile) */}
+      <div className="kpi-grid-4">
         {/* CARD 1: POSSIBLE OIL SPILL */}
         <div style={{
           backgroundColor: '#0e172a',
@@ -582,7 +575,7 @@ export default function DashboardView({
           </div>
 
           <div>
-            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1.1 }}>
+            <div className="kpi-value-lg" style={{ fontWeight: 900, color: '#f8fafc' }}>
               {spillData ? spillData.area_km2 : '14.85'} <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>km²</span>
             </div>
             <div style={{ fontSize: '0.72rem', color: isQuantitative ? '#10b981' : '#fbbf24', marginTop: '0.2rem', fontWeight: 700 }}>
@@ -626,7 +619,7 @@ export default function DashboardView({
           </div>
 
           <div>
-            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'monospace', lineHeight: 1.1 }}>
+            <div className="kpi-value-lg" style={{ fontWeight: 900, color: '#38bdf8', fontFamily: 'monospace' }}>
               {confidencePct}%
             </div>
             <div style={{ fontSize: '0.72rem', color: '#cbd5e1', marginTop: '0.2rem', fontWeight: 600 }}>
@@ -659,7 +652,7 @@ export default function DashboardView({
           </div>
 
           <div>
-            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#fbbf24', lineHeight: 1.1 }}>
+            <div className="kpi-value-lg" style={{ fontWeight: 900, color: '#fbbf24' }}>
               ±{originData ? originData.origin_uncertainty_km : '3.5'} <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>km</span>
             </div>
             <div style={{ fontSize: '0.72rem', color: '#cbd5e1', marginTop: '0.2rem', fontWeight: 600 }}>
@@ -692,12 +685,12 @@ export default function DashboardView({
           </div>
 
           <div>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: isLeakConfirmed ? '#34d399' : '#38bdf8', fontFamily: 'monospace', lineHeight: 1.1 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.4rem' }}>
+              <div className="kpi-value-lg" style={{ fontWeight: 900, color: isLeakConfirmed ? '#34d399' : '#38bdf8', fontFamily: 'monospace' }}>
                 {isLeakConfirmed ? (topCandidate?.scores?.total_score || 96) : (topCandidate?.scores?.total_score || 87)}
                 <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>/100</span>
               </div>
-              <strong style={{ fontSize: '0.82rem', color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }}>
+              <strong style={{ fontSize: '0.82rem', color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
                 {confirmedSource?.name?.replace(' - DEMO', '') || (topCandidate ? topCandidate.vessel_name.replace(' - DEMO', '') : 'MT Ocean Pioneer')}
               </strong>
             </div>
@@ -737,78 +730,207 @@ export default function DashboardView({
         </div>
       </div>
 
-      {/* 3. MAIN CENTER STAGE: SPATIAL INTELLIGENCE MAP (LEFT) + CURRENT RESPONSE STATUS & ACTIONS (RIGHT) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1fr',
-        gap: '0.9rem',
-        flex: 1,
-        minHeight: '420px'
-      }}>
-        {/* PANEL 5: SPATIAL INTELLIGENCE MAP */}
-        <div style={{
-          backgroundColor: '#0e172a',
-          border: '1px solid #1e293b',
-          borderRadius: '10px',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.6)'
-        }}>
+      {/* 3. MAIN CENTER STAGE: LEFT COLUMN (3. Map, 4. Spill Info, 5. Pipeline, 6. Vessel Ranking) + RIGHT COLUMN (7. Forward Drift, 8. Response Actions, 9. Timeline) */}
+      <div className="dashboard-main-grid" style={{ flex: 1 }}>
+        {/* LEFT COLUMN */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', minWidth: 0 }}>
+          {/* 3. SPATIAL INTELLIGENCE MAP */}
           <div style={{
-            backgroundColor: '#0a1120',
-            padding: '0.55rem 1rem',
-            borderBottom: '1px solid #1e293b',
+            backgroundColor: '#0e172a',
+            border: '1px solid #1e293b',
+            borderRadius: '10px',
+            overflow: 'hidden',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            flexDirection: 'column',
+            flex: 1,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.6)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Layers size={15} color="#38bdf8" />
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
-                SPATIAL INTELLIGENCE MAP
+            <div style={{
+              backgroundColor: '#0a1120',
+              padding: '0.55rem 0.9rem',
+              borderBottom: '1px solid #1e293b',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '0.4rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Layers size={15} color="#38bdf8" />
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                  SPATIAL INTELLIGENCE MAP
+                </span>
+              </div>
+
+              <div style={{ fontSize: '0.66rem', color: '#94a3b8', display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+                <span>Forward: <strong style={{ color: '#fbbf24' }}>+{isLeakConfirmed ? 12 : 6}h Forecast</strong></span>
+                <span>Exclusion Corridor: <strong style={{ color: '#f43f5e' }}>~{isLeakConfirmed ? 220 : 25} km²</strong></span>
+              </div>
+            </div>
+
+            <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+              <MaritimeMap
+                spillData={spillData}
+                originData={originData}
+                forwardDrift={forwardDrift}
+                candidateVessels={candidateVessels}
+                atRiskVessels={atRiskVessels}
+                selectedVessel={selectedVessel}
+                onSelectVessel={onSelectVessel}
+                height="100%"
+                minHeight="380px"
+                autoFit={true}
+              />
+            </div>
+          </div>
+
+          {/* 4. SPILL INFORMATION & 5. INVESTIGATION PIPELINE SUMMARY */}
+          <div style={{
+            backgroundColor: '#0e172a',
+            border: '1px solid #1e293b',
+            borderRadius: '10px',
+            padding: '0.75rem 1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.55rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                SPILL INFORMATION & INVESTIGATION PIPELINE
+              </span>
+              <span style={{ fontSize: '0.64rem', color: '#38bdf8', fontFamily: 'monospace' }}>
+                {spillData?.latitude || '18.925'}°N, {spillData?.longitude || '72.375'}°E • {appearanceClass}
               </span>
             </div>
 
-            <div style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'flex', gap: '0.8rem' }}>
-              <span>Forward: <strong style={{ color: '#fbbf24' }}>+{isLeakConfirmed ? 12 : 6}h Forecast</strong></span>
-              <span>Exclusion Corridor: <strong style={{ color: '#f43f5e' }}>~{isLeakConfirmed ? 220 : 25} km²</strong></span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.35rem',
+              flexWrap: 'wrap',
+              backgroundColor: '#070b14',
+              border: '1px solid #1e293b',
+              borderRadius: '6px',
+              padding: '0.45rem 0.65rem',
+              fontSize: '0.64rem',
+              fontWeight: 700
+            }}>
+              <span style={{ color: '#38bdf8' }}>1. DETECT ({confidencePct}%)</span>
+              <span style={{ color: '#475569' }}>&rarr;</span>
+              <span style={{ color: '#fbbf24' }}>2. LOCATE (±{originData?.origin_uncertainty_km || '3.5'}km)</span>
+              <span style={{ color: '#475569' }}>&rarr;</span>
+              <span style={{ color: '#38bdf8' }}>3. RANK ({candidateVessels?.length || 10} Vessels)</span>
+              <span style={{ color: '#475569' }}>&rarr;</span>
+              <span style={{ color: isLeakConfirmed ? '#10b981' : '#f59e0b' }}>
+                4. {isLeakConfirmed ? 'VERIFIED LEAK' : 'VERIFY'}
+              </span>
+              <span style={{ color: '#475569' }}>&rarr;</span>
+              <span style={{ color: '#f43f5e' }}>5. PROTECT & NOTIFY ({flaggedTrafficCount})</span>
             </div>
           </div>
 
-          <div style={{ flex: 1, minHeight: '380px', position: 'relative' }}>
-            <MaritimeMap
-              spillData={spillData}
-              originData={originData}
-              forwardDrift={forwardDrift}
-              candidateVessels={candidateVessels}
-              atRiskVessels={atRiskVessels}
-              selectedVessel={selectedVessel}
-              onSelectVessel={onSelectVessel}
-              height="100%"
-              minHeight="380px"
-              autoFit={true}
-            />
+          {/* 6. CANDIDATE VESSEL RANKING SUMMARY */}
+          <div style={{
+            backgroundColor: '#0e172a',
+            border: '1px solid #1e293b',
+            borderRadius: '10px',
+            padding: '0.75rem 1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                TOP CANDIDATE VESSEL RANKING (AIS CORRELATION)
+              </span>
+              <button
+                onClick={() => onNavigateTab('vessels')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#38bdf8',
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+              >
+                All {candidateVessels?.length || 10} Vessels &rarr;
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {(candidateVessels || []).slice(0, 3).map((v) => {
+                const isR1 = v.rank === 1;
+                const vScore = v.scores?.total_score || 0;
+                return (
+                  <div
+                    key={v.mmsi}
+                    onClick={() => onSelectVessel && onSelectVessel(v)}
+                    style={{
+                      backgroundColor: '#070b14',
+                      border: `1px solid ${isR1 ? 'rgba(56, 189, 248, 0.45)' : '#1e293b'}`,
+                      borderRadius: '6px',
+                      padding: '0.45rem 0.65rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '0.4rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                      <span style={{
+                        backgroundColor: isR1 ? '#0284c7' : '#1e293b',
+                        color: '#ffffff',
+                        fontSize: '0.64rem',
+                        fontWeight: 800,
+                        padding: '0.1rem 0.4rem',
+                        borderRadius: '4px'
+                      }}>
+                        #{v.rank}
+                      </span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {v.vessel_name.replace(' - DEMO', '')}
+                        </div>
+                        <div style={{ fontSize: '0.62rem', color: '#94a3b8' }}>
+                          {v.vessel_type} • CPA {v.cpa_distance_km} km • {v.cargo_compatibility || 'Oil Compatible'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 900, color: isR1 ? '#38bdf8' : '#fbbf24', fontFamily: 'monospace' }}>
+                        {vScore}/100
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: FORWARD SPILL PREDICTION + CURRENT RESPONSE STATUS + TOP RECOMMENDED ACTIONS */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-          {/* PANEL: DEDICATED FORWARD SPILL PREDICTION */}
+        {/* RIGHT COLUMN: 7. FORWARD SPILL PREDICTION + 8. RESPONSE ACTIONS + 9. TIMELINE */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', minWidth: 0 }}>
+          {/* 7. PANEL: DEDICATED FORWARD SPILL PREDICTION */}
           <div style={{
             backgroundColor: '#0e172a',
             border: '1px solid #1e293b',
             borderLeft: '4px solid #f59e0b',
             borderRadius: '10px',
-            padding: '0.85rem 1.1rem',
+            padding: '0.85rem 1rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.65rem'
+            gap: '0.6rem'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Compass size={17} color="#fbbf24" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
                   FORWARD SPILL PREDICTION
                 </span>
               </div>
@@ -817,7 +939,7 @@ export default function DashboardView({
                 backgroundColor: 'rgba(245, 158, 11, 0.15)',
                 color: '#fbbf24',
                 border: '1px solid rgba(245, 158, 11, 0.3)',
-                fontSize: '0.62rem',
+                fontSize: '0.6rem',
                 fontWeight: 800,
                 padding: '2px 6px',
                 borderRadius: '3px',
@@ -832,13 +954,14 @@ export default function DashboardView({
               backgroundColor: '#070b14',
               border: '1px solid #1e293b',
               borderRadius: '6px',
-              padding: '0.55rem 0.8rem',
+              padding: '0.55rem 0.75rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: '0.8rem'
+              flexWrap: 'wrap',
+              gap: '0.6rem'
             }}>
-              <div>
+              <div style={{ minWidth: 0, flex: '1 1 200px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.2rem' }}>
                   <span style={{
                     fontSize: '0.58rem',
@@ -856,25 +979,21 @@ export default function DashboardView({
                 <div style={{ fontSize: '0.64rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
                   Expected Movement Heading
                 </div>
-                <div style={{ fontSize: '0.86rem', fontWeight: 800, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem' }}>
-                  <span style={{ color: '#fbbf24', fontSize: '1.1rem' }}>➔</span>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem' }}>
+                  <span style={{ color: '#fbbf24', fontSize: '1.05rem' }}>➔</span>
                   <span>Drifting Northeast ({forwardDrift?.net_drift_direction_deg || 54.3}°) towards Fairway Corridor</span>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.62rem', color: '#94a3b8', textTransform: 'uppercase' }}>Drift Speed</div>
-                <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fbbf24', fontFamily: 'monospace' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fbbf24', fontFamily: 'monospace' }}>
                   {forwardDrift?.net_drift_speed_kts || 1.68} kts
                 </div>
               </div>
             </div>
 
             {/* Core Metrics 4-Box Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '0.45rem'
-            }}>
+            <div className="fwd-metrics-grid-4">
               <div style={{ backgroundColor: '#070b14', border: '1px solid #1e293b', borderRadius: '4px', padding: '0.4rem 0.5rem' }}>
                 <div style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase' }}>Horizon</div>
                 <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.1rem' }}>
@@ -914,7 +1033,7 @@ export default function DashboardView({
               <div style={{ fontSize: '0.62rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.35rem' }}>
                 Predicted Future Positions (+1h, +3h, +6h)
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
+              <div className="fwd-milestones-grid-3">
                 {(forwardDrift?.milestones?.length ? forwardDrift.milestones : [
                   { label: '+1h', distance_km: 3.1, uncertainty_radius_km: 2.6, expected_time: '07:00 UTC' },
                   { label: '+3h', distance_km: 9.3, uncertainty_radius_km: 3.4, expected_time: '09:00 UTC' },
@@ -950,7 +1069,7 @@ export default function DashboardView({
               flexDirection: 'column',
               gap: '0.2rem'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.3rem' }}>
                 <span style={{ fontWeight: 700, color: '#cbd5e1' }}>Main Drivers:</span>
                 <span style={{ color: '#34d399' }}>
                   {forwardDrift?.environmental_drivers?.dominant_factor || 'Surface Current (71%) + Wind Leeway (29%)'}
@@ -966,6 +1085,8 @@ export default function DashboardView({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.4rem',
               backgroundColor: '#070b14',
               border: '1px solid #1e293b',
               borderRadius: '6px',
@@ -999,21 +1120,21 @@ export default function DashboardView({
             </div>
           </div>
 
-          {/* PANEL 6: CURRENT RESPONSE STATUS */}
+          {/* 8. PANEL: CURRENT RESPONSE STATUS & RECOMMENDED ACTIONS */}
           <div style={{
             backgroundColor: '#0e172a',
             border: isLeakConfirmed ? '1.5px solid #ef4444' : '1px solid #1e293b',
             borderRadius: '10px',
-            padding: '0.9rem 1.1rem',
+            padding: '0.85rem 1rem',
             boxShadow: isLeakConfirmed ? '0 0 20px rgba(239,68,68,0.2)' : 'none',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.65rem'
+            gap: '0.6rem'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <ShieldAlert size={16} color={isLeakConfirmed ? '#ef4444' : '#38bdf8'} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
                   CURRENT RESPONSE STATUS
                 </span>
               </div>
@@ -1022,7 +1143,7 @@ export default function DashboardView({
                 backgroundColor: isLeakConfirmed ? 'rgba(239, 68, 68, 0.2)' : 'rgba(56, 189, 248, 0.15)',
                 color: isLeakConfirmed ? '#fca5a5' : '#38bdf8',
                 border: `1px solid ${isLeakConfirmed ? '#ef4444' : '#38bdf8'}`,
-                fontSize: '0.64rem',
+                fontSize: '0.62rem',
                 fontWeight: 800,
                 padding: '2px 7px',
                 borderRadius: '3px',
@@ -1035,15 +1156,18 @@ export default function DashboardView({
             {isLeakConfirmed ? (
               /* Automatic 6-Milestone Post-Verification Response Chain */
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '0.4rem',
-                  backgroundColor: '#070b14',
-                  border: '1px solid #1e293b',
-                  borderRadius: '6px',
-                  padding: '0.55rem'
-                }}>
+                <div
+                  className="mobile-grid-1"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '0.4rem',
+                    backgroundColor: '#070b14',
+                    border: '1px solid #1e293b',
+                    borderRadius: '6px',
+                    padding: '0.55rem'
+                  }}
+                >
                   {[
                     { label: 'Source Verified', detail: 'VERIFIED LEAK (MT Ocean Pioneer)' },
                     { label: 'Forward Drift', detail: '+12h Hydrodynamic Forecast' },
@@ -1080,7 +1204,7 @@ export default function DashboardView({
                   ))}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
                   <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
                     🚨 8 route vessels automatically notified. Broadcast active via NAVTEX & VHF.
                   </span>
@@ -1106,16 +1230,20 @@ export default function DashboardView({
               </div>
             ) : (
               /* Pre-Confirmation Ready State */
-              <div style={{
-                backgroundColor: '#070b14',
-                border: '1px solid #1e293b',
-                borderRadius: '6px',
-                padding: '0.65rem 0.85rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <div>
+              <div
+                className="mobile-stack"
+                style={{
+                  backgroundColor: '#070b14',
+                  border: '1px solid #1e293b',
+                  borderRadius: '6px',
+                  padding: '0.65rem 0.8rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '0.65rem'
+                }}
+              >
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#f1f5f9' }}>
                     Top Candidate: {topCandidate?.vessel_name || 'MT Ocean Pioneer'} (Score: {topCandidate?.scores?.total_score || 87}/100)
                   </div>
@@ -1136,6 +1264,7 @@ export default function DashboardView({
                       onNavigateTab('investigation');
                     }
                   }}
+                  className="mobile-full-btn"
                   style={{
                     background: 'linear-gradient(135deg, #dc2626, #991b1b)',
                     color: '#ffffff',
@@ -1164,25 +1293,24 @@ export default function DashboardView({
             backgroundColor: '#0e172a',
             border: '1px solid #1e293b',
             borderRadius: '10px',
-            padding: '0.9rem 1.1rem',
-            flex: 1,
+            padding: '0.85rem 1rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.65rem'
+            gap: '0.6rem'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <ShieldCheck size={16} color="#38bdf8" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
                   TOP RECOMMENDED ACTIONS
                 </span>
               </div>
-              <span style={{ fontSize: '0.66rem', color: '#64748b' }}>
+              <span style={{ fontSize: '0.64rem', color: '#64748b' }}>
                 Conditional Decision Support
               </span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto', maxHeight: '280px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto', maxHeight: '240px' }}>
               {(recommendedActions || []).slice(0, 4).map((act) => {
                 const isCrit = act.priority === 'CRITICAL';
                 const isHigh = act.priority === 'HIGH';
@@ -1201,11 +1329,12 @@ export default function DashboardView({
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      gap: '0.6rem'
+                      flexWrap: 'wrap',
+                      gap: '0.55rem'
                     }}
                   >
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <div style={{ flex: '1 1 190px', minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                         <span style={{
                           backgroundColor: `${pColor}22`,
                           color: pColor,
@@ -1216,11 +1345,11 @@ export default function DashboardView({
                         }}>
                           {act.priority}
                         </span>
-                        <strong style={{ fontSize: '0.78rem', color: '#f1f5f9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <strong style={{ fontSize: '0.76rem', color: '#f1f5f9', wordBreak: 'break-word' }}>
                           {act.title}
                         </strong>
                       </div>
-                      <p style={{ fontSize: '0.68rem', color: '#94a3b8', margin: '0.15rem 0 0 0', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      <p style={{ fontSize: '0.68rem', color: '#94a3b8', margin: '0.15rem 0 0 0', lineHeight: 1.3 }}>
                         {act.rationale}
                       </p>
                     </div>
@@ -1262,6 +1391,56 @@ export default function DashboardView({
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* 9. INCIDENT TIMELINE SUMMARY */}
+          <div style={{
+            backgroundColor: '#0e172a',
+            border: '1px solid #1e293b',
+            borderRadius: '10px',
+            padding: '0.75rem 1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.45rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <Clock size={15} color="#38bdf8" />
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+                  INCIDENT COMMAND TIMELINE
+                </span>
+              </div>
+              <span style={{ fontSize: '0.62rem', color: '#64748b' }}>
+                {(timelineEvents || []).length || 4} Logged Events
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '140px', overflowY: 'auto' }}>
+              {(timelineEvents && timelineEvents.length > 0 ? timelineEvents.slice(0, 4) : [
+                { time: '06:00 UTC', title: 'SAR Anomaly Detected (Sentinel-1)', detail: `${spillData?.area_km2 || 14.85} km² slick segmented (${confidencePct}% confidence)` },
+                { time: '06:01 UTC', title: 'Backward Drift Origin Computed', detail: `Probable origin ±${originData?.origin_uncertainty_km || 3.5} km (01:45–03:15 UTC)` },
+                { time: '06:02 UTC', title: 'AIS Vessel Correlation Completed', detail: `Top candidate: ${topCandidate?.vessel_name?.replace(' - DEMO', '') || 'MT Ocean Pioneer'} (${topCandidate?.scores?.total_score || 87}/100)` }
+              ]).map((ev, idx) => (
+                <div key={idx} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  gap: '0.5rem',
+                  fontSize: '0.66rem',
+                  backgroundColor: '#070b14',
+                  border: '1px solid #14223f',
+                  borderRadius: '4px',
+                  padding: '0.32rem 0.55rem'
+                }}>
+                  <span style={{ color: '#cbd5e1', fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {ev.title || ev.event || ev.description}
+                  </span>
+                  <span style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.6rem', flexShrink: 0 }}>
+                    {ev.timestamp ? ev.timestamp.split('T')[1]?.slice(0, 5) + ' UTC' : (ev.time || '06:00 UTC')}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

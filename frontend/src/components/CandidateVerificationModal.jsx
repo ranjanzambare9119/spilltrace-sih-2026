@@ -24,7 +24,7 @@ export default function CandidateVerificationModal({
   };
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: 'fixed',
       inset: 0,
       zIndex: 4000,
@@ -35,14 +35,15 @@ export default function CandidateVerificationModal({
       justifyContent: 'center',
       padding: '1rem'
     }}>
-      <div style={{
+      <div className="modal-card" style={{
         backgroundColor: '#0e172a',
         border: '1px solid #38bdf8',
         borderRadius: '10px',
         width: '580px',
         maxWidth: '95vw',
-        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.9), 0 0 24px rgba(56, 189, 248, 0.25)',
-        overflow: 'hidden'
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.9), 0 0 24px rgba(56, 189, 248, 0.25)'
       }}>
         {/* Header */}
         <div style={{
@@ -272,7 +273,7 @@ export default function CandidateVerificationModal({
         </div>
 
         {/* Footer Buttons */}
-        <div style={{
+        <div className="modal-footer-btns" style={{
           backgroundColor: '#0a1120',
           borderTop: '1px solid #1e293b',
           padding: '0.85rem 1.25rem',

@@ -35,18 +35,28 @@ export default function OriginAnalysisView({
   };
 
   return (
-    <div style={{ padding: '1.2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 'calc(100vh - 120px)' }}>
+    <div
+      className="page-container"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        minHeight: 'calc(100vh - 120px)'
+      }}
+    >
       {/* Top Action Header */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '0.8rem',
         backgroundColor: '#0e172a',
         border: '1px solid #1e293b',
         borderRadius: '8px',
-        padding: '0.8rem 1.2rem'
+        padding: '0.8rem 1.1rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 240px' }}>
           <div style={{
             background: 'rgba(245, 158, 11, 0.15)',
             border: '1px solid rgba(245, 158, 11, 0.3)',
@@ -54,32 +64,34 @@ export default function OriginAnalysisView({
             padding: '0.4rem',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}>
             <Compass size={22} color="#f59e0b" />
           </div>
-          <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f1f5f9' }}>
+          <div style={{ minWidth: 0 }}>
+            <h2 className="heading-lg" style={{ fontWeight: 800, color: '#f1f5f9', margin: 0 }}>
               Origin Analysis
             </h2>
-            <p style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+            <p style={{ fontSize: '0.74rem', color: '#94a3b8', margin: '0.1rem 0 0 0' }}>
               Backward leeway drift simulation to determine probable origin region
             </p>
           </div>
         </div>
 
         {/* Primary Action Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', maxWidth: '100%' }}>
           <button
             onClick={handleEstimateClick}
             disabled={isEstimating}
+            className="mobile-full-btn"
             style={{
               background: isEstimating ? '#1e293b' : 'linear-gradient(135deg, #d97706, #b45309)',
               color: '#ffffff',
               border: '1px solid #fbbf24',
               borderRadius: '6px',
-              padding: '0.6rem 1.4rem',
-              fontSize: '0.85rem',
+              padding: '0.55rem 1.2rem',
+              fontSize: '0.82rem',
               fontWeight: 800,
               cursor: isEstimating ? 'not-allowed' : 'pointer',
               display: 'flex',
@@ -106,10 +118,10 @@ export default function OriginAnalysisView({
           {originData && (
             <button
               onClick={onProceedToVessels}
-              className="btn-primary"
+              className="btn-primary mobile-full-btn"
               style={{
-                padding: '0.6rem 1.1rem',
-                fontSize: '0.82rem'
+                padding: '0.55rem 1rem',
+                fontSize: '0.8rem'
               }}
             >
               <span>Next: Correlate Vessels</span>
@@ -125,29 +137,30 @@ export default function OriginAnalysisView({
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
           border: '1px solid rgba(16, 185, 129, 0.3)',
           borderRadius: '6px',
-          padding: '0.5rem 1rem',
+          padding: '0.5rem 0.9rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          fontSize: '0.78rem',
+          flexWrap: 'wrap',
+          gap: '0.4rem',
+          fontSize: '0.76rem',
           color: '#6ee7b7'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CheckCircle2 size={16} color="#10b981" />
+            <CheckCircle2 size={16} color="#10b981" style={{ flexShrink: 0 }} />
             <span>
               <strong>Estimated Origin Region Calculated:</strong> Reconstructed ~{originData.total_drift_distance_km} km backward drift path from detected slick.
             </span>
           </div>
-          <span style={{ fontFamily: 'monospace', color: '#f1f5f9' }}>
+          <span style={{ fontFamily: 'monospace', color: '#f1f5f9', fontSize: '0.72rem' }}>
             Release Window: {originData.release_window_start?.split('T')[1]?.slice(0, 5)} - {originData.release_window_end?.split('T')[1]?.slice(0, 5)} UTC
           </span>
         </div>
       )}
 
-      {/* Large Map Focus (65-70% height) */}
+      {/* Large Map Focus */}
       <div style={{
         flex: 1,
-        minHeight: '480px',
         backgroundColor: '#0a101d',
         border: '1px solid #1e293b',
         borderRadius: '8px',
@@ -166,20 +179,24 @@ export default function OriginAnalysisView({
             backgroundColor: 'rgba(10, 16, 29, 0.92)',
             border: '1px solid #1e293b',
             borderRadius: '6px',
-            padding: '0.6rem 1.2rem',
+            padding: '0.55rem 0.9rem',
             display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
             alignItems: 'center',
-            gap: '0.8rem',
+            gap: '0.6rem',
+            width: 'max-content',
+            maxWidth: 'calc(100% - 24px)',
             boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
           }}>
-            <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+            <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
               No active incident. Run Satellite Analysis or load demo scenario.
             </span>
             {onLoadDemo && (
               <button
                 onClick={onLoadDemo}
                 className="btn-primary"
-                style={{ padding: '0.35rem 0.8rem', fontSize: '0.74rem', fontWeight: 800 }}
+                style={{ padding: '0.35rem 0.8rem', fontSize: '0.72rem', fontWeight: 800 }}
               >
                 LOAD DEMO SCENARIO
               </button>

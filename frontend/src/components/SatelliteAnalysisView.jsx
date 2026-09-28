@@ -46,13 +46,15 @@ export default function SatelliteAnalysisView({
   const relHeight = ((bbox.ymax - bbox.ymin) / imgH) * 100;
 
   return (
-    <div style={{
-      padding: '1.2rem 1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-      minHeight: 'calc(100vh - 120px)'
-    }}>
+    <div
+      className="page-container"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        minHeight: 'calc(100vh - 120px)'
+      }}
+    >
       {/* Top Bar: Title, Badges, Scene Selector, and Actions */}
       <div style={{
         display: 'flex',
@@ -61,12 +63,12 @@ export default function SatelliteAnalysisView({
         backgroundColor: '#0e172a',
         border: '1px solid #1e293b',
         borderRadius: '8px',
-        padding: '0.8rem 1.2rem',
+        padding: '0.8rem 1.1rem',
         flexWrap: 'wrap',
         gap: '0.8rem'
       }}>
         {/* Left: Icon, Title, and Verification Badges */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 260px' }}>
           <div style={{
             background: isHero ? 'rgba(56, 189, 248, 0.15)' : (isReal ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)'),
             border: isHero ? '1px solid rgba(56, 189, 248, 0.4)' : (isReal ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(148, 163, 184, 0.4)'),
@@ -74,14 +76,15 @@ export default function SatelliteAnalysisView({
             padding: '0.45rem',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}>
             <Droplets size={22} color={isHero ? '#38bdf8' : (isReal ? '#10b981' : '#cbd5e1')} />
           </div>
 
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f1f5f9' }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <h2 className="heading-lg" style={{ fontWeight: 800, color: '#f1f5f9', margin: 0 }}>
                 Satellite Analysis
               </h2>
 
@@ -91,9 +94,9 @@ export default function SatelliteAnalysisView({
                   backgroundColor: 'rgba(56, 189, 248, 0.15)',
                   border: '1px solid #38bdf8',
                   color: '#38bdf8',
-                  fontSize: '0.72rem',
+                  fontSize: '0.66rem',
                   fontWeight: 800,
-                  padding: '0.2rem 0.6rem',
+                  padding: '0.18rem 0.5rem',
                   borderRadius: '4px',
                   letterSpacing: '0.04em',
                   display: 'flex',
@@ -108,9 +111,9 @@ export default function SatelliteAnalysisView({
                   backgroundColor: 'rgba(16, 185, 129, 0.15)',
                   border: '1px solid #10b981',
                   color: '#6ee7b7',
-                  fontSize: '0.72rem',
+                  fontSize: '0.66rem',
                   fontWeight: 800,
-                  padding: '0.2rem 0.6rem',
+                  padding: '0.18rem 0.5rem',
                   borderRadius: '4px',
                   letterSpacing: '0.04em',
                   display: 'flex',
@@ -131,16 +134,16 @@ export default function SatelliteAnalysisView({
                 backgroundColor: '#1e293b',
                 color: '#cbd5e1',
                 border: '1px solid #334155',
-                fontSize: '0.72rem',
+                fontSize: '0.66rem',
                 fontWeight: 700,
-                padding: '0.2rem 0.55rem',
+                padding: '0.18rem 0.5rem',
                 borderRadius: '4px'
               }}>
                 {isReal ? 'Prototype Detection / Annotated Region' : 'Prototype Segmentation'}
               </span>
             </div>
 
-            <div style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: '0.15rem' }}>
+            <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.15rem' }}>
               {isHero 
                 ? 'Synthetic SAR-like demonstration scene • Simulated radar backscatter' 
                 : (isReal ? 'ESA Sentinel-1 IW C-SAR Scene (Mumbai Approach)' : 'Calibrated Benchmark SAR Scene')}
@@ -149,10 +152,10 @@ export default function SatelliteAnalysisView({
         </div>
 
         {/* Center/Right: Dataset Selector & Primary Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', maxWidth: '100%' }}>
           {/* Dataset Selector (Priority Order: demo_sar_oil.png -> real_spill.jpg -> sample_spill.png) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>Scene:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', maxWidth: '100%' }}>
+            <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>Scene:</span>
             <select
               value={selectedImage}
               onChange={(e) => {
@@ -164,10 +167,11 @@ export default function SatelliteAnalysisView({
                 color: '#f1f5f9',
                 border: '1px solid #334155',
                 borderRadius: '6px',
-                padding: '0.4rem 0.7rem',
-                fontSize: '0.76rem',
+                padding: '0.38rem 0.6rem',
+                fontSize: '0.74rem',
                 fontWeight: 600,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                maxWidth: '100%'
               }}
             >
               <option value="demo_sar_oil.png">
@@ -183,8 +187,8 @@ export default function SatelliteAnalysisView({
           </div>
 
           {/* Intelligence Scenario Archetype Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>Archetype:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', maxWidth: '100%' }}>
+            <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>Archetype:</span>
             <select
               value={selectedScenario}
               onChange={(e) => {
@@ -199,10 +203,11 @@ export default function SatelliteAnalysisView({
                 color: '#38bdf8',
                 border: '1px solid #0284c7',
                 borderRadius: '6px',
-                padding: '0.4rem 0.7rem',
-                fontSize: '0.76rem',
+                padding: '0.38rem 0.6rem',
+                fontSize: '0.74rem',
                 fontWeight: 700,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                maxWidth: '100%'
               }}
             >
               <option value="default">Default Scene Detector</option>
@@ -217,10 +222,10 @@ export default function SatelliteAnalysisView({
           <button
             onClick={() => onAnalyzeImage()}
             disabled={isAnalyzing}
-            className="btn-primary"
+            className="btn-primary mobile-full-btn"
             style={{
-              padding: '0.55rem 1.2rem',
-              fontSize: '0.82rem',
+              padding: '0.5rem 1rem',
+              fontSize: '0.78rem',
               fontWeight: 800,
               background: isHero ? 'linear-gradient(135deg, #0284c7, #0369a1)' : (isReal ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #0284c7, #0369a1)'),
               borderColor: isHero ? '#38bdf8' : (isReal ? '#10b981' : '#38bdf8')
@@ -242,13 +247,14 @@ export default function SatelliteAnalysisView({
           {spillData && (
             <button
               onClick={onProceedToOrigin}
+              className="mobile-full-btn"
               style={{
-                padding: '0.55rem 1rem',
+                padding: '0.5rem 0.9rem',
                 backgroundColor: '#1e293b',
                 color: '#ffffff',
                 border: '1px solid #334155',
                 borderRadius: '6px',
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -384,19 +390,21 @@ export default function SatelliteAnalysisView({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
           backgroundColor: '#0a1120',
-          padding: '0.5rem 1rem',
+          padding: '0.5rem 0.9rem',
           borderBottom: '1px solid #1e293b'
         }}>
           {/* View Toggles */}
-          <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
             <button
               onClick={() => setViewMode('annotated')}
               style={{
-                padding: '0.3rem 0.75rem',
+                padding: '0.3rem 0.65rem',
                 borderRadius: '4px',
                 border: '0',
-                fontSize: '0.74rem',
+                fontSize: '0.72rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 backgroundColor: viewMode === 'annotated' ? '#0284c7' : '#1e293b',
@@ -411,10 +419,10 @@ export default function SatelliteAnalysisView({
             <button
               onClick={() => setViewMode('raw')}
               style={{
-                padding: '0.3rem 0.75rem',
+                padding: '0.3rem 0.65rem',
                 borderRadius: '4px',
                 border: '0',
-                fontSize: '0.74rem',
+                fontSize: '0.72rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 backgroundColor: viewMode === 'raw' ? '#0284c7' : '#1e293b',
@@ -426,10 +434,10 @@ export default function SatelliteAnalysisView({
             <button
               onClick={() => setViewMode('mask')}
               style={{
-                padding: '0.3rem 0.75rem',
+                padding: '0.3rem 0.65rem',
                 borderRadius: '4px',
                 border: '0',
-                fontSize: '0.74rem',
+                fontSize: '0.72rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 backgroundColor: viewMode === 'mask' ? '#0284c7' : '#1e293b',
@@ -441,7 +449,7 @@ export default function SatelliteAnalysisView({
           </div>
 
           {/* Right Controls: Loupe toggle and opacity slider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             {viewMode === 'annotated' && (
               <label style={{
                 display: 'flex',
@@ -461,9 +469,9 @@ export default function SatelliteAnalysisView({
             )}
 
             {viewMode === 'annotated' && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <Sliders size={14} color="#94a3b8" />
-                <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Overlay:</span>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Overlay:</span>
                 <input
                   type="range"
                   min="0.1"
@@ -471,9 +479,9 @@ export default function SatelliteAnalysisView({
                   step="0.05"
                   value={maskOpacity}
                   onChange={e => setMaskOpacity(parseFloat(e.target.value))}
-                  style={{ width: '80px', accentColor: '#38bdf8' }}
+                  style={{ width: '75px', accentColor: '#38bdf8' }}
                 />
-                <span style={{ fontSize: '0.72rem', fontFamily: 'monospace', color: '#38bdf8', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', color: '#38bdf8', fontWeight: 700 }}>
                   {Math.round(maskOpacity * 100)}%
                 </span>
               </div>
@@ -484,22 +492,21 @@ export default function SatelliteAnalysisView({
         {/* Large Visual Image Canvas */}
         <div style={{
           flex: 1,
-          minHeight: '440px',
+          minHeight: '320px',
           backgroundColor: '#070b14',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          padding: '1rem',
+          padding: '0.85rem',
           overflow: 'hidden'
         }}>
-          {/* Main Visual Frame (Fixed Aspect Ratio 1:1) */}
+          {/* Main Visual Frame (True Responsive 1:1 Aspect Ratio) */}
           <div style={{
             position: 'relative',
-            width: '540px',
-            height: '540px',
-            maxWidth: '92vw',
-            maxHeight: '66vh',
+            width: '100%',
+            maxWidth: '540px',
+            aspectRatio: '1 / 1',
             borderRadius: '6px',
             overflow: 'hidden',
             border: '1px solid #1e293b',
@@ -587,8 +594,8 @@ export default function SatelliteAnalysisView({
                     backgroundColor: 'rgba(10, 17, 32, 0.94)',
                     border: '1px solid #00f0ff',
                     borderRadius: '4px',
-                    padding: '2px 8px',
-                    fontSize: '10px',
+                    padding: '2px 6px',
+                    fontSize: '9px',
                     fontWeight: 800,
                     color: '#00f0ff',
                     whiteSpace: 'nowrap',
@@ -598,7 +605,7 @@ export default function SatelliteAnalysisView({
                     gap: '4px'
                   }}>
                     <span>🛢️</span>
-                    <span>PROBABLE SLICK REGION [Prototype Segmentation]</span>
+                    <span>PROBABLE SLICK [Prototype]</span>
                   </div>
                 </div>
               </>
@@ -837,11 +844,7 @@ export default function SatelliteAnalysisView({
       )}
 
       {/* Requirement 3: Clean 4-Metric Summary (Area/Volume, Detection Score, Location & Coast, Detection Mode) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '0.8rem'
-      }}>
+      <div className="kpi-grid-4">
         {/* Estimated Area / Volume */}
         <div style={{
           backgroundColor: '#0e172a',

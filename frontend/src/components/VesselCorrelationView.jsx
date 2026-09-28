@@ -28,18 +28,28 @@ export default function VesselCorrelationView({
   const candidates = candidateVessels || [];
 
   return (
-    <div style={{ padding: '1.2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 'calc(100vh - 120px)' }}>
+    <div
+      className="page-container"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        minHeight: 'calc(100vh - 120px)'
+      }}
+    >
       {/* Top Bar */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '0.8rem',
         backgroundColor: '#0e172a',
         border: '1px solid #1e293b',
         borderRadius: '8px',
-        padding: '0.8rem 1.2rem'
+        padding: '0.8rem 1.1rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 240px' }}>
           <div style={{
             background: 'rgba(56, 189, 248, 0.15)',
             border: '1px solid rgba(56, 189, 248, 0.3)',
@@ -47,29 +57,30 @@ export default function VesselCorrelationView({
             padding: '0.4rem',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}>
             <Ship size={22} color="#38bdf8" />
           </div>
-          <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f1f5f9' }}>
+          <div style={{ minWidth: 0 }}>
+            <h2 className="heading-lg" style={{ fontWeight: 800, color: '#f1f5f9', margin: 0 }}>
               Vessel Correlation
             </h2>
-            <p style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+            <p style={{ fontSize: '0.74rem', color: '#94a3b8', margin: '0.1rem 0 0 0' }}>
               Correlating AIS vessel tracks against estimated origin region and release timing
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', maxWidth: '100%' }}>
           <button
             onClick={() => onCorrelateVessels(100.0)}
             disabled={isCorrelating}
-            className="btn-primary"
+            className="btn-primary mobile-full-btn"
             style={{
-              padding: '0.6rem 1.3rem',
-              fontSize: '0.85rem',
+              padding: '0.55rem 1.15rem',
+              fontSize: '0.82rem',
               fontWeight: 800
             }}
           >
@@ -89,13 +100,14 @@ export default function VesselCorrelationView({
           {candidates.length > 0 && (
             <button
               onClick={onProceedToInvestigation}
+              className="mobile-full-btn"
               style={{
-                padding: '0.6rem 1.1rem',
+                padding: '0.55rem 1rem',
                 backgroundColor: '#1e293b',
                 color: '#ffffff',
                 border: '1px solid #334155',
                 borderRadius: '6px',
-                fontSize: '0.82rem',
+                fontSize: '0.8rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -111,7 +123,7 @@ export default function VesselCorrelationView({
       </div>
 
       {/* Main Grid: Left Clean Vessel List / Right Map */}
-      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '1rem', flex: 1 }}>
+      <div className="correlation-grid" style={{ flex: 1 }}>
         {/* Left Column: Clean, Minimal Vessel List (Rank, Vessel, Type, Score) */}
         <div style={{
           backgroundColor: '#0e172a',
@@ -120,7 +132,8 @@ export default function VesselCorrelationView({
           padding: '1rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.7rem'
+          gap: '0.7rem',
+          minWidth: 0
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>

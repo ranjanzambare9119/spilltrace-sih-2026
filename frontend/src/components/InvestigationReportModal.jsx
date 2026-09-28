@@ -28,7 +28,7 @@ export default function InvestigationReportModal({ spillData, originData, candid
   };
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -42,7 +42,7 @@ export default function InvestigationReportModal({ spillData, originData, candid
       zIndex: 2000,
       padding: '1rem'
     }}>
-      <div style={{
+      <div className="modal-card" style={{
         backgroundColor: '#0e172a',
         border: '1px solid #334155',
         borderRadius: '10px',
@@ -56,15 +56,17 @@ export default function InvestigationReportModal({ spillData, originData, candid
       }}>
         {/* Header */}
         <div style={{
-          padding: '1rem 1.4rem',
+          padding: '0.9rem 1.2rem',
           borderBottom: '1px solid #1e293b',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '0.6rem',
           backgroundColor: '#0a1120'
         }}>
           <div>
-            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f1f5f9' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f1f5f9' }}>
               Maritime Incident Attribution Briefing (Dossier)
             </div>
             <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
@@ -72,7 +74,7 @@ export default function InvestigationReportModal({ spillData, originData, candid
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button
               onClick={handlePrint}
               style={{
@@ -125,19 +127,19 @@ export default function InvestigationReportModal({ spillData, originData, candid
         </div>
 
         {/* Printable Document Body */}
-        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem', color: '#cbd5e1' }}>
+        <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', gap: '1.2rem', color: '#cbd5e1' }}>
           {/* Official Document Banner */}
           <div style={{
             border: '1px solid #38bdf8',
             backgroundColor: 'rgba(56, 189, 248, 0.06)',
             borderRadius: '6px',
-            padding: '1rem',
+            padding: '0.9rem',
             textAlign: 'center'
           }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f1f5f9' }}>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#f1f5f9' }}>
               SPILLTRACE MARITIME INCIDENT ATTRIBUTION REPORT
             </h2>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.2rem' }}>
+            <p style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.2rem' }}>
               AI-ASSISTED SATELLITE DETECTION &amp; AIS SPATIO-TEMPORAL CORRELATION
             </p>
           </div>
@@ -147,7 +149,7 @@ export default function InvestigationReportModal({ spillData, originData, candid
             <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f1f5f9', borderBottom: '1px solid #1e293b', paddingBottom: '0.4rem', marginBottom: '0.6rem' }}>
               1. SATELLITE SPILL DETECTION SUMMARY
             </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', fontSize: '0.78rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', fontSize: '0.76rem' }}>
               <div>Spill Identifier: <strong className="font-mono">{spillData?.spill_id}</strong></div>
               <div>Classification: <strong style={{ color: '#ef4444' }}>{spillData?.classification}</strong></div>
               <div>Sensor: <strong>{spillData?.sensor}</strong></div>
@@ -164,7 +166,7 @@ export default function InvestigationReportModal({ spillData, originData, candid
             <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f1f5f9', borderBottom: '1px solid #1e293b', paddingBottom: '0.4rem', marginBottom: '0.6rem' }}>
               2. HYDRODYNAMIC BACKWARD DRIFT &amp; PROBABLE ORIGIN
             </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', fontSize: '0.78rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', fontSize: '0.76rem' }}>
               <div>Surface Current: <strong>1.2 kts @ 50.0°</strong></div>
               <div>Surface Wind: <strong>14.0 kts @ 65.0°</strong></div>
               <div>Net Surface Drift: <strong>{originData?.net_drift_speed_kts} kts @ {originData?.net_drift_direction_deg}°</strong></div>
@@ -181,34 +183,36 @@ export default function InvestigationReportModal({ spillData, originData, candid
             <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f1f5f9', borderBottom: '1px solid #1e293b', paddingBottom: '0.4rem', marginBottom: '0.6rem' }}>
               3. CANDIDATE VESSEL ATTRIBUTION RANKING
             </h4>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#070b14', color: '#94a3b8', borderBottom: '1px solid #1e293b' }}>
-                  <th style={{ padding: '0.5rem' }}>Rank</th>
-                  <th style={{ padding: '0.5rem' }}>Vessel Name</th>
-                  <th style={{ padding: '0.5rem' }}>MMSI</th>
-                  <th style={{ padding: '0.5rem' }}>Type</th>
-                  <th style={{ padding: '0.5rem' }}>CPA Distance</th>
-                  <th style={{ padding: '0.5rem' }}>CPA Time</th>
-                  <th style={{ padding: '0.5rem' }}>Score (/100)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {candidateVessels?.map(c => (
-                  <tr key={c.mmsi} style={{ borderBottom: '1px solid #14223f' }}>
-                    <td style={{ padding: '0.5rem', fontWeight: 700 }}>#{c.rank}</td>
-                    <td style={{ padding: '0.5rem', fontWeight: 600, color: c.rank === 1 ? '#38bdf8' : '#e2e8f0' }}>{c.vessel_name}</td>
-                    <td style={{ padding: '0.5rem', fontFamily: 'monospace' }}>{c.mmsi}</td>
-                    <td style={{ padding: '0.5rem' }}>{c.vessel_type}</td>
-                    <td style={{ padding: '0.5rem' }}>{c.cpa_distance_km} km</td>
-                    <td style={{ padding: '0.5rem' }}>{c.cpa_time?.split('T')[1]?.slice(0, 5)} UTC</td>
-                    <td style={{ padding: '0.5rem', fontWeight: 800, color: c.rank === 1 ? '#38bdf8' : '#fbbf24' }}>
-                      {c.scores?.total_score}
-                    </td>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem', textAlign: 'left', minWidth: '480px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#070b14', color: '#94a3b8', borderBottom: '1px solid #1e293b' }}>
+                    <th style={{ padding: '0.5rem' }}>Rank</th>
+                    <th style={{ padding: '0.5rem' }}>Vessel Name</th>
+                    <th style={{ padding: '0.5rem' }}>MMSI</th>
+                    <th style={{ padding: '0.5rem' }}>Type</th>
+                    <th style={{ padding: '0.5rem' }}>CPA Distance</th>
+                    <th style={{ padding: '0.5rem' }}>CPA Time</th>
+                    <th style={{ padding: '0.5rem' }}>Score (/100)</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {candidateVessels?.map(c => (
+                    <tr key={c.mmsi} style={{ borderBottom: '1px solid #14223f' }}>
+                      <td style={{ padding: '0.5rem', fontWeight: 700 }}>#{c.rank}</td>
+                      <td style={{ padding: '0.5rem', fontWeight: 600, color: c.rank === 1 ? '#38bdf8' : '#e2e8f0' }}>{c.vessel_name}</td>
+                      <td style={{ padding: '0.5rem', fontFamily: 'monospace' }}>{c.mmsi}</td>
+                      <td style={{ padding: '0.5rem' }}>{c.vessel_type}</td>
+                      <td style={{ padding: '0.5rem' }}>{c.cpa_distance_km} km</td>
+                      <td style={{ padding: '0.5rem' }}>{c.cpa_time?.split('T')[1]?.slice(0, 5)} UTC</td>
+                      <td style={{ padding: '0.5rem', fontWeight: 800, color: c.rank === 1 ? '#38bdf8' : '#fbbf24' }}>
+                        {c.scores?.total_score}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Section 4: Lead Candidate Justification */}
